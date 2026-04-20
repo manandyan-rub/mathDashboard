@@ -7,6 +7,7 @@ use App\Http\Requests\GenerateTeacherExercisesRequest;
 use App\Http\Requests\PublishTeacherExerciseRequest;
 use App\Http\Requests\RegenerateTeacherExerciseItemRequest;
 use App\Http\Requests\SaveTeacherExerciseDraftRequest;
+use App\Http\Requests\UploadTeacherExerciseImageRequest;
 use App\Jobs\GenerateTeacherExercisesJob;
 use App\Models\ExerciseDocument;
 use App\Models\ExerciseGenerationLog;
@@ -16,6 +17,7 @@ use Throwable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TeacherExerciseStudioController extends Controller
 {
@@ -175,6 +177,21 @@ class TeacherExerciseStudioController extends Controller
             'document' => $this->serializeDocument($document->fresh('items')),
             'message' => __('Document published successfully.'),
         ]);
+    }
+
+    public function uploadImage(UploadTeacherExerciseImageRequest $request): JsonResponse
+    {
+        $userId = (int) optional($request->user())->id;
+        $file = $request->file('image');
+
+        $directory = 'teacher-exercises/' . max(1, $userId) . '/images';
+        $path = $file->store($directory, 'public');
+
+        return response()->json([
+            'url' => Storage::disk('public')->url($path),
+            'path' => $path,
+            'name' => $file->getClientOriginalName(),
+        ], 201);
     }
 
     public function pdf(Request $request)

@@ -72,6 +72,7 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::post('teacher/exercises/generate', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'generate']);
     Route::get('teacher/exercises/generations/{generationLog}', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'generationStatus']);
     Route::post('teacher/exercises/regenerate-item', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'regenerateItem']);
+    Route::post('teacher/exercises/images', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'uploadImage']);
     Route::post('teacher/exercises/save-draft', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'saveDraft']);
     Route::post('teacher/exercises/publish', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'publish']);
     Route::post('teacher/exercises/pdf', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'pdf']);

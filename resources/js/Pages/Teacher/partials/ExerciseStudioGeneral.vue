@@ -8,14 +8,21 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
-import { Mark, Node, mergeAttributes } from "@tiptap/core";
+import Underline from "@tiptap/extension-underline";
+import { Extension, Mark, Node, mergeAttributes } from "@tiptap/core";
 import "mathlive";
 import { MathfieldElement } from "mathlive";
 import {
   Download,
+  ImagePlus,
+  IndentDecrease,
+  IndentIncrease,
   Loader2,
+  Redo2,
   RefreshCw,
   Sparkles,
+  Underline as UnderlineIcon,
+  Undo2,
   WandSparkles,
 } from "lucide-vue-next";
 
@@ -81,6 +88,211 @@ type DrawnGeometryShape = {
   stroke: string;
   strokeWidth: number;
 };
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    blockFormatting: {
+      indent: () => ReturnType;
+      outdent: () => ReturnType;
+      setLineHeight: (lineHeight: string) => ReturnType;
+      unsetLineHeight: () => ReturnType;
+    };
+    imageBlock: {
+      setImage: (options: { src: string; alt?: string; title?: string }) => ReturnType;
+    };
+  }
+}
+
+const EDITOR_INDENT_STEP = 2;
+const EDITOR_MAX_INDENT = 12;
+const LINE_HEIGHT_VALUES = ["1", "1.2", "1.5", "2"] as const;
+type LineHeightValue = (typeof LINE_HEIGHT_VALUES)[number];
+
+function parseIndentFromStyle(styleValue: string | null | undefined): number {
+  if (!styleValue) return 0;
+
+  const match = styleValue.match(/margin-left\s*:\s*([0-9.]+)\s*(em|px)/i);
+  if (!match) return 0;
+
+  const amount = Number(match[1] ?? 0);
+  const unit = String(match[2] ?? "em").toLowerCase();
+  if (!Number.isFinite(amount) || amount <= 0) return 0;
+
+  const emValue = unit === "px" ? amount / 16 : amount;
+  const indent = Math.round(emValue / EDITOR_INDENT_STEP);
+  return Math.max(0, Math.min(EDITOR_MAX_INDENT, indent));
+}
+
+function parseIndentValue(value: unknown): number {
+  const parsed = Number(value ?? 0);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+  return Math.max(0, Math.min(EDITOR_MAX_INDENT, Math.round(parsed)));
+}
+
+function normalizeLineHeight(value: unknown): string | null {
+  const normalized = String(value ?? "").trim();
+  if (!normalized) return null;
+  return LINE_HEIGHT_VALUES.includes(normalized as LineHeightValue)
+    ? normalized
+    : null;
+}
+
+function updateBlockAttributes(
+  props: { state: any; dispatch?: ((tr: any) => void) | undefined },
+  types: string[],
+  updater: (attrs: Record<string, unknown>) => Record<string, unknown>,
+): boolean {
+  const { state, dispatch } = props;
+  let tr = state.tr;
+  let changed = false;
+  const { from, to } = state.selection;
+
+  state.doc.nodesBetween(from, to, (node: any, pos: number) => {
+    if (!types.includes(node.type.name)) return;
+
+    const currentAttrs = { ...(node.attrs ?? {}) };
+    const nextAttrs = updater(currentAttrs);
+    if (JSON.stringify(currentAttrs) === JSON.stringify(nextAttrs)) return;
+
+    tr = tr.setNodeMarkup(pos, undefined, nextAttrs);
+    changed = true;
+  });
+
+  if (changed && dispatch) {
+    dispatch(tr);
+  }
+
+  return changed;
+}
+
+const ImageBlockNode = Node.create({
+  name: "image",
+  group: "block",
+  draggable: true,
+  selectable: true,
+  atom: true,
+  addAttributes() {
+    return {
+      src: { default: null },
+      alt: { default: null },
+      title: { default: null },
+    };
+  },
+  parseHTML() {
+    return [{ tag: "img[src]:not([data-geometry-drawing])" }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "img",
+      mergeAttributes(HTMLAttributes, {
+        style:
+          "max-width:100%;height:auto;border-radius:10px;margin:8px 0;border:1px solid rgba(148,163,184,.35);",
+      }),
+    ];
+  },
+  addCommands() {
+    return {
+      setImage:
+        (options) =>
+        ({ commands }) =>
+          commands.insertContent({
+            type: this.name,
+            attrs: options,
+          }),
+    };
+  },
+});
+
+const BlockFormattingExtension = Extension.create({
+  name: "blockFormatting",
+  addOptions() {
+    return {
+      types: ["paragraph", "heading"],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          indent: {
+            default: null,
+            parseHTML: (element: HTMLElement) => {
+              const fromData = parseIndentValue(element.getAttribute("data-indent"));
+              if (fromData > 0) return fromData;
+              return parseIndentFromStyle(element.getAttribute("style"));
+            },
+            renderHTML: (attributes: Record<string, unknown>) => {
+              const indent = parseIndentValue(attributes.indent);
+              if (indent <= 0) return {};
+              return { "data-indent": String(indent) };
+            },
+          },
+          lineHeight: {
+            default: null,
+            parseHTML: (element: HTMLElement) => {
+              const fromData = normalizeLineHeight(element.getAttribute("data-line-height"));
+              if (fromData) return fromData;
+              return normalizeLineHeight(element.style.lineHeight || null);
+            },
+            renderHTML: (attributes: Record<string, unknown>) => {
+              const lineHeight = normalizeLineHeight(attributes.lineHeight);
+              if (!lineHeight) return {};
+              return { "data-line-height": lineHeight };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      indent:
+        () =>
+        ({ state, dispatch }) =>
+          updateBlockAttributes(
+            { state, dispatch },
+            this.options.types,
+            (attrs) => {
+              const current = parseIndentValue(attrs.indent);
+              const next = Math.min(EDITOR_MAX_INDENT, current + 1);
+              return { ...attrs, indent: next > 0 ? next : null };
+            },
+          ),
+      outdent:
+        () =>
+        ({ state, dispatch }) =>
+          updateBlockAttributes(
+            { state, dispatch },
+            this.options.types,
+            (attrs) => {
+              const current = parseIndentValue(attrs.indent);
+              const next = Math.max(0, current - 1);
+              return { ...attrs, indent: next > 0 ? next : null };
+            },
+          ),
+      setLineHeight:
+        (lineHeight: string) =>
+        ({ state, dispatch }) => {
+          const normalized = normalizeLineHeight(lineHeight);
+          if (!normalized) return false;
+          return updateBlockAttributes(
+            { state, dispatch },
+            this.options.types,
+            (attrs) => ({ ...attrs, lineHeight: normalized }),
+          );
+        },
+      unsetLineHeight:
+        () =>
+        ({ state, dispatch }) =>
+          updateBlockAttributes(
+            { state, dispatch },
+            this.options.types,
+            (attrs) => ({ ...attrs, lineHeight: null }),
+          ),
+    };
+  },
+});
 
 const GeometryDrawingNode = Node.create({
   name: "geometryDrawing",
@@ -202,8 +414,12 @@ const showCorrectAnswers = ref(true);
 const selectedGeometryKey = ref("square");
 const selectedFontFamily = ref("default");
 const selectedFontSize = ref("16px");
+const selectedLineHeight = ref<LineHeightValue | "default">("default");
 const formulaInput = ref("\\int_0^1 x^2\\,dx");
 const formulaFieldRef = ref<MathfieldLike | null>(null);
+const imageInputRef = ref<HTMLInputElement | null>(null);
+const showMathPanel = ref(false);
+const showCanvasPanel = ref(false);
 
 const fontFamilyOptions = [
   { value: "default", label: "Default" },
@@ -222,6 +438,13 @@ const fontSizeOptions = [
   { value: "24px", label: "24" },
   { value: "28px", label: "28" },
   { value: "32px", label: "32" },
+];
+
+const lineHeightOptions: Array<{ value: LineHeightValue; label: string }> = [
+  { value: "1", label: "1.0" },
+  { value: "1.2", label: "1.2" },
+  { value: "1.5", label: "1.5" },
+  { value: "2", label: "2.0" },
 ];
 
 const geometryTemplates: GeometryTemplate[] = [
@@ -318,6 +541,7 @@ const generating = ref(false);
 const saving = ref(false);
 const publishing = ref(false);
 const downloadingPdf = ref(false);
+const uploadingImage = ref(false);
 const regeneratingItemId = ref<number | null>(null);
 const insertingDrawing = ref(false);
 const dirty = ref(false);
@@ -341,7 +565,6 @@ const threeDGeometryTemplates = computed(() =>
 const selectedGeometryTemplate = computed(
   () => geometryTemplates.find((item) => item.key === selectedGeometryKey.value) ?? null,
 );
-const canvasMode = ref(false);
 const selectedDrawnShape = computed(
   () => drawnShapes.value.find((item) => item.id === selectedDrawnId.value) ?? null,
 );
@@ -364,8 +587,11 @@ const editor = useEditor({
     StarterKit.configure({
       heading: { levels: [1, 2, 3] },
     }),
+    Underline,
+    BlockFormattingExtension,
     InlineStyleMark,
     GeometryDrawingNode,
+    ImageBlockNode,
     MathInlineNode,
     Placeholder.configure({
       placeholder: __("Write, edit, and organize your exercises here..."),
@@ -393,8 +619,15 @@ const editor = useEditor({
         "exercise-studio-editor rounded-xl border border-slate-200 bg-white text-sm leading-7 text-slate-800 focus:outline-none dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-100",
     },
   },
+  onCreate: () => {
+    syncLineHeightSelection();
+  },
+  onSelectionUpdate: () => {
+    syncLineHeightSelection();
+  },
   onUpdate: () => {
     dirty.value = true;
+    syncLineHeightSelection();
   },
 });
 
@@ -943,6 +1176,9 @@ function syncFormulaInputFromField() {
 }
 
 function mountFormulaInput() {
+  detachFormulaInputListener?.();
+  detachFormulaInputListener = null;
+
   const field = formulaFieldRef.value;
   if (!field) return;
 
@@ -1018,6 +1254,122 @@ async function loadDocument(id: number) {
   } finally {
     loadingDocument.value = false;
   }
+}
+
+const canUndo = computed(
+  () => !!editor.value && editor.value.can().chain().focus().undo().run(),
+);
+const canRedo = computed(
+  () => !!editor.value && editor.value.can().chain().focus().redo().run(),
+);
+const canIndent = computed(
+  () => !!editor.value && editor.value.can().chain().focus().indent().run(),
+);
+const canOutdent = computed(
+  () => !!editor.value && editor.value.can().chain().focus().outdent().run(),
+);
+
+function isEditorActive(name: string, attrs?: Record<string, unknown>) {
+  return !!editor.value?.isActive(name, attrs);
+}
+
+function isTextAlignActive(alignment: "left" | "center" | "right" | "justify") {
+  return !!editor.value?.isActive({ textAlign: alignment });
+}
+
+function syncLineHeightSelection() {
+  if (!editor.value) {
+    selectedLineHeight.value = "default";
+    return;
+  }
+
+  const paragraphAttrs = (editor.value.getAttributes("paragraph") ?? {}) as Record<string, unknown>;
+  const headingAttrs = (editor.value.getAttributes("heading") ?? {}) as Record<string, unknown>;
+  const raw = paragraphAttrs.lineHeight ?? headingAttrs.lineHeight ?? null;
+  const normalized = normalizeLineHeight(raw);
+  selectedLineHeight.value = normalized ?? "default";
+}
+
+function applySelectedLineHeight() {
+  if (!editor.value) return;
+
+  if (selectedLineHeight.value === "default") {
+    editor.value.chain().focus().unsetLineHeight().run();
+    return;
+  }
+
+  editor.value.chain().focus().setLineHeight(selectedLineHeight.value).run();
+}
+
+function toggleMathPanel() {
+  showMathPanel.value = !showMathPanel.value;
+  if (showMathPanel.value) {
+    showCanvasPanel.value = false;
+    nextTick(mountFormulaInput);
+  }
+}
+
+function toggleCanvasPanel() {
+  showCanvasPanel.value = !showCanvasPanel.value;
+  if (showCanvasPanel.value) {
+    showMathPanel.value = false;
+  }
+}
+
+function openImagePicker() {
+  imageInputRef.value?.click();
+}
+
+async function uploadAndInsertImage(file: File) {
+  if (!editor.value || uploadingImage.value) return;
+
+  uploadingImage.value = true;
+  generationError.value = null;
+
+  try {
+    const form = new FormData();
+    form.append("image", file);
+
+    const response = await axios.post("/api/teacher/exercises/images", form, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const uploadedUrl = String(response.data?.url ?? "").trim();
+    if (!uploadedUrl) {
+      throw new Error(__("Image upload failed."));
+    }
+
+    editor.value
+      .chain()
+      .focus()
+      .setImage({
+        src: uploadedUrl,
+        alt: file.name || __("Uploaded image"),
+      })
+      .run();
+    dirty.value = true;
+  } catch (error: any) {
+    generationError.value =
+      error?.response?.data?.message ||
+      error?.message ||
+      __("Image upload failed.");
+  } finally {
+    uploadingImage.value = false;
+  }
+}
+
+async function onImageFileChange(event: Event) {
+  const target = event.target as HTMLInputElement | null;
+  const file = target?.files?.[0];
+
+  if (target) {
+    target.value = "";
+  }
+
+  if (!file) return;
+  await uploadAndInsertImage(file);
 }
 
 function runEditorCommand(action: () => void) {
@@ -1420,7 +1772,7 @@ async function insertDrawingIntoEditor() {
       })
       .run();
 
-    canvasMode.value = false;
+    showCanvasPanel.value = false;
     dirty.value = true;
   } finally {
     insertingDrawing.value = false;
@@ -1433,7 +1785,6 @@ onMounted(() => {
     void loadDocument(queryId);
   }
   mountAutosave();
-  mountFormulaInput();
   nextTick(renderMath);
 });
 
@@ -1445,6 +1796,16 @@ onBeforeUnmount(() => {
 
 watch([topic, grade, difficulty, language, instructions, count, replaceItems], () => {
   dirty.value = true;
+});
+
+watch(showMathPanel, (isOpen) => {
+  if (isOpen) {
+    nextTick(mountFormulaInput);
+    return;
+  }
+
+  detachFormulaInputListener?.();
+  detachFormulaInputListener = null;
 });
 
 onUpdated(() => {
@@ -1682,83 +2043,170 @@ onUpdated(() => {
                 {{ option.label }}
               </option>
             </select>
+            <select
+              v-model="selectedLineHeight"
+              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              @change="applySelectedLineHeight"
+            >
+              <option value="default">{{ __("Line") }}</option>
+              <option
+                v-for="option in lineHeightOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
             <button
               type="button"
-              class="rounded border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-300"
+              class="rounded border px-2 py-1 text-xs font-semibold"
+              :class="
+                isEditorActive('bold')
+                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
+                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              "
               @click="runEditorCommand(() => editor?.chain().focus().toggleBold().run())"
             >
               B
             </button>
             <button
               type="button"
-              class="rounded border border-slate-300 px-2 py-1 text-xs font-semibold italic font-serif text-slate-700 dark:border-slate-700 dark:text-slate-300"
+              class="rounded border px-2 py-1 text-xs font-semibold italic font-serif"
+              :class="
+                isEditorActive('italic')
+                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
+                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              "
               @click="runEditorCommand(() => editor?.chain().focus().toggleItalic().run())"
             >
               I
             </button>
             <button
               type="button"
-              class="rounded border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-300"
+              class="rounded border px-2 py-1 text-xs font-semibold"
+              :class="
+                isEditorActive('underline')
+                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
+                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              "
+              @click="runEditorCommand(() => editor?.chain().focus().toggleUnderline().run())"
+            >
+              <UnderlineIcon :size="13" />
+            </button>
+            <button
+              type="button"
+              class="rounded border px-2 py-1 text-xs font-semibold"
+              :class="
+                isEditorActive('bulletList')
+                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
+                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              "
               @click="runEditorCommand(() => editor?.chain().focus().toggleBulletList().run())"
             >
               {{ __("List") }}
             </button>
             <button
               type="button"
-              class="rounded border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-300"
+              class="rounded border px-2 py-1 text-xs font-semibold"
+              :class="
+                isTextAlignActive('left')
+                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
+                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              "
               @click="runEditorCommand(() => editor?.chain().focus().setTextAlign('left').run())"
             >
               {{ __("Left") }}
             </button>
             <button
               type="button"
-              class="rounded border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:text-slate-300"
+              class="rounded border px-2 py-1 text-xs font-semibold"
+              :class="
+                isTextAlignActive('center')
+                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
+                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              "
               @click="runEditorCommand(() => editor?.chain().focus().setTextAlign('center').run())"
             >
               {{ __("Center") }}
             </button>
+            <button
+              type="button"
+              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              :disabled="!canOutdent"
+              @click="runEditorCommand(() => editor?.chain().focus().outdent().run())"
+            >
+              <IndentDecrease :size="14" />
+            </button>
+            <button
+              type="button"
+              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              :disabled="!canIndent"
+              @click="runEditorCommand(() => editor?.chain().focus().indent().run())"
+            >
+              <IndentIncrease :size="14" />
+            </button>
+            <button
+              type="button"
+              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              :disabled="!canUndo"
+              @click="runEditorCommand(() => editor?.chain().focus().undo().run())"
+            >
+              <Undo2 :size="14" />
+            </button>
+            <button
+              type="button"
+              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              :disabled="!canRedo"
+              @click="runEditorCommand(() => editor?.chain().focus().redo().run())"
+            >
+              <Redo2 :size="14" />
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              :disabled="uploadingImage"
+              @click="openImagePicker"
+            >
+              <Loader2 v-if="uploadingImage" :size="13" class="animate-spin" />
+              <ImagePlus v-else :size="13" />
+              {{ __("Image") }}
+            </button>
+            <button
+              type="button"
+              class="rounded border px-2 py-1 text-xs font-semibold"
+              :class="
+                showMathPanel
+                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
+                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              "
+              @click="toggleMathPanel"
+            >
+              {{ __("Math") }}
+            </button>
+            <button
+              type="button"
+              class="rounded border px-2 py-1 text-xs font-semibold"
+              :class="
+                showCanvasPanel
+                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
+                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+              "
+              @click="toggleCanvasPanel"
+            >
+              {{ __("Canvas") }}
+            </button>
+            <input
+              ref="imageInputRef"
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+              class="hidden"
+              @change="onImageFileChange"
+            />
           </div>
         </div>
 
         <div
-          class="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-900/50"
-        >
-          <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">
-            {{ __("Geometry Builder") }}
-          </span>
-          <select
-            v-model="selectedGeometryKey"
-            class="min-w-[190px] rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-          >
-            <optgroup :label="__('2D Shapes')">
-              <option
-                v-for="shape in twoDGeometryTemplates"
-                :key="shape.key"
-                :value="shape.key"
-              >
-                {{ __(shape.labelKey) }}
-              </option>
-            </optgroup>
-            <optgroup :label="__('3D Shapes')">
-              <option
-                v-for="shape in threeDGeometryTemplates"
-                :key="shape.key"
-                :value="shape.key"
-              >
-                {{ __(shape.labelKey) }}
-              </option>
-            </optgroup>
-          </select>
-          <button
-            type="button"
-            class="rounded border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 hover:border-indigo-400 hover:bg-indigo-100 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200"
-            @click="insertGeometryTemplate"
-          >
-            {{ __("Add Selected Shape") }}
-          </button>
-        </div>
-
-        <div
+          v-if="showMathPanel"
           class="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/50"
         >
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1791,34 +2239,45 @@ onUpdated(() => {
           </math-field>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            class="rounded border px-2 py-1 text-xs font-semibold"
-            :class="
-              canvasMode
-                ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
-            "
-            @click="canvasMode = true"
+        <div v-if="showCanvasPanel" class="mx-auto flex w-full max-w-[210mm] flex-col gap-3">
+          <div
+            class="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-900/50"
           >
-            {{ __("Canvas Mode") }}
-          </button>
-          <button
-            type="button"
-            class="rounded border px-2 py-1 text-xs font-semibold"
-            :class="
-              !canvasMode
-                ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
-            "
-            @click="canvasMode = false"
-          >
-            {{ __("Text Mode") }}
-          </button>
-        </div>
+            <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+              {{ __("Geometry Builder") }}
+            </span>
+            <select
+              v-model="selectedGeometryKey"
+              class="min-w-[190px] rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            >
+              <optgroup :label="__('2D Shapes')">
+                <option
+                  v-for="shape in twoDGeometryTemplates"
+                  :key="shape.key"
+                  :value="shape.key"
+                >
+                  {{ __(shape.labelKey) }}
+                </option>
+              </optgroup>
+              <optgroup :label="__('3D Shapes')">
+                <option
+                  v-for="shape in threeDGeometryTemplates"
+                  :key="shape.key"
+                  :value="shape.key"
+                >
+                  {{ __(shape.labelKey) }}
+                </option>
+              </optgroup>
+            </select>
+            <button
+              type="button"
+              class="rounded border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 hover:border-indigo-400 hover:bg-indigo-100 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200"
+              @click="insertGeometryTemplate"
+            >
+              {{ __("Add Selected Shape") }}
+            </button>
+          </div>
 
-        <div v-if="canvasMode" class="mx-auto flex w-full max-w-[210mm] flex-col gap-3">
           <div class="flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -2163,7 +2622,7 @@ onUpdated(() => {
           {{ __("Loading...") }}
         </div>
 
-        <EditorContent v-else-if="!canvasMode" :editor="editor" />
+        <EditorContent v-else :editor="editor" />
 
         <p
           v-if="dirty"
@@ -2283,6 +2742,35 @@ onUpdated(() => {
 :deep(.exercise-studio-editor li) {
   margin: 0.2rem 0;
 }
+
+:deep(.exercise-studio-editor [data-line-height="1"]) {
+  line-height: 1;
+}
+
+:deep(.exercise-studio-editor [data-line-height="1.2"]) {
+  line-height: 1.2;
+}
+
+:deep(.exercise-studio-editor [data-line-height="1.5"]) {
+  line-height: 1.5;
+}
+
+:deep(.exercise-studio-editor [data-line-height="2"]) {
+  line-height: 2;
+}
+
+:deep(.exercise-studio-editor [data-indent="1"]) { margin-left: 2em; }
+:deep(.exercise-studio-editor [data-indent="2"]) { margin-left: 4em; }
+:deep(.exercise-studio-editor [data-indent="3"]) { margin-left: 6em; }
+:deep(.exercise-studio-editor [data-indent="4"]) { margin-left: 8em; }
+:deep(.exercise-studio-editor [data-indent="5"]) { margin-left: 10em; }
+:deep(.exercise-studio-editor [data-indent="6"]) { margin-left: 12em; }
+:deep(.exercise-studio-editor [data-indent="7"]) { margin-left: 14em; }
+:deep(.exercise-studio-editor [data-indent="8"]) { margin-left: 16em; }
+:deep(.exercise-studio-editor [data-indent="9"]) { margin-left: 18em; }
+:deep(.exercise-studio-editor [data-indent="10"]) { margin-left: 20em; }
+:deep(.exercise-studio-editor [data-indent="11"]) { margin-left: 22em; }
+:deep(.exercise-studio-editor [data-indent="12"]) { margin-left: 24em; }
 
 @media (max-width: 960px) {
   :deep(.exercise-studio-editor) {
