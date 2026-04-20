@@ -54,11 +54,7 @@ class TeacherExerciseStudioController extends Controller
             'started_at' => now(),
         ]);
 
-        if (config('queue.default') === 'sync') {
-            GenerateTeacherExercisesJob::dispatchSync($log->id);
-        } else {
-            GenerateTeacherExercisesJob::dispatchAfterResponse($log->id);
-        }
+        GenerateTeacherExercisesJob::dispatchSync($log->id);
 
         return response()->json([
             'generation_id' => $log->id,
@@ -287,16 +283,23 @@ class TeacherExerciseStudioController extends Controller
             ->where('document_id', $document->id)
             ->findOrFail((int) $data['item_id']);
 
-        $result = $aiService->generate([
-            'topic' => (string) ($data['topic'] ?? $document->title),
-            'grade' => $document->meta['grade'] ?? null,
-            'difficulty' => (string) ($data['difficulty'] ?? $item->difficulty ?? 'medium'),
-            'count' => 1,
-            'language' => (string) ($data['language'] ?? $document->language ?? 'en'),
-            'instructions' => trim((string) ($data['instructions'] ?? '')) !== ''
-                ? (string) $data['instructions']
-                : 'Regenerate one question similar to: ' . $item->question,
-        ]);
+        try {
+            $result = $aiService->generate([
+                'topic' => (string) ($data['topic'] ?? $document->title),
+                'grade' => $document->meta['grade'] ?? null,
+                'difficulty' => (string) ($data['difficulty'] ?? $item->difficulty ?? 'medium'),
+                'count' => 1,
+                'language' => (string) ($data['language'] ?? $document->language ?? 'en'),
+                'instructions' => trim((string) ($data['instructions'] ?? '')) !== ''
+                    ? (string) $data['instructions']
+                    : 'Regenerate one question similar to: ' . $item->question,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => __('Failed to regenerate item. Please try again.'),
+                'details' => $e->getMessage(),
+            ], 502);
+        }
 
         $newItem = $result['items'][0] ?? null;
         if (!$newItem) {
