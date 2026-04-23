@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InputError from "@/Components/InputError.vue";
+import InputError from "@/components/InputError.vue";
 import { Link, useForm, usePage } from "@inertiajs/vue3";
 import { Camera, User } from "lucide-vue-next";
 import { computed, onBeforeUnmount, ref } from "vue";
@@ -77,8 +77,11 @@ onBeforeUnmount(() => {
   <section
     class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/80 p-6 md:p-8 dark:border-slate-800 dark:bg-slate-900/40"
   >
-    <h3 class="mb-6 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-      <User class="text-indigo-500 dark:text-indigo-400" :size="20" /> Անձնական տվյալներ
+    <h3
+      class="mb-6 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white"
+    >
+      <User class="text-indigo-500 dark:text-indigo-400" :size="20" /> Անձնական
+      տվյալներ
     </h3>
 
     <form class="space-y-6" @submit.prevent="saveProfile">
@@ -97,8 +100,12 @@ onBeforeUnmount(() => {
         </div>
 
         <div>
-          <h4 class="font-medium text-slate-900 dark:text-white">Պրոֆիլի նկար</h4>
-          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">PNG, JPG մինչև 5MB</p>
+          <h4 class="font-medium text-slate-900 dark:text-white">
+            Պրոֆիլի նկար
+          </h4>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            PNG, JPG մինչև 5MB
+          </p>
           <button
             type="button"
             class="mt-2 text-xs font-medium text-indigo-600 transition-colors hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
@@ -110,7 +117,9 @@ onBeforeUnmount(() => {
 
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div class="space-y-2">
-          <label for="first_name" class="text-sm font-medium text-slate-700 dark:text-slate-300"
+          <label
+            for="first_name"
+            class="text-sm font-medium text-slate-700 dark:text-slate-300"
             >Անուն</label
           >
           <input
@@ -125,7 +134,9 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="space-y-2">
-          <label for="last_name" class="text-sm font-medium text-slate-700 dark:text-slate-300"
+          <label
+            for="last_name"
+            class="text-sm font-medium text-slate-700 dark:text-slate-300"
             >Ազգանուն</label
           >
           <input
@@ -141,7 +152,9 @@ onBeforeUnmount(() => {
       <InputError class="mt-1" :message="form.errors.name" />
 
       <div class="space-y-2">
-        <label for="email" class="text-sm font-medium text-slate-700 dark:text-slate-300"
+        <label
+          for="email"
+          class="text-sm font-medium text-slate-700 dark:text-slate-300"
           >Էլ․ հասցե</label
         >
         <input
@@ -156,7 +169,9 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="space-y-2">
-        <label for="institution" class="text-sm font-medium text-slate-700 dark:text-slate-300"
+        <label
+          for="institution"
+          class="text-sm font-medium text-slate-700 dark:text-slate-300"
           >Համալսարան / Կազմակերպություն</label
         >
         <input

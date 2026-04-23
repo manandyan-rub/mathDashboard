@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InputError from "@/Components/InputError.vue";
+import InputError from "@/components/InputError.vue";
 import { useForm } from "@inertiajs/vue3";
 import { Key } from "lucide-vue-next";
 import { onBeforeUnmount, ref } from "vue";
@@ -50,13 +50,18 @@ onBeforeUnmount(() => {
   <section
     class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/80 p-6 md:p-8 dark:border-slate-800 dark:bg-slate-900/40"
   >
-    <h3 class="mb-6 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-      <Key class="text-emerald-500 dark:text-emerald-400" :size="20" /> Թարմացնել գաղտնաբառը
+    <h3
+      class="mb-6 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white"
+    >
+      <Key class="text-emerald-500 dark:text-emerald-400" :size="20" />
+      Թարմացնել գաղտնաբառը
     </h3>
 
     <form class="space-y-6" @submit.prevent="updatePassword">
       <div class="space-y-2">
-        <label for="current_password" class="text-sm font-medium text-slate-700 dark:text-slate-300"
+        <label
+          for="current_password"
+          class="text-sm font-medium text-slate-700 dark:text-slate-300"
           >Ներկայիս գաղտնաբառ</label
         >
         <input
@@ -73,7 +78,9 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="space-y-2">
-        <label for="password" class="text-sm font-medium text-slate-700 dark:text-slate-300"
+        <label
+          for="password"
+          class="text-sm font-medium text-slate-700 dark:text-slate-300"
           >Նոր գաղտնաբառ</label
         >
         <input

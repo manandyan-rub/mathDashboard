@@ -109,14 +109,18 @@ onUnmounted(() => {
   <div
     class="mx-auto w-full max-w-5xl animate-in fade-in p-6 text-slate-900 duration-500 dark:text-slate-100 lg:p-12"
   >
-    <div class="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+    <div
+      class="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end"
+    >
       <div>
         <div
           class="mb-4 inline-flex items-center gap-2 rounded-full border border-yellow-500/20 bg-yellow-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-yellow-400"
         >
           <Trophy :size="14" /> {{ __("Global League") }}
         </div>
-        <h1 class="mb-2 text-3xl font-bold text-slate-900 dark:text-white md:text-4xl">
+        <h1
+          class="mb-2 text-3xl font-bold text-slate-900 dark:text-white md:text-4xl"
+        >
           {{ __("Hall of Fame") }}
         </h1>
         <p class="max-w-lg text-slate-600 dark:text-slate-400">
@@ -137,10 +141,14 @@ onUnmounted(() => {
           <Star class="text-indigo-400" :size="24" />
         </div>
         <div>
-          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-500">
+          <p
+            class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-500"
+          >
             {{ seasonName }} {{ __("Ends In") }}
           </p>
-          <p class="font-mono text-xl font-bold text-slate-900 dark:text-white">{{ seasonTimeLeft }}</p>
+          <p class="font-mono text-xl font-bold text-slate-900 dark:text-white">
+            {{ seasonTimeLeft }}
+          </p>
         </div>
       </div>
     </div>
@@ -179,13 +187,19 @@ onUnmounted(() => {
           >
             <div class="absolute inset-0 bg-slate-300/5" />
             <Medal :size="24" class="mb-1 text-slate-300" />
-            <span class="text-2xl font-bold text-slate-700 dark:text-slate-200">2</span>
+            <span class="text-2xl font-bold text-slate-700 dark:text-slate-200"
+              >2</span
+            >
           </div>
           <div class="mt-4 text-center">
-            <p class="w-full truncate px-2 text-sm font-bold text-slate-900 dark:text-white">
+            <p
+              class="w-full truncate px-2 text-sm font-bold text-slate-900 dark:text-white"
+            >
               {{ userAt(1).name }}
             </p>
-            <p class="mt-0.5 text-xs text-indigo-400">Lv {{ userAt(1).level }}</p>
+            <p class="mt-0.5 text-xs text-indigo-400">
+              LvL {{ userAt(1).level }}
+            </p>
           </div>
         </div>
 
@@ -210,11 +224,13 @@ onUnmounted(() => {
             <span class="text-3xl font-bold text-yellow-400">1</span>
           </div>
           <div class="mt-4 text-center">
-            <p class="w-full truncate px-2 text-base font-bold text-slate-900 dark:text-white">
+            <p
+              class="w-full truncate px-2 text-base font-bold text-slate-900 dark:text-white"
+            >
               {{ userAt(0).name }}
             </p>
             <p class="mt-0.5 text-xs font-medium text-yellow-400">
-              Lv {{ userAt(0).level }}
+              LvL {{ userAt(0).level }}
             </p>
           </div>
         </div>
@@ -238,10 +254,14 @@ onUnmounted(() => {
             <span class="text-xl font-bold text-amber-500">3</span>
           </div>
           <div class="mt-4 text-center">
-            <p class="w-full truncate px-2 text-sm font-bold text-slate-900 dark:text-white">
+            <p
+              class="w-full truncate px-2 text-sm font-bold text-slate-900 dark:text-white"
+            >
               {{ userAt(2).name }}
             </p>
-            <p class="mt-0.5 text-xs text-indigo-400">Lv {{ userAt(2).level }}</p>
+            <p class="mt-0.5 text-xs text-indigo-400">
+              LvL {{ userAt(2).level }}
+            </p>
           </div>
         </div>
       </div>
@@ -253,7 +273,9 @@ onUnmounted(() => {
         <div class="shimmer-line" />
 
         <div class="z-10 flex items-center gap-4 md:gap-6">
-          <div class="w-12 text-center text-2xl font-black text-indigo-700 dark:text-indigo-300 md:w-16 md:text-3xl">
+          <div
+            class="w-12 text-center text-2xl font-black text-indigo-700 dark:text-indigo-300 md:w-16 md:text-3xl"
+          >
             #{{ currentUser.rank }}
           </div>
           <div
@@ -264,40 +286,69 @@ onUnmounted(() => {
           <div>
             <h3 class="text-lg font-bold text-slate-900 dark:text-white">
               {{ currentUser.name }}
-              <span class="ml-2 hidden text-sm font-normal text-slate-400 md:inline">{{ __("You") }}</span>
+              <span
+                class="ml-2 hidden text-sm font-normal text-slate-400 md:inline"
+                >{{ __("You") }}</span
+              >
             </h3>
-            <p class="text-sm text-indigo-700 dark:text-indigo-300">{{ currentUser.handle }}</p>
+            <p class="text-sm text-indigo-700 dark:text-indigo-300">
+              {{ currentUser.handle }}
+            </p>
           </div>
         </div>
 
         <div class="z-10 flex items-center gap-6 md:gap-12">
           <div class="hidden text-right md:block">
-            <p class="mb-1 text-xs uppercase tracking-wider text-slate-400">{{ __("Level") }}</p>
-            <p class="text-lg font-bold text-slate-900 dark:text-white">{{ currentUser.level }}</p>
+            <p class="mb-1 text-xs uppercase tracking-wider text-slate-400">
+              {{ __("Level") }}
+            </p>
+            <p class="text-lg font-bold text-slate-900 dark:text-white">
+              {{ currentUser.level }}
+            </p>
           </div>
           <div class="text-right">
-            <p class="mb-1 text-xs uppercase tracking-wider text-slate-400">{{ __("Total XP") }}</p>
+            <p class="mb-1 text-xs uppercase tracking-wider text-slate-400">
+              {{ __("Total XP") }}
+            </p>
             <p class="font-mono text-lg font-bold text-emerald-400">
               {{ currentUser.xp.toLocaleString() }}
             </p>
           </div>
           <div class="flex w-8 justify-center">
-            <ChevronUp v-if="currentUser.trend === 'up'" :size="24" class="text-emerald-400" />
-            <ChevronDown v-else-if="currentUser.trend === 'down'" :size="24" class="text-red-400" />
+            <ChevronUp
+              v-if="currentUser.trend === 'up'"
+              :size="24"
+              class="text-emerald-400"
+            />
+            <ChevronDown
+              v-else-if="currentUser.trend === 'down'"
+              :size="24"
+              class="text-red-400"
+            />
             <Minus v-else :size="24" class="text-slate-500" />
           </div>
         </div>
       </div>
 
-      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/40 dark:shadow-none">
+      <div
+        class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/40 dark:shadow-none"
+      >
         <div
           class="grid grid-cols-12 gap-4 border-b border-slate-200 bg-slate-50 p-4 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-slate-800/60 dark:bg-slate-900/80"
         >
-          <div class="col-span-2 text-center md:col-span-1">{{ __("Rank") }}</div>
+          <div class="col-span-2 text-center md:col-span-1">
+            {{ __("Rank") }}
+          </div>
           <div class="col-span-6 md:col-span-5">{{ __("Scholar") }}</div>
-          <div class="col-span-2 hidden text-center md:block">{{ __("Level") }}</div>
-          <div class="col-span-4 text-right md:col-span-3">{{ __("Experience") }}</div>
-          <div class="col-span-2 text-center md:col-span-1">{{ __("Trend") }}</div>
+          <div class="col-span-2 hidden text-center md:block">
+            {{ __("Level") }}
+          </div>
+          <div class="col-span-4 text-right md:col-span-3">
+            {{ __("Experience") }}
+          </div>
+          <div class="col-span-2 text-center md:col-span-1">
+            {{ __("Trend") }}
+          </div>
         </div>
 
         <div class="divide-y divide-slate-200 dark:divide-slate-800/50">
@@ -306,7 +357,9 @@ onUnmounted(() => {
             :key="user.rank"
             class="group grid grid-cols-12 items-center gap-4 p-4 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/30"
           >
-            <div class="col-span-2 text-center text-lg font-bold text-slate-500 dark:text-slate-400 md:col-span-1">
+            <div
+              class="col-span-2 text-center text-lg font-bold text-slate-500 dark:text-slate-400 md:col-span-1"
+            >
               #{{ user.rank }}
             </div>
 
@@ -317,7 +370,11 @@ onUnmounted(() => {
                 {{ user.avatar }}
               </div>
               <div>
-                <h4 class="text-sm font-medium text-slate-900 dark:text-white md:text-base">{{ user.name }}</h4>
+                <h4
+                  class="text-sm font-medium text-slate-900 dark:text-white md:text-base"
+                >
+                  {{ user.name }}
+                </h4>
                 <p class="text-xs text-slate-500">{{ user.handle }}</p>
               </div>
             </div>
@@ -330,21 +387,35 @@ onUnmounted(() => {
               </span>
             </div>
 
-            <div class="col-span-4 text-right font-mono text-sm font-medium text-slate-700 dark:text-slate-300 md:col-span-3 md:text-base">
+            <div
+              class="col-span-4 text-right font-mono text-sm font-medium text-slate-700 dark:text-slate-300 md:col-span-3 md:text-base"
+            >
               {{ user.xp.toLocaleString() }}
               <span class="font-sans text-xs text-slate-500">XP</span>
             </div>
 
             <div class="col-span-2 flex justify-center md:col-span-1">
-              <ChevronUp v-if="user.trend === 'up'" :size="20" class="text-emerald-400" />
-              <ChevronDown v-else-if="user.trend === 'down'" :size="20" class="text-red-400" />
+              <ChevronUp
+                v-if="user.trend === 'up'"
+                :size="20"
+                class="text-emerald-400"
+              />
+              <ChevronDown
+                v-else-if="user.trend === 'down'"
+                :size="20"
+                class="text-red-400"
+              />
               <Minus v-else :size="20" class="text-slate-500" />
             </div>
           </div>
         </div>
 
-        <div class="border-t border-slate-200 bg-slate-50 p-4 text-center dark:border-slate-800/60 dark:bg-slate-900/20">
-          <button class="text-sm font-medium text-indigo-600 transition-colors hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+        <div
+          class="border-t border-slate-200 bg-slate-50 p-4 text-center dark:border-slate-800/60 dark:bg-slate-900/20"
+        >
+          <button
+            class="text-sm font-medium text-indigo-600 transition-colors hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+          >
             {{ __("Live ranking updates every minute") }}
           </button>
         </div>
@@ -366,7 +437,12 @@ onUnmounted(() => {
 .shimmer-line {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.06), transparent);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
   animation: shimmer 3s linear infinite;
 }
 </style>

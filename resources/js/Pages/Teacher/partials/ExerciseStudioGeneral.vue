@@ -2,14 +2,22 @@
 import { Head } from "@inertiajs/vue3";
 import { cmsTranslate as __ } from "@/lib/i18n";
 import axios from "axios";
-import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  onUpdated,
+  ref,
+  watch,
+} from "vue";
 import { EditorContent, useEditor } from "@tiptap/vue-3";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
-import { Extension, Mark, Node, mergeAttributes } from "@tiptap/core";
+import { Content, Extension, Mark, Node, mergeAttributes } from "@tiptap/core";
 import "mathlive";
 import { MathfieldElement } from "mathlive";
 import {
@@ -25,69 +33,20 @@ import {
   Undo2,
   WandSparkles,
 } from "lucide-vue-next";
-
-type StudioStatus = "idle" | "processing" | "ready" | "failed";
-type Difficulty = "easy" | "medium" | "hard";
-type Locale = "en" | "hy" | "fr" | "ru";
-
-type ExerciseItem = {
-  id: number;
-  item_order: number;
-  type: string;
-  question: string;
-  options: string[];
-  answer: string;
-  explanation?: string | null;
-  difficulty?: string | null;
-  points: number;
-  source: string;
-};
-
-type Segment = {
-  type: "text" | "math";
-  value: string;
-};
-
-type MathfieldLike = HTMLElement & {
-  value?: string;
-  getValue?: (format?: string) => string;
-  setValue?: (value: string) => void;
-};
+import {
+  Difficulty,
+  StudioStatus,
+  Locale,
+  ExerciseItem,
+  Segment,
+  MathfieldLike,
+  ExerciseDocument,
+  GeometryTemplate,
+  DrawnGeometryShape,
+} from "@/types/teacher";
 
 MathfieldElement.fontsDirectory = "/fonts/mathlive";
 MathfieldElement.soundsDirectory = "/sounds/mathlive";
-
-type ExerciseDocument = {
-  id: number;
-  title: string;
-  status: string;
-  language: Locale;
-  meta?: Record<string, unknown> | null;
-  content_json?: Record<string, unknown> | null;
-  content_html?: string | null;
-  generated_at?: string | null;
-  published_at?: string | null;
-  items: ExerciseItem[];
-};
-
-type GeometryTemplate = {
-  key: string;
-  category: "2d" | "3d";
-  labelKey: string;
-  lines: string[];
-};
-
-type DrawnGeometryShape = {
-  id: number;
-  kind: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fill: string;
-  stroke: string;
-  strokeWidth: number;
-};
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -98,7 +57,11 @@ declare module "@tiptap/core" {
       unsetLineHeight: () => ReturnType;
     };
     imageBlock: {
-      setImage: (options: { src: string; alt?: string; title?: string }) => ReturnType;
+      setImage: (options: {
+        src: string;
+        alt?: string;
+        title?: string;
+      }) => ReturnType;
     };
   }
 }
@@ -218,7 +181,9 @@ const BlockFormattingExtension = Extension.create({
           indent: {
             default: null,
             parseHTML: (element: HTMLElement) => {
-              const fromData = parseIndentValue(element.getAttribute("data-indent"));
+              const fromData = parseIndentValue(
+                element.getAttribute("data-indent"),
+              );
               if (fromData > 0) return fromData;
               return parseIndentFromStyle(element.getAttribute("style"));
             },
@@ -231,7 +196,9 @@ const BlockFormattingExtension = Extension.create({
           lineHeight: {
             default: null,
             parseHTML: (element: HTMLElement) => {
-              const fromData = normalizeLineHeight(element.getAttribute("data-line-height"));
+              const fromData = normalizeLineHeight(
+                element.getAttribute("data-line-height"),
+              );
               if (fromData) return fromData;
               return normalizeLineHeight(element.style.lineHeight || null);
             },
@@ -367,7 +334,8 @@ const InlineStyleMark = Mark.create({
     return {
       fontFamily: {
         default: null,
-        parseHTML: (element) => (element as HTMLElement).style.fontFamily || null,
+        parseHTML: (element) =>
+          (element as HTMLElement).style.fontFamily || null,
       },
       fontSize: {
         default: null,
@@ -381,7 +349,10 @@ const InlineStyleMark = Mark.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const attrs = { ...HTMLAttributes } as Record<string, string | null | undefined>;
+    const attrs = { ...HTMLAttributes } as Record<
+      string,
+      string | null | undefined
+    >;
     const styleParts: string[] = [];
 
     if (attrs.fontFamily) {
@@ -458,13 +429,21 @@ const geometryTemplates: GeometryTemplate[] = [
     key: "rectangle",
     category: "2d",
     labelKey: "Rectangle",
-    lines: ["Given: l = ..., w = ...", "Perimeter: P = 2(l + w)", "Area: S = lw"],
+    lines: [
+      "Given: l = ..., w = ...",
+      "Perimeter: P = 2(l + w)",
+      "Area: S = lw",
+    ],
   },
   {
     key: "triangle",
     category: "2d",
     labelKey: "Triangle",
-    lines: ["Given: b = ..., h = ...", "Area: S = (bh)/2", "Perimeter: P = a + b + c"],
+    lines: [
+      "Given: b = ..., h = ...",
+      "Area: S = (bh)/2",
+      "Perimeter: P = a + b + c",
+    ],
   },
   {
     key: "circle",
@@ -476,7 +455,11 @@ const geometryTemplates: GeometryTemplate[] = [
     key: "trapezoid",
     category: "2d",
     labelKey: "Trapezoid",
-    lines: ["Given: a = ..., b = ..., h = ...", "Area: S = ((a + b)h)/2", "Perimeter: P = a + b + c + d"],
+    lines: [
+      "Given: a = ..., b = ..., h = ...",
+      "Area: S = ((a + b)h)/2",
+      "Perimeter: P = a + b + c + d",
+    ],
   },
   {
     key: "cube",
@@ -488,31 +471,51 @@ const geometryTemplates: GeometryTemplate[] = [
     key: "cuboid",
     category: "3d",
     labelKey: "Cuboid",
-    lines: ["Given: l = ..., w = ..., h = ...", "Volume: V = lwh", "Surface area: S = 2(lw + lh + wh)"],
+    lines: [
+      "Given: l = ..., w = ..., h = ...",
+      "Volume: V = lwh",
+      "Surface area: S = 2(lw + lh + wh)",
+    ],
   },
   {
     key: "cylinder",
     category: "3d",
     labelKey: "Cylinder",
-    lines: ["Given: r = ..., h = ...", "Volume: V = pi*r^2*h", "Surface area: S = 2pi*r(r + h)"],
+    lines: [
+      "Given: r = ..., h = ...",
+      "Volume: V = pi*r^2*h",
+      "Surface area: S = 2pi*r(r + h)",
+    ],
   },
   {
     key: "cone",
     category: "3d",
     labelKey: "Cone",
-    lines: ["Given: r = ..., h = ..., l = ...", "Volume: V = (pi*r^2*h)/3", "Surface area: S = pi*r(r + l)"],
+    lines: [
+      "Given: r = ..., h = ..., l = ...",
+      "Volume: V = (pi*r^2*h)/3",
+      "Surface area: S = pi*r(r + l)",
+    ],
   },
   {
     key: "sphere",
     category: "3d",
     labelKey: "Sphere",
-    lines: ["Given: r = ...", "Volume: V = (4/3)pi*r^3", "Surface area: S = 4pi*r^2"],
+    lines: [
+      "Given: r = ...",
+      "Volume: V = (4/3)pi*r^3",
+      "Surface area: S = 4pi*r^2",
+    ],
   },
   {
     key: "pyramid",
     category: "3d",
     labelKey: "Pyramid",
-    lines: ["Given: base area B = ..., h = ...", "Volume: V = (Bh)/3", "Surface area: S = B + lateral area"],
+    lines: [
+      "Given: base area B = ..., h = ...",
+      "Volume: V = (Bh)/3",
+      "Surface area: S = B + lateral area",
+    ],
   },
 ];
 
@@ -552,7 +555,9 @@ let pollTimer: ReturnType<typeof setInterval> | null = null;
 let autosaveTimer: ReturnType<typeof setInterval> | null = null;
 let detachFormulaInputListener: (() => void) | null = null;
 
-const canGenerate = computed(() => topic.value.trim().length > 0 && !generating.value);
+const canGenerate = computed(
+  () => topic.value.trim().length > 0 && !generating.value,
+);
 const canSave = computed(() => !saving.value && !!editor.value);
 const canPublish = computed(() => !!documentId.value && !publishing.value);
 const canDownloadPdf = computed(() => !!editor.value && !downloadingPdf.value);
@@ -563,14 +568,22 @@ const threeDGeometryTemplates = computed(() =>
   geometryTemplates.filter((item) => item.category === "3d"),
 );
 const selectedGeometryTemplate = computed(
-  () => geometryTemplates.find((item) => item.key === selectedGeometryKey.value) ?? null,
+  () =>
+    geometryTemplates.find((item) => item.key === selectedGeometryKey.value) ??
+    null,
 );
 const selectedDrawnShape = computed(
-  () => drawnShapes.value.find((item) => item.id === selectedDrawnId.value) ?? null,
+  () =>
+    drawnShapes.value.find((item) => item.id === selectedDrawnId.value) ?? null,
 );
 const selectedShapeIsUniform = computed(() => {
   const kind = selectedDrawnShape.value?.kind ?? "";
-  return kind === "square" || kind === "circle" || kind === "sphere" || kind === "cube";
+  return (
+    kind === "square" ||
+    kind === "circle" ||
+    kind === "sphere" ||
+    kind === "cube"
+  );
 });
 const selectedShapeMaxWidth = computed(() => {
   return Math.max(30, boardWidth - 8);
@@ -579,7 +592,10 @@ const selectedShapeMaxHeight = computed(() => {
   return Math.max(120, Math.ceil(boardHeight.value * 2));
 });
 const selectedShapeMaxSize = computed(() =>
-  Math.max(30, Math.min(selectedShapeMaxWidth.value, selectedShapeMaxHeight.value)),
+  Math.max(
+    30,
+    Math.min(selectedShapeMaxWidth.value, selectedShapeMaxHeight.value),
+  ),
 );
 
 const editor = useEditor({
@@ -657,14 +673,16 @@ async function checkGeneration() {
       `/api/teacher/exercises/generations/${generationId.value}`,
     );
 
-    const status = (response.data?.generation?.status ?? "processing") as StudioStatus;
+    const status = (response.data?.generation?.status ??
+      "processing") as StudioStatus;
     generationStatus.value = status;
 
     if (status === "ready") {
       generating.value = false;
       stopPolling();
       generationError.value = null;
-      const documentPayload = response.data?.document as ExerciseDocument | null;
+      const documentPayload = response.data
+        ?.document as ExerciseDocument | null;
       if (documentPayload) {
         applyDocument(documentPayload);
       }
@@ -674,7 +692,8 @@ async function checkGeneration() {
       generating.value = false;
       stopPolling();
       generationError.value =
-        response.data?.generation?.error || "Generation failed. Please try again.";
+        response.data?.generation?.error ||
+        "Generation failed. Please try again.";
     }
   } catch (error: any) {
     generating.value = false;
@@ -769,7 +788,9 @@ async function saveDraft(showSuccessTimestamp = true) {
     }
   } catch (error: any) {
     generationError.value =
-      error?.response?.data?.message || error?.message || "Failed to save draft.";
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to save draft.";
   } finally {
     saving.value = false;
   }
@@ -799,7 +820,9 @@ async function publishDocument() {
     dirty.value = false;
   } catch (error: any) {
     generationError.value =
-      error?.response?.data?.message || error?.message || "Failed to publish document.";
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to publish document.";
   } finally {
     publishing.value = false;
   }
@@ -820,7 +843,10 @@ async function extractPdfErrorMessage(error: any): Promise<string> {
     }
   }
 
-  if (typeof responseData?.message === "string" && responseData.message.trim() !== "") {
+  if (
+    typeof responseData?.message === "string" &&
+    responseData.message.trim() !== ""
+  ) {
     return responseData.message;
   }
 
@@ -852,8 +878,12 @@ async function downloadPdf() {
       },
     );
 
-    const contentDisposition = String(response.headers["content-disposition"] ?? "");
-    const filenameMatch = contentDisposition.match(/filename\*?=(?:UTF-8''|")?([^\";]+)/i);
+    const contentDisposition = String(
+      response.headers["content-disposition"] ?? "",
+    );
+    const filenameMatch = contentDisposition.match(
+      /filename\*?=(?:UTF-8''|")?([^\";]+)/i,
+    );
     const filename = filenameMatch?.[1]
       ? decodeURIComponent(filenameMatch[1].replace(/"/g, "").trim())
       : "teacher_exercises.pdf";
@@ -880,14 +910,17 @@ async function regenerateItem(item: ExerciseItem) {
   generationError.value = null;
 
   try {
-    const response = await axios.post("/api/teacher/exercises/regenerate-item", {
-      document_id: documentId.value,
-      item_id: item.id,
-      topic: topic.value.trim() || item.question,
-      difficulty: difficulty.value,
-      language: language.value,
-      instructions: instructions.value.trim() || null,
-    });
+    const response = await axios.post(
+      "/api/teacher/exercises/regenerate-item",
+      {
+        document_id: documentId.value,
+        item_id: item.id,
+        topic: topic.value.trim() || item.question,
+        difficulty: difficulty.value,
+        language: language.value,
+        instructions: instructions.value.trim() || null,
+      },
+    );
 
     const next = response.data?.item as ExerciseItem;
     const index = items.value.findIndex((current) => current.id === item.id);
@@ -1007,9 +1040,14 @@ function applyDocument(documentPayload: ExerciseDocument) {
       Object.keys(jsonContent).length > 0 &&
       !hasBrokenMediaMarkdown
     ) {
-      editor.value.commands.setContent(sanitizeEditorJsonText(jsonContent), { emitUpdate: false });
+      editor.value.commands.setContent(
+        sanitizeEditorJsonText(jsonContent) as Content,
+        { emitUpdate: false },
+      );
     } else {
-      editor.value.commands.setContent(buildEditorDocFromItems(), { emitUpdate: false });
+      editor.value.commands.setContent(buildEditorDocFromItems(), {
+        emitUpdate: false,
+      });
     }
   }
 }
@@ -1064,7 +1102,9 @@ function splitMath(text: string): Segment[] {
   return segments;
 }
 
-function buildInlineContent(text: string | null | undefined): Array<Record<string, unknown>> {
+function buildInlineContent(
+  text: string | null | undefined,
+): Array<Record<string, unknown>> {
   const source = String(text ?? "");
   if (source.trim() === "") {
     return [{ type: "text", text: "" }];
@@ -1185,16 +1225,25 @@ function mountFormulaInput() {
   setMathFieldValue(field, formulaInput.value);
   const onInput = () => syncFormulaInputFromField();
   field.addEventListener("input", onInput);
-  detachFormulaInputListener = () => field.removeEventListener("input", onInput);
+  detachFormulaInputListener = () =>
+    field.removeEventListener("input", onInput);
 }
 
 function normalizeInlineLatex(value: string): string {
   let normalized = value.trim();
   if (!normalized) return "";
 
-  if (normalized.startsWith("$$") && normalized.endsWith("$$") && normalized.length > 4) {
+  if (
+    normalized.startsWith("$$") &&
+    normalized.endsWith("$$") &&
+    normalized.length > 4
+  ) {
     normalized = normalized.slice(2, -2).trim();
-  } else if (normalized.startsWith("$") && normalized.endsWith("$") && normalized.length > 2) {
+  } else if (
+    normalized.startsWith("$") &&
+    normalized.endsWith("$") &&
+    normalized.length > 2
+  ) {
     normalized = normalized.slice(1, -1).trim();
   }
 
@@ -1250,7 +1299,9 @@ async function loadDocument(id: number) {
     }
   } catch (error: any) {
     generationError.value =
-      error?.response?.data?.message || error?.message || "Failed to load document.";
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to load document.";
   } finally {
     loadingDocument.value = false;
   }
@@ -1283,11 +1334,20 @@ function syncLineHeightSelection() {
     return;
   }
 
-  const paragraphAttrs = (editor.value.getAttributes("paragraph") ?? {}) as Record<string, unknown>;
-  const headingAttrs = (editor.value.getAttributes("heading") ?? {}) as Record<string, unknown>;
+  const paragraphAttrs = (editor.value.getAttributes("paragraph") ??
+    {}) as Record<string, unknown>;
+  const headingAttrs = (editor.value.getAttributes("heading") ?? {}) as Record<
+    string,
+    unknown
+  >;
   const raw = paragraphAttrs.lineHeight ?? headingAttrs.lineHeight ?? null;
   const normalized = normalizeLineHeight(raw);
-  selectedLineHeight.value = normalized ?? "default";
+  selectedLineHeight.value = (normalized ?? "default") as
+    | "1"
+    | "2"
+    | "1.2"
+    | "1.5"
+    | "default";
 }
 
 function applySelectedLineHeight() {
@@ -1377,7 +1437,10 @@ function runEditorCommand(action: () => void) {
   action();
 }
 
-function applyInlineStyle(partial: { fontFamily?: string | null; fontSize?: string | null }) {
+function applyInlineStyle(partial: {
+  fontFamily?: string | null;
+  fontSize?: string | null;
+}) {
   if (!editor.value) return;
 
   const current = (editor.value.getAttributes("inlineStyle") ?? {}) as {
@@ -1386,8 +1449,14 @@ function applyInlineStyle(partial: { fontFamily?: string | null; fontSize?: stri
   };
 
   const next = {
-    fontFamily: partial.fontFamily !== undefined ? partial.fontFamily : current.fontFamily ?? null,
-    fontSize: partial.fontSize !== undefined ? partial.fontSize : current.fontSize ?? null,
+    fontFamily:
+      partial.fontFamily !== undefined
+        ? partial.fontFamily
+        : (current.fontFamily ?? null),
+    fontSize:
+      partial.fontSize !== undefined
+        ? partial.fontSize
+        : (current.fontSize ?? null),
   };
 
   if (!next.fontFamily && !next.fontSize) {
@@ -1434,7 +1503,8 @@ function insertGeometryTemplate() {
 
 function shapeDefaultSize(kind: string): { width: number; height: number } {
   if (kind === "square" || kind === "circle") return { width: 90, height: 90 };
-  if (kind === "rectangle" || kind === "trapezoid") return { width: 120, height: 80 };
+  if (kind === "rectangle" || kind === "trapezoid")
+    return { width: 120, height: 80 };
   if (kind === "triangle") return { width: 110, height: 90 };
   if (kind === "cube") return { width: 100, height: 90 };
   if (kind === "cuboid") return { width: 130, height: 90 };
@@ -1523,13 +1593,19 @@ function startDraggingShape(
 
 function onBoardPointerMove(event: PointerEvent | MouseEvent) {
   if (!draggingShapeId.value) return;
-  const shape = drawnShapes.value.find((item) => item.id === draggingShapeId.value);
+  const shape = drawnShapes.value.find(
+    (item) => item.id === draggingShapeId.value,
+  );
   if (!shape) return;
 
   const point = getBoardPoint(event);
   const halfW = shape.width / 2;
   const halfH = shape.height / 2;
-  shape.x = clampValue(point.x - dragOffset.value.x, halfW + 4, boardWidth - halfW - 4);
+  shape.x = clampValue(
+    point.x - dragOffset.value.x,
+    halfW + 4,
+    boardWidth - halfW - 4,
+  );
   shape.y = clampValue(
     point.y - dragOffset.value.y,
     halfH + 4,
@@ -1543,7 +1619,9 @@ function stopDraggingShape() {
 
 function removeSelectedShape() {
   if (!selectedDrawnId.value) return;
-  drawnShapes.value = drawnShapes.value.filter((item) => item.id !== selectedDrawnId.value);
+  drawnShapes.value = drawnShapes.value.filter(
+    (item) => item.id !== selectedDrawnId.value,
+  );
   selectedDrawnId.value = null;
   dirty.value = true;
 }
@@ -1589,15 +1667,21 @@ function setSelectedShapeHeight(value: number) {
 }
 
 function onSelectedSizeInput(event: Event) {
-  setSelectedShapeSize(readInputNumber(event, selectedDrawnShape.value?.width ?? 90));
+  setSelectedShapeSize(
+    readInputNumber(event, selectedDrawnShape.value?.width ?? 90),
+  );
 }
 
 function onSelectedWidthInput(event: Event) {
-  setSelectedShapeWidth(readInputNumber(event, selectedDrawnShape.value?.width ?? 100));
+  setSelectedShapeWidth(
+    readInputNumber(event, selectedDrawnShape.value?.width ?? 100),
+  );
 }
 
 function onSelectedHeightInput(event: Event) {
-  setSelectedShapeHeight(readInputNumber(event, selectedDrawnShape.value?.height ?? 80));
+  setSelectedShapeHeight(
+    readInputNumber(event, selectedDrawnShape.value?.height ?? 80),
+  );
 }
 
 function isSelectedShape(shapeId: number): boolean {
@@ -1751,7 +1835,8 @@ function encodeSvgBase64(svg: string): string {
 }
 
 async function insertDrawingIntoEditor() {
-  if (!editor.value || drawnShapes.value.length === 0 || insertingDrawing.value) return;
+  if (!editor.value || drawnShapes.value.length === 0 || insertingDrawing.value)
+    return;
 
   insertingDrawing.value = true;
   try {
@@ -1780,7 +1865,9 @@ async function insertDrawingIntoEditor() {
 }
 
 onMounted(() => {
-  const queryId = Number(new URLSearchParams(window.location.search).get("document") || 0);
+  const queryId = Number(
+    new URLSearchParams(window.location.search).get("document") || 0,
+  );
   if (queryId > 0) {
     void loadDocument(queryId);
   }
@@ -1794,9 +1881,12 @@ onBeforeUnmount(() => {
   detachFormulaInputListener?.();
 });
 
-watch([topic, grade, difficulty, language, instructions, count, replaceItems], () => {
-  dirty.value = true;
-});
+watch(
+  [topic, grade, difficulty, language, instructions, count, replaceItems],
+  () => {
+    dirty.value = true;
+  },
+);
 
 watch(showMathPanel, (isOpen) => {
   if (isOpen) {
@@ -1887,7 +1977,9 @@ onUpdated(() => {
         </h2>
 
         <div class="space-y-1">
-          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <label
+            class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+          >
             {{ __("Topic") }}
           </label>
           <input
@@ -1900,7 +1992,9 @@ onUpdated(() => {
 
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1">
-            <label class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <label
+              class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+            >
               {{ __("Grade") }}
             </label>
             <input
@@ -1911,7 +2005,9 @@ onUpdated(() => {
             />
           </div>
           <div class="space-y-1">
-            <label class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <label
+              class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+            >
               {{ __("Count") }}
             </label>
             <input
@@ -1926,7 +2022,9 @@ onUpdated(() => {
 
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1">
-            <label class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <label
+              class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+            >
               {{ __("Difficulty") }}
             </label>
             <select
@@ -1939,7 +2037,9 @@ onUpdated(() => {
             </select>
           </div>
           <div class="space-y-1">
-            <label class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <label
+              class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+            >
               {{ __("Language") }}
             </label>
             <select
@@ -1955,7 +2055,9 @@ onUpdated(() => {
         </div>
 
         <div class="space-y-1">
-          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <label
+            class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+          >
             {{ __("Teacher instructions") }}
           </label>
           <textarea
@@ -2065,7 +2167,11 @@ onUpdated(() => {
                   ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
                   : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
               "
-              @click="runEditorCommand(() => editor?.chain().focus().toggleBold().run())"
+              @click="
+                runEditorCommand(() =>
+                  editor?.chain().focus().toggleBold().run(),
+                )
+              "
             >
               B
             </button>
@@ -2077,7 +2183,11 @@ onUpdated(() => {
                   ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
                   : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
               "
-              @click="runEditorCommand(() => editor?.chain().focus().toggleItalic().run())"
+              @click="
+                runEditorCommand(() =>
+                  editor?.chain().focus().toggleItalic().run(),
+                )
+              "
             >
               I
             </button>
@@ -2089,7 +2199,11 @@ onUpdated(() => {
                   ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
                   : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
               "
-              @click="runEditorCommand(() => editor?.chain().focus().toggleUnderline().run())"
+              @click="
+                runEditorCommand(() =>
+                  editor?.chain().focus().toggleUnderline().run(),
+                )
+              "
             >
               <UnderlineIcon :size="13" />
             </button>
@@ -2101,7 +2215,11 @@ onUpdated(() => {
                   ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
                   : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
               "
-              @click="runEditorCommand(() => editor?.chain().focus().toggleBulletList().run())"
+              @click="
+                runEditorCommand(() =>
+                  editor?.chain().focus().toggleBulletList().run(),
+                )
+              "
             >
               {{ __("List") }}
             </button>
@@ -2113,7 +2231,11 @@ onUpdated(() => {
                   ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
                   : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
               "
-              @click="runEditorCommand(() => editor?.chain().focus().setTextAlign('left').run())"
+              @click="
+                runEditorCommand(() =>
+                  editor?.chain().focus().setTextAlign('left').run(),
+                )
+              "
             >
               {{ __("Left") }}
             </button>
@@ -2125,7 +2247,11 @@ onUpdated(() => {
                   ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
                   : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
               "
-              @click="runEditorCommand(() => editor?.chain().focus().setTextAlign('center').run())"
+              @click="
+                runEditorCommand(() =>
+                  editor?.chain().focus().setTextAlign('center').run(),
+                )
+              "
             >
               {{ __("Center") }}
             </button>
@@ -2133,7 +2259,9 @@ onUpdated(() => {
               type="button"
               class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
               :disabled="!canOutdent"
-              @click="runEditorCommand(() => editor?.chain().focus().outdent().run())"
+              @click="
+                runEditorCommand(() => editor?.chain().focus().outdent().run())
+              "
             >
               <IndentDecrease :size="14" />
             </button>
@@ -2141,7 +2269,9 @@ onUpdated(() => {
               type="button"
               class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
               :disabled="!canIndent"
-              @click="runEditorCommand(() => editor?.chain().focus().indent().run())"
+              @click="
+                runEditorCommand(() => editor?.chain().focus().indent().run())
+              "
             >
               <IndentIncrease :size="14" />
             </button>
@@ -2149,7 +2279,9 @@ onUpdated(() => {
               type="button"
               class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
               :disabled="!canUndo"
-              @click="runEditorCommand(() => editor?.chain().focus().undo().run())"
+              @click="
+                runEditorCommand(() => editor?.chain().focus().undo().run())
+              "
             >
               <Undo2 :size="14" />
             </button>
@@ -2157,7 +2289,9 @@ onUpdated(() => {
               type="button"
               class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
               :disabled="!canRedo"
-              @click="runEditorCommand(() => editor?.chain().focus().redo().run())"
+              @click="
+                runEditorCommand(() => editor?.chain().focus().redo().run())
+              "
             >
               <Redo2 :size="14" />
             </button>
@@ -2210,7 +2344,9 @@ onUpdated(() => {
           class="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/50"
         >
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+            <span
+              class="text-xs font-semibold text-slate-600 dark:text-slate-300"
+            >
               {{ __("Math Input") }}
             </span>
             <div class="flex flex-wrap items-center gap-2">
@@ -2239,11 +2375,16 @@ onUpdated(() => {
           </math-field>
         </div>
 
-        <div v-if="showCanvasPanel" class="mx-auto flex w-full max-w-[210mm] flex-col gap-3">
+        <div
+          v-if="showCanvasPanel"
+          class="mx-auto flex w-full max-w-[210mm] flex-col gap-3"
+        >
           <div
             class="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-900/50"
           >
-            <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+            <span
+              class="text-xs font-semibold text-slate-600 dark:text-slate-300"
+            >
               {{ __("Geometry Builder") }}
             </span>
             <select
@@ -2298,7 +2439,9 @@ onUpdated(() => {
             <button
               type="button"
               class="rounded border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 hover:border-emerald-400 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-200"
-              :disabled="drawnShapes.length === 0 || !editor || insertingDrawing"
+              :disabled="
+                drawnShapes.length === 0 || !editor || insertingDrawing
+              "
               @click="insertDrawingIntoEditor"
             >
               {{
@@ -2313,12 +2456,19 @@ onUpdated(() => {
             v-if="selectedDrawnShape"
             class="grid gap-2 rounded-md border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900"
           >
-            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            <p
+              class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+            >
               {{ __("Resize Selected Shape") }}
             </p>
 
-            <div v-if="selectedShapeIsUniform" class="grid grid-cols-[1fr_72px] items-center gap-2">
-              <label class="text-xs text-slate-600 dark:text-slate-300">{{ __("Size") }}</label>
+            <div
+              v-if="selectedShapeIsUniform"
+              class="grid grid-cols-[1fr_72px] items-center gap-2"
+            >
+              <label class="text-xs text-slate-600 dark:text-slate-300">{{
+                __("Size")
+              }}</label>
               <input
                 type="number"
                 min="30"
@@ -2338,7 +2488,9 @@ onUpdated(() => {
             </div>
 
             <div v-else class="grid grid-cols-[1fr_72px] items-center gap-2">
-              <label class="text-xs text-slate-600 dark:text-slate-300">{{ __("Width") }}</label>
+              <label class="text-xs text-slate-600 dark:text-slate-300">{{
+                __("Width")
+              }}</label>
               <input
                 type="number"
                 min="30"
@@ -2356,7 +2508,9 @@ onUpdated(() => {
                 @input="onSelectedWidthInput"
               />
 
-              <label class="text-xs text-slate-600 dark:text-slate-300">{{ __("Height") }}</label>
+              <label class="text-xs text-slate-600 dark:text-slate-300">{{
+                __("Height")
+              }}</label>
               <input
                 type="number"
                 min="30"
@@ -2389,7 +2543,13 @@ onUpdated(() => {
               @pointerup="stopDraggingShape"
               @pointerleave="stopDraggingShape"
             >
-              <rect x="0" y="0" :width="boardWidth" :height="boardHeight" fill="transparent" />
+              <rect
+                x="0"
+                y="0"
+                :width="boardWidth"
+                :height="boardHeight"
+                fill="transparent"
+              />
 
               <g
                 v-for="shape in drawnShapes"
@@ -2398,7 +2558,9 @@ onUpdated(() => {
                 @click.stop="selectDrawnShape(shape.id)"
                 @pointerdown.stop.prevent="startDraggingShape(shape, $event)"
               >
-                <template v-if="shape.kind === 'square' || shape.kind === 'rectangle'">
+                <template
+                  v-if="shape.kind === 'square' || shape.kind === 'rectangle'"
+                >
                   <rect
                     :x="shape.x - shape.width / 2"
                     :y="shape.y - shape.height / 2"
@@ -2439,20 +2601,47 @@ onUpdated(() => {
                   />
                 </template>
 
-                <template v-else-if="shape.kind === 'cube' || shape.kind === 'cuboid'">
+                <template
+                  v-else-if="shape.kind === 'cube' || shape.kind === 'cuboid'"
+                >
                   <rect
-                    :x="shape.x - (shape.kind === 'cube' ? shape.width * 0.72 : shape.width * 0.78) / 2"
+                    :x="
+                      shape.x -
+                      (shape.kind === 'cube'
+                        ? shape.width * 0.72
+                        : shape.width * 0.78) /
+                        2
+                    "
                     :y="shape.y - (shape.height * 0.72) / 2"
-                    :width="shape.kind === 'cube' ? shape.width * 0.72 : shape.width * 0.78"
+                    :width="
+                      shape.kind === 'cube'
+                        ? shape.width * 0.72
+                        : shape.width * 0.78
+                    "
                     :height="shape.height * 0.72"
                     :fill="shape.fill"
                     :stroke="shape.stroke"
                     :stroke-width="shape.strokeWidth"
                   />
                   <rect
-                    :x="shape.x - (shape.kind === 'cube' ? shape.width * 0.72 : shape.width * 0.78) / 2 + (shape.kind === 'cube' ? 20 : 24)"
-                    :y="shape.y - (shape.height * 0.72) / 2 - (shape.kind === 'cube' ? 20 : 24)"
-                    :width="shape.kind === 'cube' ? shape.width * 0.72 : shape.width * 0.78"
+                    :x="
+                      shape.x -
+                      (shape.kind === 'cube'
+                        ? shape.width * 0.72
+                        : shape.width * 0.78) /
+                        2 +
+                      (shape.kind === 'cube' ? 20 : 24)
+                    "
+                    :y="
+                      shape.y -
+                      (shape.height * 0.72) / 2 -
+                      (shape.kind === 'cube' ? 20 : 24)
+                    "
+                    :width="
+                      shape.kind === 'cube'
+                        ? shape.width * 0.72
+                        : shape.width * 0.78
+                    "
                     :height="shape.height * 0.72"
                     fill="none"
                     :stroke="shape.stroke"
@@ -2614,11 +2803,18 @@ onUpdated(() => {
           </div>
 
           <p class="text-xs text-slate-500 dark:text-slate-400">
-            {{ __("Click on empty canvas to place selected shape. Drag any shape to move.") }}
+            {{
+              __(
+                "Click on empty canvas to place selected shape. Drag any shape to move.",
+              )
+            }}
           </p>
         </div>
 
-        <div v-if="loadingDocument" class="py-10 text-center text-sm text-slate-500">
+        <div
+          v-if="loadingDocument"
+          class="py-10 text-center text-sm text-slate-500"
+        >
           {{ __("Loading...") }}
         </div>
 
@@ -2644,9 +2840,7 @@ onUpdated(() => {
           class="rounded-lg border border-dashed border-slate-200 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400"
         >
           {{
-            __(
-              "No generated items yet. Run generation from the left panel.",
-            )
+            __("No generated items yet. Run generation from the left panel.")
           }}
         </div>
 
@@ -2657,7 +2851,9 @@ onUpdated(() => {
             class="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40"
           >
             <div class="mb-2 flex items-center justify-between gap-2">
-              <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <p
+                class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+              >
                 {{ __("Exercise") }} {{ item.item_order }}
               </p>
               <button
@@ -2681,18 +2877,33 @@ onUpdated(() => {
                 :key="`gq-${item.id}-${idx}`"
               >
                 <span v-if="segment.type === 'text'">{{ segment.value }}</span>
-                <span v-else class="inline-math" :data-latex="segment.value"></span>
+                <span
+                  v-else
+                  class="inline-math"
+                  :data-latex="segment.value"
+                ></span>
               </template>
             </p>
-            <ul class="mt-2 space-y-1 text-xs text-slate-600 dark:text-slate-300">
-              <li v-for="(option, index) in item.options" :key="`${item.id}-${index}`">
+            <ul
+              class="mt-2 space-y-1 text-xs text-slate-600 dark:text-slate-300"
+            >
+              <li
+                v-for="(option, index) in item.options"
+                :key="`${item.id}-${index}`"
+              >
                 {{ index + 1 }}.
                 <template
                   v-for="(segment, idx) in splitMath(option)"
                   :key="`go-${item.id}-${index}-${idx}`"
                 >
-                  <span v-if="segment.type === 'text'">{{ segment.value }}</span>
-                  <span v-else class="inline-math" :data-latex="segment.value"></span>
+                  <span v-if="segment.type === 'text'">{{
+                    segment.value
+                  }}</span>
+                  <span
+                    v-else
+                    class="inline-math"
+                    :data-latex="segment.value"
+                  ></span>
                 </template>
               </li>
             </ul>
@@ -2706,7 +2917,11 @@ onUpdated(() => {
                 :key="`ga-${item.id}-${idx}`"
               >
                 <span v-if="segment.type === 'text'">{{ segment.value }}</span>
-                <span v-else class="inline-math" :data-latex="segment.value"></span>
+                <span
+                  v-else
+                  class="inline-math"
+                  :data-latex="segment.value"
+                ></span>
               </template>
             </p>
           </article>
@@ -2759,18 +2974,42 @@ onUpdated(() => {
   line-height: 2;
 }
 
-:deep(.exercise-studio-editor [data-indent="1"]) { margin-left: 2em; }
-:deep(.exercise-studio-editor [data-indent="2"]) { margin-left: 4em; }
-:deep(.exercise-studio-editor [data-indent="3"]) { margin-left: 6em; }
-:deep(.exercise-studio-editor [data-indent="4"]) { margin-left: 8em; }
-:deep(.exercise-studio-editor [data-indent="5"]) { margin-left: 10em; }
-:deep(.exercise-studio-editor [data-indent="6"]) { margin-left: 12em; }
-:deep(.exercise-studio-editor [data-indent="7"]) { margin-left: 14em; }
-:deep(.exercise-studio-editor [data-indent="8"]) { margin-left: 16em; }
-:deep(.exercise-studio-editor [data-indent="9"]) { margin-left: 18em; }
-:deep(.exercise-studio-editor [data-indent="10"]) { margin-left: 20em; }
-:deep(.exercise-studio-editor [data-indent="11"]) { margin-left: 22em; }
-:deep(.exercise-studio-editor [data-indent="12"]) { margin-left: 24em; }
+:deep(.exercise-studio-editor [data-indent="1"]) {
+  margin-left: 2em;
+}
+:deep(.exercise-studio-editor [data-indent="2"]) {
+  margin-left: 4em;
+}
+:deep(.exercise-studio-editor [data-indent="3"]) {
+  margin-left: 6em;
+}
+:deep(.exercise-studio-editor [data-indent="4"]) {
+  margin-left: 8em;
+}
+:deep(.exercise-studio-editor [data-indent="5"]) {
+  margin-left: 10em;
+}
+:deep(.exercise-studio-editor [data-indent="6"]) {
+  margin-left: 12em;
+}
+:deep(.exercise-studio-editor [data-indent="7"]) {
+  margin-left: 14em;
+}
+:deep(.exercise-studio-editor [data-indent="8"]) {
+  margin-left: 16em;
+}
+:deep(.exercise-studio-editor [data-indent="9"]) {
+  margin-left: 18em;
+}
+:deep(.exercise-studio-editor [data-indent="10"]) {
+  margin-left: 20em;
+}
+:deep(.exercise-studio-editor [data-indent="11"]) {
+  margin-left: 22em;
+}
+:deep(.exercise-studio-editor [data-indent="12"]) {
+  margin-left: 24em;
+}
 
 @media (max-width: 960px) {
   :deep(.exercise-studio-editor) {
@@ -2792,4 +3031,3 @@ onUpdated(() => {
   --caret-color: #e2e8f0;
 }
 </style>
-
