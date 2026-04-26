@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,5 +17,10 @@ class Formula extends Model
     public function translations(): HasMany
     {
         return $this->hasMany(FormulaTranslation::class);
+    }
+
+    public function step(): HasOne
+    {
+        return $this->hasOne(FormulaStep::class);
     }
 }

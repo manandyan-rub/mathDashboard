@@ -59,17 +59,27 @@ function changeLanguage(event: Event) {
       <aside
         class="sticky top-0 hidden h-screen w-72 border-r border-slate-200/70 bg-white/90 text-slate-700 backdrop-blur-xl dark:border-slate-800/60 dark:bg-[#0B0F19]/90 dark:text-slate-300 md:flex md:flex-col"
       >
-        <div class="flex h-16 items-center border-b border-slate-200/70 px-6 dark:border-slate-800/60">
-          <div class="flex items-center gap-2 text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-            <div class="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-indigo-500 to-purple-600">
-              <span class="text-lg font-serif italic text-white shadow-sm">fx</span>
+        <div
+          class="flex h-18 items-center border-b border-slate-200/70 px-6 dark:border-slate-800/60"
+        >
+          <div
+            class="flex items-center gap-2 text-xl font-bold tracking-tight text-slate-900 dark:text-white"
+          >
+            <div
+              class="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-indigo-500 to-purple-600"
+            >
+              <span class="text-lg font-serif italic text-white shadow-sm"
+                >fx</span
+              >
             </div>
             MathDash<span class="text-indigo-500">.</span>
           </div>
         </div>
 
         <div class="flex-1 overflow-hidden p-4">
-          <p class="mb-3 mt-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <p
+            class="mb-3 mt-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500"
+          >
             {{ __("Modules") }}
           </p>
 
@@ -77,7 +87,9 @@ function changeLanguage(event: Event) {
             <slot name="sidebar" />
           </nav>
 
-          <p class="mb-4 mt-8 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <p
+            class="mb-4 mt-8 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500"
+          >
             {{ __("Coming Soon") }}
           </p>
           <nav class="space-y-1">
@@ -90,7 +102,10 @@ function changeLanguage(event: Event) {
                 <component :is="item.icon" :size="18" />
                 <span class="text-sm font-medium">{{ __(item.label) }}</span>
               </div>
-              <Lock :size="12" class="text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 dark:text-slate-500" />
+              <Lock
+                :size="12"
+                class="text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 dark:text-slate-500"
+              />
             </div>
           </nav>
         </div>
@@ -111,12 +126,20 @@ function changeLanguage(event: Event) {
                 @change="changeLanguage"
                 class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-400 focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
               >
-                <option v-for="lang in languages" :key="lang.value" :value="lang.value">
+                <option
+                  v-for="lang in languages"
+                  :key="lang.value"
+                  :value="lang.value"
+                >
                   {{ __(lang.label) }}
                 </option>
               </select>
 
-              <Dropdown align="right" width="48" content-classes="py-1 bg-white dark:bg-slate-800">
+              <Dropdown
+                align="right"
+                width="48"
+                content-classes="py-1 bg-white dark:bg-slate-800"
+              >
                 <template #trigger>
                   <div class="flex items-center justify-center gap-4">
                     <div>
@@ -140,7 +163,9 @@ function changeLanguage(event: Event) {
 
                 <template #content>
                   <div class="px-4 py-2">
-                    <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    <p
+                      class="text-sm font-semibold text-slate-800 dark:text-slate-100"
+                    >
                       {{ user?.name ?? __("User") }}
                     </p>
                     <p class="text-xs text-slate-500 dark:text-slate-300">
@@ -148,10 +173,14 @@ function changeLanguage(event: Event) {
                     </p>
                   </div>
 
-                  <DropdownLink :href="route('profile.edit')">{{ __("Profile") }}</DropdownLink>
+                  <DropdownLink :href="route('profile.edit')">{{
+                    __("Profile")
+                  }}</DropdownLink>
 
                   <div class="px-4 py-2">
-                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">
+                    <p
+                      class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                    >
                       {{ __("Theme") }}
                     </p>
                     <div class="grid grid-cols-2 gap-2">
@@ -184,7 +213,11 @@ function changeLanguage(event: Event) {
                     </div>
                   </div>
 
-                  <DropdownLink :href="route('logout')" method="post" as="button">
+                  <DropdownLink
+                    :href="route('logout')"
+                    method="post"
+                    as="button"
+                  >
                     {{ __("Logout") }}
                   </DropdownLink>
                 </template>

@@ -176,15 +176,16 @@ export function useGameEngine() {
       wrongCount,
     );
     const values = [
-      ...wrongAnswers.map((v, i) => ({ v, correct: false, id: i })),
-      { v: prob.answer, correct: true, id: wrongCount },
+      ...wrongAnswers.map((v) => ({ v, correct: false })),
+      { v: prob.answer, correct: true },
     ].sort(() => Math.random() - 0.5);
 
     const colors = BUBBLE_COLORS[m];
+    const colorStart = Math.floor(Math.random() * colors.length);
     const placed: Bubble[] = [];
     const topPad = 185;
 
-    values.forEach(({ v, correct, id }) => {
+    values.forEach(({ v, correct }, index) => {
       let cx = 0,
         cy = 0,
         ok = false,
@@ -202,7 +203,7 @@ export function useGameEngine() {
         cx,
         cy,
         size,
-        color: colors[id % colors.length],
+        color: colors[(colorStart + index) % colors.length],
         isCorrect: correct,
         state: "idle",
       });
