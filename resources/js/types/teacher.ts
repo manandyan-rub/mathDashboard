@@ -57,3 +57,10 @@ export type DrawnGeometryShape = {
   stroke: string;
   strokeWidth: number;
 };
+
+export type FreehandDrawingLine = {
+  id: string;
+  path: string;
+  color: string;
+  size: number;
+};

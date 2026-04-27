@@ -26,6 +26,7 @@ import {
   IndentDecrease,
   IndentIncrease,
   Loader2,
+  PencilLine,
   Redo2,
   RefreshCw,
   Sparkles,
@@ -33,6 +34,7 @@ import {
   Undo2,
   WandSparkles,
 } from "lucide-vue-next";
+import FreehandDrawingNode from "@/Pages/Teacher/partials/editor/FreehandDrawingNode";
 import {
   Difficulty,
   StudioStatus,
@@ -62,6 +64,9 @@ declare module "@tiptap/core" {
         alt?: string;
         title?: string;
       }) => ReturnType;
+    };
+    freehandDrawing: {
+      insertFreehandDrawing: () => ReturnType;
     };
   }
 }
@@ -606,6 +611,7 @@ const editor = useEditor({
     Underline,
     BlockFormattingExtension,
     InlineStyleMark,
+    FreehandDrawingNode,
     GeometryDrawingNode,
     ImageBlockNode,
     MathInlineNode,
@@ -1374,6 +1380,15 @@ function toggleCanvasPanel() {
   if (showCanvasPanel.value) {
     showMathPanel.value = false;
   }
+}
+
+function insertFreehandDrawing() {
+  if (!editor.value) return;
+
+  editor.value.chain().focus().insertFreehandDrawing().run();
+  showMathPanel.value = false;
+  showCanvasPanel.value = false;
+  dirty.value = true;
 }
 
 function openImagePicker() {
@@ -2328,6 +2343,14 @@ onUpdated(() => {
               @click="toggleCanvasPanel"
             >
               {{ __("Canvas") }}
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              @click="insertFreehandDrawing"
+            >
+              <PencilLine :size="13" />
+              {{ __("Drawing") }}
             </button>
             <input
               ref="imageInputRef"
