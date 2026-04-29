@@ -64,7 +64,6 @@ const CATEGORY_META = [
   {
     id: "arithmetic",
     label: "Թվաբանություն",
-    emoji: "🔢",
     color: "blue",
     sections: [
       { id: "basic-ops", title: "Հիմնական գործողություններ" },
@@ -77,7 +76,6 @@ const CATEGORY_META = [
   {
     id: "algebra",
     label: "Հանրահաշիվ",
-    emoji: "🧩",
     color: "violet",
     sections: [
       { id: "identities", title: "Հանրահաշվական նույնություններ" },
@@ -91,7 +89,6 @@ const CATEGORY_META = [
   {
     id: "geometry2d",
     label: "Հարթ երկրաչափություն",
-    emoji: "📐",
     color: "emerald",
     sections: [
       { id: "triangle", title: "Եռանկյուն" },
@@ -104,7 +101,6 @@ const CATEGORY_META = [
   {
     id: "geometry3d",
     label: "Տարածական երկրաչափություն",
-    emoji: "🧊",
     color: "cyan",
     sections: [
       { id: "prisms", title: "Պրիզմա, ուղղանկյուն զուգահեռանիստ, խորանարդ" },
@@ -116,7 +112,6 @@ const CATEGORY_META = [
   {
     id: "trigonometry",
     label: "Եռանկյունաչափություն",
-    emoji: "📏",
     color: "amber",
     sections: [
       { id: "trig-defs", title: "Տրիգոնոմետրիկ սահմանումներ" },
@@ -128,7 +123,6 @@ const CATEGORY_META = [
   {
     id: "calculus",
     label: "Մաթեմատիկական անալիզ",
-    emoji: "∫",
     color: "rose",
     sections: [
       { id: "limits", title: "Սահմաններ" },
@@ -141,7 +135,6 @@ const CATEGORY_META = [
   {
     id: "linearAlgebra",
     label: "Գծային հանրահաշիվ",
-    emoji: "🧮",
     color: "indigo",
     sections: [
       { id: "vectors", title: "Վեկտորներ" },
@@ -152,7 +145,6 @@ const CATEGORY_META = [
   {
     id: "statistics",
     label: "Վիճակագրություն և հավանականություն",
-    emoji: "📊",
     color: "teal",
     sections: [
       { id: "combinatorics", title: "Կոմբինատորիկա" },
@@ -259,7 +251,6 @@ const allCategories = computed<FormulaCategory[]>(() =>
   CATEGORY_META.map((cat) => ({
     id: cat.id,
     label: cat.label,
-    emoji: cat.emoji,
     color: cat.color,
     sections: cat.sections.map((sec) => ({
       id: sec.id,
@@ -663,7 +654,6 @@ function selectCategory(id: string) {
         </Link>
 
         <div class="flex items-center gap-2 min-w-0">
-          <span class="text-xl">🧮</span>
           <h1 class="font-semibold text-base whitespace-nowrap">Formula Library</h1>
           <Badge variant="secondary" class="hidden sm:flex text-xs">
             {{ totalFormulaCount }} բանաձև
@@ -774,7 +764,6 @@ function selectCategory(id: string) {
               "
               @click="selectCategory(cat.id)"
             >
-              <span class="text-base leading-none">{{ cat.emoji }}</span>
               <span class="flex-1 truncate">{{ cat.label }}</span>
               <span class="text-[10px] opacity-60">
                 {{ cat.sections.reduce((s, sec) => s + sec.formulas.length, 0) }}
@@ -818,7 +807,6 @@ function selectCategory(id: string) {
             v-if="search && filteredSections.length === 0"
             class="text-center py-16 text-muted-foreground"
           >
-            <span class="text-4xl block mb-3">🔍</span>
             <p>«{{ search }}» հարցմամբ բանաձև չգտնվեց</p>
           </div>
 

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('formula_steps', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor('formula')->constrained()->cascadeOnDelete();
+            $table->foreignId('formula_id')->constrained('formulas')->cascadeOnDelete();
             $table->json('steps_json');
             $table->timestamps();
             $table->unique('formula_id');
@@ -28,4 +28,3 @@ return new class extends Migration
         Schema::dropIfExists('formula_steps');
     }
 };
-

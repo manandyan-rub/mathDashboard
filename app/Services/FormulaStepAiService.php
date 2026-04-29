@@ -6,19 +6,17 @@ use App\Models\Formula;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class FormulaStepAiService
 {
+    private string $lastSource = 'ai';
+
     /**
      * @return array<int, array{latex: string, note: string}>
      */
     public function generateForFormula(Formula $formula, ?string $locale = null): array
     {
-        $apiKey = trim((string) config('services.gemini.key', ''));
-        if ($apiKey === '') {
-            throw new \RuntimeException('Gemini API key is not configured.');
-        }
-
         $formula->loadMissing('translations');
 
         $preferredLocale = $this->normalizeLocale($locale ?? app()->getLocale());
@@ -27,45 +25,69 @@ class FormulaStepAiService
             ?? $formula->translations->firstWhere('locale', 'en')
             ?? $formula->translations->first();
 
-        $model = $this->resolveModel();
-        $prompt = $this->buildPrompt(
-            formulaLatex: (string) $formula->formula,
-            formulaName: trim((string) ($translation?->name ?? 'Formula')),
-            formulaDescription: trim((string) ($translation?->description ?? '')),
-            locale: $preferredLocale
-        );
-
-        $response = $this->requestGeminiWithBusyRetry(
-            apiKey: $apiKey,
-            model: $model,
-            prompt: $prompt,
-            maxTokens: 2300
-        );
-
-        if (!$response->successful()) {
-            $status = $response->status();
-            $error = trim((string) $response->json('error.message', ''));
-            if ($status === 503 || $this->isHighDemandError($response)) {
-                throw new \RuntimeException("Model {$model} is currently busy. Please try again in a moment.");
-            }
-
-            throw new \RuntimeException(
-                trim("Model {$model} failed with HTTP {$status}. {$error}")
+        $apiKey = trim((string) config('services.gemini.key', ''));
+        if ($apiKey !== '') {
+            $prompt = $this->buildPrompt(
+                formulaLatex: (string) $formula->formula,
+                formulaName: trim((string) ($translation?->name ?? 'Formula')),
+                formulaDescription: trim((string) ($translation?->description ?? '')),
+                locale: $preferredLocale
             );
+
+            foreach ($this->resolveModels() as $model) {
+                try {
+                    $response = $this->requestGeminiWithBusyRetry(
+                        apiKey: $apiKey,
+                        model: $model,
+                        prompt: $prompt,
+                        maxTokens: 2300
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('Gemini formula step request exception', [
+                        'model' => $model,
+                        'error' => $e->getMessage(),
+                    ]);
+                    continue;
+                }
+
+                if (!$response->successful()) {
+                    Log::warning('Gemini formula step request failed', [
+                        'model' => $model,
+                        'status' => $response->status(),
+                        'error' => trim((string) $response->json('error.message', '')),
+                    ]);
+                    continue;
+                }
+
+                $raw = (string) $response->json('candidates.0.content.parts.0.text', '');
+                $decoded = $this->parseModelJson($raw);
+                if ($decoded === null) {
+                    Log::warning('Gemini formula step response was invalid JSON', ['model' => $model]);
+                    continue;
+                }
+
+                $steps = $this->normalizeSteps($decoded, $preferredLocale);
+                if (count($steps) >= 3) {
+                    $this->lastSource = 'ai';
+
+                    return $steps;
+                }
+
+                Log::warning('Gemini formula step response was incomplete', [
+                    'model' => $model,
+                    'steps_count' => count($steps),
+                ]);
+            }
         }
 
-        $raw = (string) $response->json('candidates.0.content.parts.0.text', '');
-        $decoded = $this->parseModelJson($raw);
-        if ($decoded === null) {
-            throw new \RuntimeException("Model {$model} returned invalid JSON payload.");
-        }
+        $this->lastSource = 'local';
 
-        $steps = $this->normalizeSteps($decoded, $preferredLocale);
-        if (count($steps) < 3) {
-            throw new \RuntimeException("Model {$model} returned incomplete steps.");
-        }
+        return $this->generateLocalSteps($formula, $translation, $preferredLocale);
+    }
 
-        return $steps;
+    public function lastSource(): string
+    {
+        return $this->lastSource;
     }
 
     private function buildPrompt(
@@ -128,7 +150,7 @@ class FormulaStepAiService
                     return false;
                 }
 
-                return in_array($response->status(), [408, 429, 500, 502, 503, 504], true);
+                return in_array($response->status(), [408, 500, 502, 503, 504], true);
             })
             ->withOptions([
                 \CURLOPT_IPRESOLVE => \CURL_IPRESOLVE_V4,
@@ -195,19 +217,41 @@ class FormulaStepAiService
             || str_contains($message, 'temporarily unavailable');
     }
 
-    private function resolveModel(): string
+    /**
+     * @return array<int, string>
+     */
+    private function resolveModels(): array
     {
-        $model = trim((string) config('services.gemini.model', 'gemini-2.5-flash'));
+        $models = [
+            (string) config('services.gemini.model', 'gemini-2.5-flash'),
+            (string) config('services.gemini.fallback_model', 'gemini-2.5-flash-lite'),
+            'gemini-2.5-flash-lite',
+            'gemini-2.5-flash',
+        ];
+
+        $resolved = [];
+        foreach ($models as $model) {
+            $model = $this->normalizeModelName($model);
+            if ($model !== '' && !in_array($model, $resolved, true)) {
+                $resolved[] = $model;
+            }
+        }
+
+        return $resolved;
+    }
+
+    private function normalizeModelName(string $model): string
+    {
+        $model = trim($model);
         if ($model === '') {
-            throw new \RuntimeException('Gemini model is not configured.');
+            return '';
         }
 
         $model = str_starts_with($model, 'models/') ? substr($model, 7) : $model;
-        if ($model === 'gemini-flash-latest') {
-            return 'gemini-2.5-flash';
-        }
 
-        return $model;
+        return $model === 'gemini-flash-latest'
+            ? 'gemini-2.5-flash'
+            : $model;
     }
 
     private function normalizeLocale(string $locale): string
@@ -479,5 +523,100 @@ class FormulaStepAiService
             default => "Step {$step}",
         };
     }
-}
 
+    /**
+     * @return array<int, array{latex: string, note: string}>
+     */
+    private function generateLocalSteps(Formula $formula, mixed $translation, string $locale): array
+    {
+        $formulaLatex = $this->normalizeStepLatex((string) $formula->formula);
+        $exampleLatex = $this->normalizeStepLatex((string) $formula->example);
+        $formulaName = trim((string) ($translation?->name ?? ''));
+        [$leftSide, $rightSide] = $this->splitFormulaSides($formulaLatex);
+
+        $steps = [];
+        if ($formulaLatex !== '') {
+            $steps[] = [
+                'latex' => $formulaLatex,
+                'note' => $this->localStepNote($locale, 'rule', $formulaName),
+            ];
+        }
+
+        if ($leftSide !== null && $leftSide !== '') {
+            $steps[] = [
+                'latex' => $leftSide,
+                'note' => $this->localStepNote($locale, 'left', $formulaName),
+            ];
+        }
+
+        if ($rightSide !== null && $rightSide !== '') {
+            $steps[] = [
+                'latex' => $rightSide,
+                'note' => $this->localStepNote($locale, 'right', $formulaName),
+            ];
+        }
+
+        $steps[] = [
+            'latex' => $exampleLatex !== '' ? $exampleLatex : $formulaLatex,
+            'note' => $this->localStepNote($locale, 'apply', $formulaName),
+        ];
+
+        while (count($steps) < 3 && $formulaLatex !== '') {
+            $steps[] = [
+                'latex' => $formulaLatex,
+                'note' => $this->defaultStepNote($locale, count($steps) + 1),
+            ];
+        }
+
+        return array_values(array_filter(
+            array_slice($steps, 0, 6),
+            fn (array $step) => trim($step['latex']) !== ''
+        ));
+    }
+
+    /**
+     * @return array{0: string|null, 1: string|null}
+     */
+    private function splitFormulaSides(string $latex): array
+    {
+        if (!str_contains($latex, '=')) {
+            return [null, null];
+        }
+
+        [$left, $right] = explode('=', $latex, 2);
+
+        return [trim($left), trim($right)];
+    }
+
+    private function localStepNote(string $locale, string $key, string $formulaName): string
+    {
+        $notes = match ($locale) {
+            'hy' => [
+                'rule' => $formulaName !== '' ? "{$formulaName} բանաձևը օգտագործիր որպես կանոն։" : 'Օգտագործիր բանաձևը որպես կանոն։',
+                'left' => 'Սկսիր հավասարության ձախ մասից։',
+                'right' => 'Փոխարինիր այն համարժեք աջ մասով։',
+                'apply' => 'Տեղադրիր հայտնի արժեքները և պարզեցրու։',
+            ],
+            'ru' => [
+                'rule' => $formulaName !== '' ? "Используй формулу {$formulaName} как правило." : 'Используй формулу как правило.',
+                'left' => 'Начни с левой части равенства.',
+                'right' => 'Замени ее равносильной правой частью.',
+                'apply' => 'Подставь известные значения и упрости.',
+            ],
+            'fr' => [
+                'rule' => $formulaName !== '' ? "Utilise la formule {$formulaName} comme règle." : 'Utilise la formule comme règle.',
+                'left' => 'Commence par le membre gauche.',
+                'right' => 'Remplace-le par le membre droit équivalent.',
+                'apply' => 'Remplace les valeurs connues, puis simplifie.',
+            ],
+            default => [
+                'rule' => $formulaName !== '' ? "Use the {$formulaName} formula as the rule." : 'Use the formula as the rule.',
+                'left' => 'Start with the left side of the equality.',
+                'right' => 'Rewrite it with the equivalent right side.',
+                'apply' => 'Substitute known values, then simplify.',
+            ],
+        };
+
+        return $notes[$key] ?? $this->defaultStepNote($locale, 1);
+    }
+}

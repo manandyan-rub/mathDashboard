@@ -77,7 +77,7 @@ class FormulaController extends Controller
             'formula_id' => $formula->id,
             'has_steps' => !empty($generated),
             'steps' => $generated,
-            'source' => 'ai',
+            'source' => $aiService->lastSource(),
         ]);
     }
 
@@ -106,7 +106,7 @@ class FormulaController extends Controller
             'formula_id' => $formula->id,
             'has_steps' => !empty($generated),
             'steps' => $generated,
-            'source' => 'ai',
+            'source' => $aiService->lastSource(),
         ]);
     }
 

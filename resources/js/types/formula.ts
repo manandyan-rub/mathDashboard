@@ -26,7 +26,6 @@ export type FormulaSection = {
 export type FormulaCategory = {
   id: string;
   label: string;
-  emoji: string;
   color: string;
   sections: FormulaSection[];
 };
