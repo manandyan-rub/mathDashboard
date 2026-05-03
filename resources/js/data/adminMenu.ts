@@ -2,11 +2,12 @@
   Box,
   Calculator,
   EqualApproximately,
-  LayoutDashboard,
+  Globe2,
   NotebookPen,
   Pi,
   Sigma,
   Trophy,
+  UserRound,
 } from "lucide-vue-next";
 
 export interface MenuItem {
@@ -20,7 +21,18 @@ export const adminMenu: MenuItem[] = [
   {
     title: "Dashboard",
     route: "dashboard",
-    icon: LayoutDashboard,
+    children: [
+      {
+        title: "Local",
+        route: "dashboard.local",
+        icon: UserRound,
+      },
+      {
+        title: "Global",
+        route: "dashboard.global",
+        icon: Globe2,
+      },
+    ],
   },
   {
     title: "Hall of Fame",

@@ -114,7 +114,7 @@ onUnmounted(() => {
     >
       <div>
         <div
-          class="mb-4 inline-flex items-center gap-2 rounded-full border border-chart-3/20 bg-chart-3/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-chart-3"
+          class="mb-4 inline-flex items-center gap-2 rounded-full border border-rank-first/20 bg-rank-first/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-rank-first"
         >
           <Trophy :size="14" /> {{ __("Global League") }}
         </div>
@@ -210,18 +210,18 @@ onUnmounted(() => {
             {{ userAt(0).xp.toLocaleString() }} XP
           </div>
           <div
-            class="z-10 mb-[-1.5rem] flex h-20 w-20 items-center justify-center rounded-full border-4 border-chart-3 bg-chart-3/10 text-2xl font-bold text-chart-3 shadow-lg shadow-chart-3/40"
+            class="z-10 mb-[-1.5rem] flex h-20 w-20 items-center justify-center rounded-full border-4 border-rank-first/70 bg-card text-2xl font-bold text-rank-first shadow-lg shadow-rank-first/20"
           >
             {{ userAt(0).avatar }}
           </div>
           <div
-            class="relative flex h-44 w-full flex-col items-center justify-start overflow-hidden rounded-t-xl border-t-2 border-chart-3 bg-gradient-to-t from-muted via-chart-3/70 to-chart-3 pt-10 pb-4 dark:from-card dark:via-chart-3/20 dark:to-chart-3/30"
+            class="relative flex h-44 w-full flex-col items-center justify-start overflow-hidden rounded-t-xl border border-rank-first/30 bg-card pt-10 pb-4 shadow-sm"
           >
-            <div
-              class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-chart-3/20 to-transparent"
-            />
-            <Trophy :size="32" class="mb-1 text-chart-3 drop-shadow-lg" />
-            <span class="text-3xl font-bold text-chart-3">1</span>
+            <div class="absolute inset-x-0 top-0 h-2 bg-rank-first/80" />
+            <div class="mb-2 rounded-full bg-rank-first/10 p-2">
+              <Trophy :size="28" class="text-rank-first" />
+            </div>
+            <span class="text-3xl font-bold text-foreground">1</span>
           </div>
           <div class="mt-4 text-center">
             <p
@@ -229,7 +229,7 @@ onUnmounted(() => {
             >
               {{ userAt(0).name }}
             </p>
-            <p class="mt-0.5 text-xs font-medium text-chart-3">
+            <p class="mt-0.5 text-xs font-medium text-rank-first">
               LvL {{ userAt(0).level }}
             </p>
           </div>
@@ -242,16 +242,18 @@ onUnmounted(() => {
             {{ userAt(2).xp.toLocaleString() }} XP
           </div>
           <div
-            class="z-10 mb-[-1.5rem] flex h-16 w-16 items-center justify-center rounded-full border-4 border-chart-3 bg-card text-xl font-bold text-chart-3 shadow-lg shadow-chart-3/30 dark:bg-card"
+            class="z-10 mb-[-1.5rem] flex h-16 w-16 items-center justify-center rounded-full border-4 border-rank-third/70 bg-card text-xl font-bold text-rank-third shadow-lg shadow-rank-third/20 dark:bg-card"
           >
             {{ userAt(2).avatar }}
           </div>
           <div
-            class="relative flex h-24 w-full flex-col items-center justify-start overflow-hidden rounded-t-xl border-t-2 border-chart-3 bg-gradient-to-t from-muted via-muted to-chart-3/60 pt-8 pb-4 dark:from-card dark:via-card dark:to-chart-3/40"
+            class="relative flex h-24 w-full flex-col items-center justify-start overflow-hidden rounded-t-xl border border-rank-third/30 bg-card pt-8 pb-4 shadow-sm"
           >
-            <div class="absolute inset-0 bg-chart-3/5" />
-            <Award :size="24" class="mb-1 text-chart-3" />
-            <span class="text-xl font-bold text-chart-3">3</span>
+            <div class="absolute inset-x-0 top-0 h-2 bg-rank-third" />
+            <div class="mb-1 rounded-full bg-rank-third/10 p-1.5">
+              <Award :size="22" class="text-rank-third" />
+            </div>
+            <span class="text-xl font-bold text-foreground">3</span>
           </div>
           <div class="mt-4 text-center">
             <p
@@ -259,7 +261,7 @@ onUnmounted(() => {
             >
               {{ userAt(2).name }}
             </p>
-            <p class="mt-0.5 text-xs text-primary">
+            <p class="mt-0.5 text-xs text-rank-third">
               LvL {{ userAt(2).level }}
             </p>
           </div>
@@ -268,30 +270,30 @@ onUnmounted(() => {
 
       <div
         v-if="currentUser"
-        class="relative mb-8 flex items-center justify-between overflow-hidden rounded-2xl border border-primary/60 bg-gradient-to-r from-primary to-chart-4 p-4 shadow-lg shadow-primary/20 backdrop-blur-md dark:border-primary/30 dark:from-primary/20 dark:to-chart-4/20 md:p-6"
+        class="relative mb-8 flex items-center justify-between overflow-hidden rounded-2xl border border-primary/30 bg-card p-4 text-card-foreground shadow-sm md:p-6"
       >
         <div class="shimmer-line" />
 
         <div class="z-10 flex items-center gap-4 md:gap-6">
           <div
-            class="w-12 text-center text-2xl font-black text-primary dark:text-primary md:w-16 md:text-3xl"
+            class="w-12 text-center text-2xl font-black text-primary md:w-16 md:text-3xl"
           >
             #{{ currentUser.rank }}
           </div>
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-chart-4 font-bold text-primary-foreground shadow-lg ring-2 ring-ring/50"
+            class="flex h-12 w-12 items-center justify-center rounded-full border border-primary/30 bg-primary/10 font-bold text-primary shadow-sm"
           >
             {{ currentUser.avatar }}
           </div>
           <div>
-            <h3 class="text-lg font-bold text-foreground dark:text-primary-foreground">
+            <h3 class="text-lg font-bold text-card-foreground">
               {{ currentUser.name }}
               <span
                 class="ml-2 hidden text-sm font-normal text-muted-foreground md:inline"
                 >{{ __("You") }}</span
               >
             </h3>
-            <p class="text-sm text-primary dark:text-primary">
+            <p class="text-sm text-muted-foreground">
               {{ currentUser.handle }}
             </p>
           </div>
@@ -302,7 +304,7 @@ onUnmounted(() => {
             <p class="mb-1 text-xs uppercase tracking-wider text-muted-foreground">
               {{ __("Level") }}
             </p>
-            <p class="text-lg font-bold text-foreground dark:text-primary-foreground">
+            <p class="text-lg font-bold text-card-foreground">
               {{ currentUser.level }}
             </p>
           </div>

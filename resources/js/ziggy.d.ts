@@ -3,6 +3,8 @@ declare module 'ziggy-js' {
   interface RouteList {
     "sanctum.csrf-cookie": [],
     "dashboard": [],
+    "dashboard.local": [],
+    "dashboard.global": [],
     "profile.edit": [],
     "profile.update": [],
     "profile.destroy": [],
@@ -13,7 +15,23 @@ declare module 'ziggy-js' {
     "game.oneplusone": [],
     "game.equilibrium": [],
     "formula.index": [],
-    "exercises.generate": [],
+    "teacher.exercises.studio": [],
+    "math-levels.index": [],
+    "math-levels.rewards": [],
+    "math-levels.session": [
+        {
+            "name": "attempt",
+            "required": true,
+            "binding": "id"
+        }
+    ],
+    "math-levels.result": [
+        {
+            "name": "attempt",
+            "required": true,
+            "binding": "id"
+        }
+    ],
     "register": [],
     "login": [],
     "password.request": [],

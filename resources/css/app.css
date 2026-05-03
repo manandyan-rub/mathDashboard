@@ -38,6 +38,8 @@
   --chart-3: #d97706;
   --chart-4: #7c3aed;
   --chart-5: #2563eb;
+  --rank-first: #f59e0b;
+  --rank-third: #b45309;
 
   --radius: 0.625rem;
 }
@@ -76,6 +78,8 @@
   --chart-3: #fbbf24;
   --chart-4: #a78bfa;
   --chart-5: #60a5fa;
+  --rank-first: #fbbf24;
+  --rank-third: #fb923c;
 }
 
 @theme inline {
@@ -109,6 +113,8 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-rank-first: var(--rank-first);
+  --color-rank-third: var(--rank-third);
 
   --radius-xs: calc(var(--radius) - 6px);
   --radius-sm: calc(var(--radius) - 4px);

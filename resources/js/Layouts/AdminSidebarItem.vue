@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { Link } from "@inertiajs/vue3";
+import { computed, ref, watch } from "vue";
+import { Link, usePage } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
 import type { MenuItem } from "@/data/adminMenu";
 import AdminSidebarItem from "@/Layouts/AdminSidebarItem.vue";
@@ -13,10 +13,30 @@ const props = defineProps<{
 const level = computed(() => props.level ?? 0);
 
 const hasChildren = computed(() => !!props.item.children?.length);
+const page = usePage();
+const normalizePath = (path: string) => {
+  const normalized = path.split("?")[0].replace(/\/+$/, "");
+  return normalized === "" ? "/" : normalized;
+};
+
+const currentPath = computed(() => normalizePath(page.url));
+
+const routePath = (routeName: string) => {
+  try {
+    const origin =
+      typeof window === "undefined"
+        ? "http://localhost"
+        : window.location.origin;
+
+    return normalizePath(new URL(route(routeName), origin).pathname);
+  } catch {
+    return "";
+  }
+};
 
 const isActive = (routeName?: string) => {
   if (!routeName) return false;
-  return route().current(routeName);
+  return currentPath.value === routePath(routeName);
 };
 
 const hasActiveChild = (item: MenuItem): boolean => {
@@ -27,6 +47,15 @@ const hasActiveChild = (item: MenuItem): boolean => {
 };
 
 const opened = ref(hasActiveChild(props.item));
+
+watch(
+  () => hasActiveChild(props.item),
+  (active) => {
+    if (active) {
+      opened.value = true;
+    }
+  },
+);
 </script>
 
 <template>

@@ -172,6 +172,30 @@ export function useDashboardAnalytics() {
   const topModeClaims = computed(
     () => popularModePoints.value[0]?.claims ?? 0,
   );
+  const globalLearners = computed(() =>
+    userLevelPoints.value.reduce(
+      (sum, point) => sum + Math.max(0, point.users),
+      0,
+    ),
+  );
+  const globalXp = computed(() =>
+    userLevelPoints.value.reduce(
+      (sum, point) => sum + Math.max(0, point.total_xp),
+      0,
+    ),
+  );
+  const globalGameClaims = computed(() =>
+    popularModePoints.value.reduce(
+      (sum, point) => sum + Math.max(0, point.claims),
+      0,
+    ),
+  );
+  const globalLevelCompletions = computed(() =>
+    completedLevelPoints.value.reduce(
+      (sum, point) => sum + Math.max(0, point.users),
+      0,
+    ),
+  );
 
   const insightCards = computed<InsightCard[]>(() => [
     {
@@ -193,6 +217,28 @@ export function useDashboardAnalytics() {
       title: "Most Used Mode",
       value: `${topModeLabel.value} (${formatNumber(topModeClaims.value)} claims)`,
       description: "Game mode used most frequently for XP.",
+    },
+  ]);
+  const globalInsightCards = computed<InsightCard[]>(() => [
+    {
+      title: "Learners",
+      value: formatNumber(globalLearners.value),
+      description: "Profiles currently represented in XP levels.",
+    },
+    {
+      title: "Global XP",
+      value: formatNumber(globalXp.value),
+      description: "Combined XP across all learner profiles.",
+    },
+    {
+      title: "Game Claims",
+      value: formatNumber(globalGameClaims.value),
+      description: "All game XP claim events by mode.",
+    },
+    {
+      title: "Level Completions",
+      value: formatNumber(globalLevelCompletions.value),
+      description: "Completed math level records across the platform.",
     },
   ]);
 
@@ -238,6 +284,11 @@ export function useDashboardAnalytics() {
     retentionRate,
     funnelSteps,
     insightCards,
+    globalInsightCards,
+    globalLearners,
+    globalXp,
+    globalGameClaims,
+    globalLevelCompletions,
     loadAnalytics,
     formatNumber,
     formatEventTime,

@@ -21,9 +21,13 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', fn () => redirect()->route('dashboard.local'))->name('dashboard');
+    Route::get('/dashboard/local', fn () => Inertia::render('Dashboard', ['scope' => 'local']))
+        ->name('dashboard.local');
+    Route::get('/dashboard/global', fn () => Inertia::render('Dashboard', ['scope' => 'global']))
+        ->name('dashboard.global');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
