@@ -37,8 +37,8 @@ const opened = ref(hasActiveChild(props.item));
         class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition"
         :class="
           hasActiveChild(item)
-            ? 'border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-slate-700/60 dark:bg-slate-800 dark:text-white'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:text-white'
+            ? 'border border-sidebar-ring/30 bg-sidebar-accent text-sidebar-accent-foreground'
+            : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
         "
         :style="{ paddingLeft: `${12 + level * 16}px` }"
         @click="opened = !opened"
@@ -69,8 +69,8 @@ const opened = ref(hasActiveChild(props.item));
         class="block rounded-lg px-3 py-2 text-sm transition"
         :class="
           isActive(item.route)
-            ? 'border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-slate-700/60 dark:bg-slate-800 dark:text-white'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:text-white'
+            ? 'border border-sidebar-ring/30 bg-sidebar-accent text-sidebar-accent-foreground'
+            : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
         "
         :style="{ paddingLeft: `${12 + level * 16}px` }"
       >

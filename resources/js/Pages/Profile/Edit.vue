@@ -24,10 +24,10 @@ defineProps({
   <AdminFormLayout title="Օգտատիրոջ կարգավորումներ">
     <div class="mx-auto w-full max-w-6xl p-6 lg:p-12">
       <div class="mb-8">
-        <h1 class="mb-2 text-3xl font-bold text-slate-900 dark:text-white">
+        <h1 class="mb-2 text-3xl font-bold text-foreground dark:text-primary-foreground">
           Օգտատիրոջ կարգավորումներ
         </h1>
-        <p class="text-slate-600 dark:text-slate-400">
+        <p class="text-muted-foreground dark:text-muted-foreground">
           Կառավարեք ձեր պրոֆիլը, նախընտրությունները և հաշվի անվտանգությունը։
         </p>
       </div>
@@ -36,31 +36,31 @@ defineProps({
         <div class="col-span-1 space-y-2">
           <button
             type="button"
-            class="flex w-full items-center gap-3 rounded-xl border border-indigo-500/20 bg-indigo-500/10 px-4 py-3 font-medium text-indigo-700 transition-all dark:text-indigo-300"
+            class="flex w-full items-center gap-3 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 font-medium text-primary transition-all dark:text-primary"
           >
             <User :size="18" /> Անձնական տվյալներ
           </button>
 
           <button
             type="button"
-            class="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white"
+            class="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground dark:text-muted-foreground dark:hover:bg-card/50 dark:hover:text-primary-foreground"
           >
             <Shield :size="18" /> Անվտանգություն
           </button>
 
           <button
             type="button"
-            class="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white"
+            class="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground dark:text-muted-foreground dark:hover:bg-card/50 dark:hover:text-primary-foreground"
           >
             <Settings :size="18" /> Նախընտրություններ
           </button>
 
-          <div class="mt-4 border-t border-slate-200/80 pt-4 dark:border-slate-800/60">
+          <div class="mt-4 border-t border-border/80 pt-4 dark:border-border/60">
             <Link
               :href="route('logout')"
               method="post"
               as="button"
-              class="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-red-600 transition-all hover:bg-red-500/10 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+              class="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-destructive transition-all hover:bg-destructive/10 hover:text-destructive dark:text-destructive dark:hover:text-destructive"
             >
               <LogOut :size="18" /> Դուրս գալ
             </Link>
@@ -76,7 +76,7 @@ defineProps({
           <UpdatePasswordForm />
 
           <div
-            class="rounded-2xl border border-slate-200 bg-white/80 p-6 md:p-8 dark:border-slate-800 dark:bg-slate-900/40"
+            class="rounded-2xl border border-border bg-card/80 p-6 md:p-8 dark:border-border dark:bg-card/40"
           >
             <DeleteUserForm />
           </div>

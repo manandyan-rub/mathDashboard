@@ -50,13 +50,13 @@ function changeLanguage(event: Event) {
   <Head :title="__('Sign In')" />
 
   <section
-    class="relative min-h-screen overflow-hidden bg-background text-slate-700 selection:bg-indigo-500/20 dark:text-slate-300 dark:selection:bg-indigo-500/30"
+    class="relative min-h-screen overflow-hidden bg-background text-muted-foreground selection:bg-primary/20 dark:text-muted-foreground dark:selection:bg-primary/30"
   >
     <div class="absolute right-6 top-6 z-20 flex items-center gap-3">
       <select
         :value="language"
         @change="changeLanguage"
-        class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-400 focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+        class="rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm transition hover:border-primary focus:border-primary focus:outline-none dark:border-border dark:bg-card dark:text-foreground"
       >
         <option v-for="lang in languages" :key="lang.value" :value="lang.value">
           {{ __(lang.label) }}
@@ -69,17 +69,17 @@ function changeLanguage(event: Event) {
       class="pointer-events-none absolute inset-0 z-0 opacity-[0.03]"
       style="
         background-image:
-          linear-gradient(to right, #ffffff 1px, transparent 1px),
-          linear-gradient(to bottom, #ffffff 1px, transparent 1px);
+          linear-gradient(to right, var(--border) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--border) 1px, transparent 1px);
         background-size: 40px 40px;
       "
     />
 
     <div
-      class="pointer-events-none absolute left-[-10%] top-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-indigo-600/20 blur-[120px]"
+      class="pointer-events-none absolute left-[-10%] top-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-primary/20 blur-[120px]"
     />
     <div
-      class="pointer-events-none absolute bottom-[-10%] right-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-emerald-600/10 blur-[120px]"
+      class="pointer-events-none absolute bottom-[-10%] right-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-chart-2/10 blur-[120px]"
     />
 
     <div
@@ -88,18 +88,18 @@ function changeLanguage(event: Event) {
       <div class="grid w-full gap-10 lg:grid-cols-2">
         <div class="flex flex-col justify-center">
           <div
-            class="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-500 dark:text-indigo-400"
+            class="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary dark:text-primary"
           >
             <Sparkles :size="14" />
             MathDash
           </div>
 
           <h1
-            class="mb-6 text-4xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white md:text-6xl"
+            class="mb-6 text-4xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground md:text-6xl"
           >
             {{ __("Sign in to") }}
             <span
-              class="bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent"
+              class="bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent"
             >
               MathDash
             </span>
@@ -107,7 +107,7 @@ function changeLanguage(event: Event) {
           </h1>
 
           <p
-            class="max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-400"
+            class="max-w-xl text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground"
           >
             {{ __("Learn, practice, and improve your math every day.") }}
           </p>
@@ -115,16 +115,16 @@ function changeLanguage(event: Event) {
 
         <div class="flex items-center justify-center">
           <div
-            class="w-full max-w-md rounded-2xl border border-slate-200/80 bg-white/80 p-6 shadow-2xl backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-900/40"
+            class="w-full max-w-md rounded-2xl border border-border/80 bg-card/80 p-6 shadow-2xl backdrop-blur-xl dark:border-border/50 dark:bg-card/40"
           >
             <div class="mb-6 flex items-center justify-between">
               <div>
                 <h2
-                  class="text-2xl font-semibold text-slate-900 dark:text-white"
+                  class="text-2xl font-semibold text-foreground dark:text-primary-foreground"
                 >
                   {{ __("Welcome back") }}
                 </h2>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p class="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
                   {{ __("Sign in to your account") }}
                 </p>
               </div>
@@ -132,12 +132,12 @@ function changeLanguage(event: Event) {
               <div class="flex items-center gap-3">
                 <button
                   type="button"
-                  class="text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  class="text-muted-foreground transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-primary-foreground"
                 >
                   <Bell :size="18" />
                 </button>
                 <div
-                  class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-slate-100 text-slate-500 dark:border-slate-700 dark:bg-slate-800"
+                  class="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-muted text-muted-foreground dark:border-border dark:bg-card"
                 >
                   <Lock :size="14" />
                 </div>
@@ -146,7 +146,7 @@ function changeLanguage(event: Event) {
 
             <div
               v-if="status"
-              class="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-500 dark:text-emerald-400"
+              class="mb-4 rounded-lg border border-chart-2/20 bg-chart-2/10 px-4 py-3 text-sm font-medium text-chart-2 dark:text-chart-2"
             >
               {{ status }}
             </div>
@@ -155,7 +155,7 @@ function changeLanguage(event: Event) {
               <div>
                 <label
                   for="email"
-                  class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
+                  class="mb-2 block text-sm font-medium text-muted-foreground dark:text-foreground"
                 >
                   {{ __("Email") }}
                 </label>
@@ -167,7 +167,7 @@ function changeLanguage(event: Event) {
                   required
                   autofocus
                   autocomplete="username"
-                  class="block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/60 dark:border-slate-700/50 dark:bg-slate-900/50 dark:text-white dark:placeholder:text-slate-600 dark:focus:border-indigo-500/50 dark:focus:ring-indigo-500/50"
+                  class="block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card/50 dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
@@ -176,7 +176,7 @@ function changeLanguage(event: Event) {
               <div>
                 <label
                   for="password"
-                  class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200"
+                  class="mb-2 block text-sm font-medium text-muted-foreground dark:text-foreground"
                 >
                   {{ __("Password") }}
                 </label>
@@ -187,7 +187,7 @@ function changeLanguage(event: Event) {
                   type="password"
                   required
                   autocomplete="current-password"
-                  class="block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/60 dark:border-slate-700/50 dark:bg-slate-900/50 dark:text-white dark:placeholder:text-slate-600 dark:focus:border-indigo-500/50 dark:focus:ring-indigo-500/50"
+                  class="block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card/50 dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
                 />
 
                 <InputError class="mt-2" :message="form.errors.password" />
@@ -198,9 +198,9 @@ function changeLanguage(event: Event) {
                   <Checkbox
                     name="remember"
                     v-model:checked="form.remember"
-                    class="rounded border-slate-300 bg-white text-indigo-600 shadow-sm focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900"
+                    class="rounded border-border bg-card text-primary shadow-sm focus:ring-ring dark:border-border dark:bg-card"
                   />
-                  <span class="ms-2 text-sm text-slate-500 dark:text-slate-400">
+                  <span class="ms-2 text-sm text-muted-foreground dark:text-muted-foreground">
                     {{ __("Remember me") }}
                   </span>
                 </label>
@@ -208,14 +208,14 @@ function changeLanguage(event: Event) {
                 <Link
                   v-if="canResetPassword"
                   :href="route('password.request')"
-                  class="text-sm text-slate-500 underline transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  class="text-sm text-muted-foreground underline transition hover:text-foreground dark:text-muted-foreground dark:hover:text-primary-foreground"
                 >
                   {{ __("Forgot password?") }}
                 </Link>
               </div>
 
               <PrimaryButton
-                class="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+                class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                 :class="{ 'opacity-25': form.processing }"
                 :disabled="form.processing"
               >
@@ -225,12 +225,12 @@ function changeLanguage(event: Event) {
 
               <div
                 v-if="canRegister"
-                class="pt-1 text-center text-sm text-slate-500 dark:text-slate-400"
+                class="pt-1 text-center text-sm text-muted-foreground dark:text-muted-foreground"
               >
                 {{ __("Don't have an account?") }}
                 <Link
                   :href="route('register')"
-                  class="ml-1 font-medium text-indigo-500 underline decoration-indigo-400/60 underline-offset-2 transition hover:text-indigo-400"
+                  class="ml-1 font-medium text-primary underline decoration-primary/60 underline-offset-2 transition hover:text-primary"
                 >
                   {{ __("Register") }}
                 </Link>

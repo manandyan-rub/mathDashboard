@@ -129,54 +129,54 @@ function renderMath() {
 
   <div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
     <div
-      class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+      class="rounded-2xl border border-border/70 bg-card p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
     >
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white"
+            class="flex h-12 w-12 items-center justify-center rounded-xl bg-chart-2 text-primary-foreground"
           >
             <Award :size="20" />
           </div>
           <div>
-            <h1 class="text-2xl font-semibold text-slate-900 dark:text-white">
+            <h1 class="text-2xl font-semibold text-foreground dark:text-primary-foreground">
               {{ summary.level_title || "Մակարդակի արդյունք" }}
             </h1>
-            <p class="text-sm text-slate-500 dark:text-slate-300">
+            <p class="text-sm text-muted-foreground dark:text-muted-foreground">
               XP {{ summary.xp_earned }}
             </p>
           </div>
         </div>
         <Link
           :href="route('math-levels.index')"
-          class="rounded-xl border border-slate-200 px-4 py-2 text-sm text-slate-600 transition hover:border-indigo-200 hover:text-indigo-700 dark:border-slate-700 dark:text-slate-300"
+          class="rounded-xl border border-border px-4 py-2 text-sm text-muted-foreground transition hover:border-primary hover:text-primary dark:border-border dark:text-muted-foreground"
         >
           Վերադառնալ մակարդակներին
         </Link>
       </div>
 
       <div class="mt-5 grid gap-3 sm:grid-cols-4">
-        <div class="rounded-xl bg-slate-50 p-4 text-center dark:bg-slate-900/60">
-          <p class="text-xs uppercase tracking-wider text-slate-400">Գնահատական</p>
-          <p class="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
+        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">Գնահատական</p>
+          <p class="mt-2 text-3xl font-semibold text-foreground dark:text-primary-foreground">
             {{ summary.score }}%
           </p>
         </div>
-        <div class="rounded-xl bg-slate-50 p-4 text-center dark:bg-slate-900/60">
-          <p class="text-xs uppercase tracking-wider text-slate-400">Աստղեր</p>
-          <div class="mt-2 flex items-center justify-center gap-1 text-amber-500">
+        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">Աստղեր</p>
+          <div class="mt-2 flex items-center justify-center gap-1 text-chart-3">
             <Star v-for="star in summary.stars" :key="star" :size="20" />
           </div>
         </div>
-        <div class="rounded-xl bg-slate-50 p-4 text-center dark:bg-slate-900/60">
-          <p class="text-xs uppercase tracking-wider text-slate-400">Ճիշտ</p>
-          <p class="mt-2 text-3xl font-semibold text-emerald-600">
+        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">Ճիշտ</p>
+          <p class="mt-2 text-3xl font-semibold text-chart-2">
             {{ summary.correct_answers }}
           </p>
         </div>
-        <div class="rounded-xl bg-slate-50 p-4 text-center dark:bg-slate-900/60">
-          <p class="text-xs uppercase tracking-wider text-slate-400">Սխալ</p>
-          <p class="mt-2 text-3xl font-semibold text-red-500">
+        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">Սխալ</p>
+          <p class="mt-2 text-3xl font-semibold text-destructive">
             {{ summary.wrong_answers }}
           </p>
         </div>
@@ -185,14 +185,14 @@ function renderMath() {
 
     <div
       v-if="loading"
-      class="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-400 dark:border-slate-800 dark:text-slate-400"
+      class="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground dark:border-border dark:text-muted-foreground"
     >
       Բեռնվում է...
     </div>
 
     <div
       v-else-if="error"
-      class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-500"
+      class="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
     >
       {{ error }}
     </div>
@@ -201,24 +201,24 @@ function renderMath() {
       <div
         v-for="(answer, index) in answers"
         :key="answer.question_id"
-        class="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+        class="rounded-2xl border border-border/70 bg-card p-5 shadow-sm dark:border-border/60 dark:bg-card/60"
       >
         <div class="flex items-center justify-between gap-2">
-          <div class="text-sm font-semibold text-slate-500">
+          <div class="text-sm font-semibold text-muted-foreground">
             Հարց {{ index + 1 }}
           </div>
           <span
             class="rounded-full px-3 py-1 text-xs font-semibold"
             :class="
               answer.is_correct
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200'
-                : 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-200'
+                ? 'bg-chart-2/10 text-chart-2 dark:bg-chart-2/20 dark:text-chart-2'
+                : 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'
             "
           >
             {{ answer.is_correct ? "Ճիշտ" : "Սխալ" }}
           </span>
         </div>
-        <p class="mt-2 text-base text-slate-900 dark:text-white">
+        <p class="mt-2 text-base text-foreground dark:text-primary-foreground">
           <template
             v-for="(segment, idx) in splitMath(answer.question)"
             :key="`rq-${answer.question_id}-${idx}`"
@@ -238,10 +238,10 @@ function renderMath() {
             class="rounded-xl border px-4 py-3 text-sm"
             :class="
               option.is_correct
-                ? 'border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-200'
+                ? 'border-chart-2/30 bg-chart-2/10 text-chart-2 dark:border-chart-2/40 dark:bg-chart-2/20 dark:text-chart-2'
                 : option.is_selected
-                  ? 'border-red-400 bg-red-50 text-red-600 dark:border-red-500/40 dark:bg-red-500/20 dark:text-red-200'
-                  : 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300'
+                  ? 'border-destructive/30 bg-destructive/10 text-destructive dark:border-destructive/40 dark:bg-destructive/20 dark:text-destructive'
+                  : 'border-border bg-muted text-muted-foreground dark:border-border dark:bg-card/60 dark:text-muted-foreground'
             "
           >
             <template
@@ -259,7 +259,7 @@ function renderMath() {
         </div>
         <p
           v-if="answer.explanation"
-          class="mt-3 text-sm text-slate-500 dark:text-slate-300"
+          class="mt-3 text-sm text-muted-foreground dark:text-muted-foreground"
         >
           Մեկնաբանություն: {{ answer.explanation }}
         </p>

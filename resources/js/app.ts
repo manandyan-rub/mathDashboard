@@ -1,6 +1,7 @@
 import "../css/app.css";
 import "./bootstrap";
 import { initializeTheme } from "./composables/useTheme";
+import { themeColor } from "./lib/themeColors";
 
 import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
@@ -30,6 +31,6 @@ createInertiaApp({
       .mount(el);
   },
   progress: {
-    color: "#4B5563",
+    color: themeColor("--primary"),
   },
 });

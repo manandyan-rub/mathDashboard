@@ -14,6 +14,7 @@ use App\Models\MathLevelAttemptQuestionOption;
 use App\Models\MathPath;
 use App\Models\MathUserLevelProgress;
 use App\Models\MathUserProfile;
+use App\Models\MathUserXpEvent;
 use App\Services\MathLevelGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -419,6 +420,25 @@ class MathLevelController extends Controller
                 'total_stars' => $this->countTotalStars($attempt->user_id),
                 'current_rank' => $this->rankForXp($profile->total_xp + $xpEarned),
             ]);
+
+            if ($xpEarned > 0) {
+                MathUserXpEvent::create([
+                    'user_id' => $attempt->user_id,
+                    'amount' => $xpEarned,
+                    'source' => 'math_level',
+                    'source_label' => 'Math level',
+                    'reference_type' => MathLevelAttempt::class,
+                    'reference_id' => $attempt->id,
+                    'metadata' => [
+                        'level_id' => $attempt->level_id,
+                        'level_slug' => $attempt->level?->slug,
+                        'score' => $score,
+                        'stars' => $stars,
+                        'passed' => $passed,
+                    ],
+                    'earned_at' => now(),
+                ]);
+            }
         });
 
         return response()->json([

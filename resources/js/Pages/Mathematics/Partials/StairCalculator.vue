@@ -142,7 +142,7 @@ watch(
               step="1"
               placeholder="8"
             />
-            <p v-if="errors.steps" class="mt-1 text-xs text-red-500">
+            <p v-if="errors.steps" class="mt-1 text-xs text-destructive">
               {{ errors.steps }}
             </p>
           </div>
@@ -156,7 +156,7 @@ watch(
               step="0.01"
               placeholder="1.2"
             />
-            <p v-if="errors.stepWidth" class="mt-1 text-xs text-red-500">
+            <p v-if="errors.stepWidth" class="mt-1 text-xs text-destructive">
               {{ errors.stepWidth }}
             </p>
           </div>
@@ -170,7 +170,7 @@ watch(
               step="0.01"
               placeholder="0.18"
             />
-            <p v-if="errors.rise" class="mt-1 text-xs text-red-500">
+            <p v-if="errors.rise" class="mt-1 text-xs text-destructive">
               {{ errors.rise }}
             </p>
           </div>
@@ -184,7 +184,7 @@ watch(
               step="0.01"
               placeholder="0.28"
             />
-            <p v-if="errors.run" class="mt-1 text-xs text-red-500">
+            <p v-if="errors.run" class="mt-1 text-xs text-destructive">
               {{ errors.run }}
             </p>
           </div>
@@ -198,7 +198,7 @@ watch(
               step="0.01"
               placeholder="0.15"
             />
-            <p v-if="errors.depth" class="mt-1 text-xs text-red-500">
+            <p v-if="errors.depth" class="mt-1 text-xs text-destructive">
               {{ errors.depth }}
             </p>
           </div>

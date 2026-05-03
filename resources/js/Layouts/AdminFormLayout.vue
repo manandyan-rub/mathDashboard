@@ -29,8 +29,8 @@ defineProps<{
         class="absolute inset-0 z-0 opacity-[0.03]"
         style="
           background-image:
-            linear-gradient(to right, #ffffff 1px, transparent 1px),
-            linear-gradient(to bottom, #ffffff 1px, transparent 1px);
+            linear-gradient(to right, var(--border) 1px, transparent 1px),
+            linear-gradient(to bottom, var(--border) 1px, transparent 1px);
           background-size: 40px 40px;
         "
       />

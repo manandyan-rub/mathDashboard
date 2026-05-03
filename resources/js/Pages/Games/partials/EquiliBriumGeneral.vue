@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import { useEquilibriumEngine } from "../helpers/useEquilibriumEngine";
 
@@ -32,24 +32,24 @@ const {
 
   <div class="relative z-10 flex h-full w-full flex-col overflow-hidden">
     <div
-      class="relative flex flex-1 flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-gradient-to-br from-zinc-100 via-white to-zinc-100 text-zinc-900 shadow-2xl shadow-zinc-300/60 dark:border-zinc-800 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 dark:text-zinc-100 dark:shadow-zinc-950/70"
+      class="relative flex flex-1 flex-col overflow-hidden rounded-[2rem] border border-border bg-gradient-to-br from-muted via-white to-muted text-foreground shadow-2xl shadow-border/60 dark:border-border dark:from-background dark:via-card dark:to-background dark:text-foreground dark:shadow-border/70"
     >
       <div class="flex items-end justify-between gap-3 px-5 pb-4 pt-5 sm:px-8">
         <div class="min-w-0">
           <h1
-            class="max-w-full text-2xl font-black leading-tight tracking-tight text-emerald-600 [overflow-wrap:anywhere] dark:text-emerald-400 sm:text-3xl md:text-4xl"
+            class="max-w-full text-2xl font-black leading-tight tracking-tight text-chart-2 [overflow-wrap:anywhere] dark:text-chart-2 sm:text-3xl md:text-4xl"
           >
             ՀԱՎԱՍԱՐԱԿՇՌՈՒԹՅՈՒՆ
           </h1>
           <div class="mt-2 flex flex-wrap gap-2">
             <span
-              class="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white"
+              class="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-primary-foreground"
               :class="modeColor"
             >
               {{ modeLabel }}
             </span>
             <span
-              class="rounded-full bg-zinc-200 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+              class="rounded-full bg-muted px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground dark:bg-card dark:text-muted-foreground"
             >
               Մակարդակ {{ level }}
             </span>
@@ -58,11 +58,11 @@ const {
 
         <div class="shrink-0 text-right">
           <span
-            class="text-[11px] font-bold uppercase tracking-wider text-zinc-500"
+            class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground"
           >
             Կայունության միավոր
           </span>
-          <div class="text-4xl font-black leading-none text-emerald-500">
+          <div class="text-4xl font-black leading-none text-chart-2">
             {{ score }}
           </div>
         </div>
@@ -70,10 +70,10 @@ const {
 
       <div class="px-5 pb-2 sm:px-8">
         <div
-          class="h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800"
+          class="h-2 w-full overflow-hidden rounded-full bg-muted dark:bg-card"
         >
           <div
-            class="h-full bg-emerald-500 transition-all duration-100"
+            class="h-full bg-chart-2 transition-all duration-100"
             :style="{ width: `${(timeLeft / maxTime) * 100}%` }"
           />
         </div>
@@ -85,22 +85,22 @@ const {
           :class="scaleClass"
         >
           <div
-            class="relative flex min-h-[230px] flex-1 flex-col items-center justify-center rounded-[2.2rem] border-4 bg-white p-5 shadow-xl transition-colors dark:bg-zinc-900"
+            class="relative flex min-h-[230px] flex-1 flex-col items-center justify-center rounded-[2.2rem] border-4 bg-card p-5 shadow-xl transition-colors dark:bg-card"
             :class="
               canBalance
-                ? 'border-emerald-500 shadow-emerald-500/20'
-                : 'border-zinc-200 dark:border-zinc-800'
+                ? 'border-chart-2 shadow-chart-2/20'
+                : 'border-border dark:border-border'
             "
           >
             <span
-              class="absolute -top-3 rounded-full bg-zinc-200 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+              class="absolute -top-3 rounded-full bg-muted px-4 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:bg-card dark:text-muted-foreground"
             >
               Կողմ A
             </span>
 
             <div
               class="text-6xl font-black"
-              :class="canBalance ? 'text-emerald-500' : 'text-zinc-400'"
+              :class="canBalance ? 'text-chart-2' : 'text-muted-foreground'"
             >
               {{ leftSum }}
             </div>
@@ -110,7 +110,7 @@ const {
                 v-for="(item, idx) in leftItems"
                 :key="item.id"
                 type="button"
-                class="added-item rounded-lg bg-zinc-100 px-2.5 py-1 text-sm font-black dark:bg-zinc-800"
+                class="added-item rounded-lg bg-muted px-2.5 py-1 text-sm font-black dark:bg-card"
                 title="Հպեք՝ հեռացնելու համար"
                 @click="removeFromScale(idx)"
               >
@@ -120,27 +120,27 @@ const {
 
             <div
               v-if="leftItems.length > 0"
-              class="mt-2 text-[9px] font-bold uppercase tracking-wider text-zinc-400"
+              class="mt-2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
             >
               Հպեք թվին՝ հեռացնելու համար
             </div>
           </div>
 
-          <div class="flex flex-col items-center text-zinc-400">
+          <div class="flex flex-col items-center text-muted-foreground">
             <span class="mb-2 text-4xl">⚖️</span>
-            <div class="h-12 w-1 rounded-full bg-zinc-400" />
+            <div class="h-12 w-1 rounded-full bg-muted-foreground" />
           </div>
 
           <div
-            class="relative flex min-h-[230px] flex-1 flex-col items-center justify-center rounded-[2.2rem] border-4 border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+            class="relative flex min-h-[230px] flex-1 flex-col items-center justify-center rounded-[2.2rem] border-4 border-border bg-card p-5 shadow-xl dark:border-border dark:bg-card"
           >
             <span
-              class="absolute -top-3 rounded-full bg-zinc-200 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
+              class="absolute -top-3 rounded-full bg-muted px-4 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:bg-card dark:text-muted-foreground"
             >
               Կողմ B
             </span>
 
-            <div class="text-6xl font-black text-blue-500">
+            <div class="text-6xl font-black text-chart-5">
               <span
                 v-if="mode === 'einstein' && gameState === 'playing'"
                 class="animate-pulse"
@@ -152,7 +152,7 @@ const {
 
             <div
               v-if="mode === 'einstein'"
-              class="mt-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500"
+              class="mt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
             >
               Գումարեք ներքևի թվերը
             </div>
@@ -161,7 +161,7 @@ const {
               <span
                 v-for="(n, idx) in rightItems"
                 :key="`r-${idx}`"
-                class="rounded-lg bg-blue-50 px-2.5 py-1 text-sm font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                class="rounded-lg bg-chart-5/10 px-2.5 py-1 text-sm font-bold text-chart-5 dark:bg-chart-5/30 dark:text-chart-5"
               >
                 {{ n }}
               </span>
@@ -173,7 +173,7 @@ const {
           <button
             v-if="canBalance"
             type="button"
-            class="rounded-full bg-emerald-500 px-10 py-3 text-xl font-black text-white shadow-lg shadow-emerald-500/40 transition hover:scale-105 active:scale-95 sm:px-16 sm:py-4 sm:text-2xl"
+            class="rounded-full bg-chart-2 px-10 py-3 text-xl font-black text-primary-foreground shadow-lg shadow-chart-2/40 transition hover:scale-105 active:scale-95 sm:px-16 sm:py-4 sm:text-2xl"
             @click="balance"
           >
             ՀԱՎԱՍԱՐԵՑՆԵԼ
@@ -183,14 +183,14 @@ const {
 
       <div
         v-if="gameState === 'playing'"
-        class="border-t border-zinc-200 p-5 dark:border-zinc-800 sm:p-8"
+        class="border-t border-border p-5 dark:border-border sm:p-8"
       >
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <button
             v-for="item in hand"
             :key="item.id"
             type="button"
-            class="h-16 rounded-2xl border-b-4 border-zinc-200 bg-white text-2xl font-black shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-25 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+            class="h-16 rounded-2xl border-b-4 border-border bg-card text-2xl font-black shadow-sm transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-25 dark:border-border dark:bg-card dark:hover:bg-card"
             :disabled="item.used"
             @click="addToScale(item)"
           >
@@ -199,7 +199,7 @@ const {
 
           <button
             type="button"
-            class="col-span-2 mt-1 h-14 rounded-2xl bg-zinc-200 text-xs font-black uppercase tracking-[0.2em] text-zinc-500 transition hover:bg-red-100 hover:text-red-600 dark:bg-zinc-800 dark:hover:bg-red-900/30 dark:hover:text-red-300 sm:col-span-4"
+            class="col-span-2 mt-1 h-14 rounded-2xl bg-muted text-xs font-black uppercase tracking-[0.2em] text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive dark:bg-card dark:hover:bg-destructive/30 dark:hover:text-destructive sm:col-span-4"
             @click="resetCurrent"
           >
             Մաքրել բոլորը
@@ -211,15 +211,15 @@ const {
     <Transition name="overlay">
       <div
         v-if="gameState !== 'playing'"
-        class="absolute inset-0 z-50 flex items-center justify-center bg-white/75 p-6 backdrop-blur-md dark:bg-black/70"
+        class="absolute inset-0 z-50 flex items-center justify-center bg-card/75 p-6 backdrop-blur-md dark:bg-foreground/70"
       >
         <div
-          class="w-full max-w-lg rounded-3xl border border-zinc-200 bg-white p-6 text-center shadow-2xl dark:border-zinc-700 dark:bg-zinc-900 sm:p-8"
+          class="w-full max-w-lg rounded-3xl border border-border bg-card p-6 text-center shadow-2xl dark:border-border dark:bg-card sm:p-8"
         >
           <div v-if="gameState === 'idle'">
             <div class="mb-5 text-6xl">🧠</div>
             <p
-              class="mb-8 text-sm font-medium text-zinc-500 dark:text-zinc-400 sm:text-base"
+              class="mb-8 text-sm font-medium text-muted-foreground dark:text-muted-foreground sm:text-base"
             >
               Հավասարակշռեք կշեռքը։ Էյնշտեյն ռեժիմում աջ կողմի ընդհանուր թիվը
               թաքնված է, պետք է հաշվեք ներքևի բաղադրիչներով։
@@ -227,48 +227,48 @@ const {
           </div>
 
           <div v-if="gameState === 'ended'" class="mb-8">
-            <h2 class="mb-2 text-5xl font-black text-red-500 sm:text-6xl">
+            <h2 class="mb-2 text-5xl font-black text-destructive sm:text-6xl">
               ՊԱՐՏՎԵՑԻՔ
             </h2>
-            <p class="mb-2 font-bold text-zinc-500 dark:text-zinc-400">
+            <p class="mb-2 font-bold text-muted-foreground dark:text-muted-foreground">
               Կողմ B-ի գումարը՝ {{ rightSum }}
             </p>
             <p class="text-lg font-medium">
               Վերջնական միավոր:
-              <span class="font-black text-emerald-500">{{ score }}</span>
+              <span class="font-black text-chart-2">{{ score }}</span>
             </p>
           </div>
 
           <div class="grid gap-3 text-left">
             <button
               type="button"
-              class="flex w-full items-center justify-between rounded-3xl border-2 border-transparent bg-white px-6 py-4 text-lg font-black shadow transition hover:border-emerald-500 dark:bg-zinc-800"
+              class="flex w-full items-center justify-between rounded-3xl border-2 border-transparent bg-card px-6 py-4 text-lg font-black shadow transition hover:border-chart-2 dark:bg-card"
               @click="start('scholastic')"
             >
               <span>{{ MODE_CONFIG.scholastic.label }}</span>
-              <span class="text-xs uppercase tracking-widest text-zinc-400">
+              <span class="text-xs uppercase tracking-widest text-muted-foreground">
                 Սկիզբ
               </span>
             </button>
 
             <button
               type="button"
-              class="flex w-full items-center justify-between rounded-3xl border-2 border-transparent bg-white px-6 py-4 text-lg font-black shadow transition hover:border-blue-500 dark:bg-zinc-800"
+              class="flex w-full items-center justify-between rounded-3xl border-2 border-transparent bg-card px-6 py-4 text-lg font-black shadow transition hover:border-chart-5 dark:bg-card"
               @click="start('student')"
             >
               <span>{{ MODE_CONFIG.student.label }}</span>
-              <span class="text-xs uppercase tracking-widest text-zinc-400">
+              <span class="text-xs uppercase tracking-widest text-muted-foreground">
                 Ստանդարտ
               </span>
             </button>
 
             <button
               type="button"
-              class="flex w-full items-center justify-between rounded-3xl border-2 border-transparent bg-zinc-900 px-6 py-4 text-lg font-black text-white shadow transition hover:border-red-500 dark:bg-white dark:text-black"
+              class="flex w-full items-center justify-between rounded-3xl border-2 border-transparent bg-card px-6 py-4 text-lg font-black text-primary-foreground shadow transition hover:border-destructive dark:bg-card dark:text-foreground"
               @click="start('einstein')"
             >
               <span>{{ MODE_CONFIG.einstein.label }}</span>
-              <span class="text-xs uppercase tracking-widest text-zinc-400">
+              <span class="text-xs uppercase tracking-widest text-muted-foreground">
                 Թաքնված X
               </span>
             </button>
@@ -301,13 +301,8 @@ const {
 
 .added-item:hover {
   transform: scale(1.08);
-  background-color: #fee2e2;
-  color: #dc2626;
-}
-
-.dark .added-item:hover {
-  background-color: #7f1d1d;
-  color: #fca5a5;
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
 }
 
 .overlay-enter-active,

@@ -16,17 +16,17 @@ const MODE_CONFIG: Record<
 > = {
   scholastic: {
     label: "Դպրոցական",
-    color: "bg-emerald-500",
+    color: "bg-chart-2",
     pointsMultiplier: 50,
   },
   student: {
     label: "Ուսանող",
-    color: "bg-blue-500",
+    color: "bg-chart-5",
     pointsMultiplier: 100,
   },
   einstein: {
     label: "Էյնշտեյն",
-    color: "bg-red-600",
+    color: "bg-destructive",
     pointsMultiplier: 250,
   },
 };

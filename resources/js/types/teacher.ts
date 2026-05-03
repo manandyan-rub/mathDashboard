@@ -7,9 +7,13 @@ export type ExerciseItem = {
   item_order: number;
   type: string;
   question: string;
+  question_html?: string | null;
   options: string[];
+  options_html?: string[] | null;
   answer: string;
+  answer_html?: string | null;
   explanation?: string | null;
+  explanation_html?: string | null;
   difficulty?: string | null;
   points: number;
   source: string;

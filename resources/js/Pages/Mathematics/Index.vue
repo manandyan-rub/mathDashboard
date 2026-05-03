@@ -9,6 +9,7 @@ import {
   Lock,
   Sparkles,
 } from "lucide-vue-next";
+import { cmsTranslate as __ } from "@/lib/i18n";
 import { adminMenu } from "@/data/adminMenu";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import AdminSidebarItem from "@/Layouts/AdminSidebarItem.vue";
@@ -16,11 +17,11 @@ import AdminSidebarItem from "@/Layouts/AdminSidebarItem.vue";
 const mounted = ref(false);
 
 const moduleItems = [
-  { icon: ChartLine, label: "2D գրաֆիկներ" },
-  { icon: Box, label: "3D երկրաչափություն" },
-  { icon: Calculator, label: "Հանրահաշիվյի շարժիչ" },
-  { icon: Activity, label: "Կալկուլուսի քայլեր" },
-  { icon: Layers, label: "Մատրիցներ և վեկտորներ" },
+  { icon: ChartLine, labelKey: "2D Graphing" },
+  { icon: Box, labelKey: "3D Geometry" },
+  { icon: Calculator, labelKey: "Algebra Engine" },
+  { icon: Activity, labelKey: "Calculus Steps" },
+  { icon: Layers, labelKey: "Matrices & Vectors" },
 ];
 
 let animationTimer: ReturnType<typeof setTimeout> | null = null;
@@ -47,30 +48,30 @@ onBeforeUnmount(() => {
     </template>
 
     <template #header>
-      <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
-        Մաթեմատիկա
+      <h1 class="text-lg font-semibold text-foreground dark:text-foreground">
+        {{ __("Calculators") }}
       </h1>
     </template>
 
     <div class="-m-6">
       <section
-        class="relative min-h-[calc(100vh-8.25rem)] overflow-hidden bg-background text-slate-800 selection:bg-indigo-500/20 dark:text-slate-300 dark:selection:bg-indigo-500/30"
+        class="relative min-h-[calc(100vh-8.25rem)] overflow-hidden bg-background text-muted-foreground selection:bg-primary/20 dark:text-muted-foreground dark:selection:bg-primary/30"
       >
         <div
           class="pointer-events-none absolute inset-0 z-0 opacity-[0.03]"
           style="
             background-image:
-              linear-gradient(to right, #ffffff 1px, transparent 1px),
-              linear-gradient(to bottom, #ffffff 1px, transparent 1px);
+              linear-gradient(to right, var(--border) 1px, transparent 1px),
+              linear-gradient(to bottom, var(--border) 1px, transparent 1px);
             background-size: 40px 40px;
           "
         />
 
         <div
-          class="pointer-events-none absolute left-[-10%] top-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-indigo-600/20 blur-[120px]"
+          class="pointer-events-none absolute left-[-10%] top-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-primary/20 blur-[120px]"
         />
         <div
-          class="pointer-events-none absolute bottom-[-10%] right-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-emerald-600/10 blur-[120px]"
+          class="pointer-events-none absolute bottom-[-10%] right-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-chart-2/10 blur-[120px]"
         />
 
         <div
@@ -83,24 +84,26 @@ onBeforeUnmount(() => {
             "
           >
             <div
-              class="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-500 dark:text-indigo-400"
+              class="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary dark:text-primary"
             >
               <Sparkles :size="14" />
-              Նախագծի հայտարարություն
+              {{ __("Adaptive Learning Workspace") }}
             </div>
 
             <h2
-              class="mb-6 text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white md:text-6xl"
+              class="mb-6 text-4xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground md:text-6xl"
             >
-              Վերջնական աշխատանքային միջավայր տեսողական մաթեմատիկայի համար։
+              {{ __("Smarter math practice for every student") }}
             </h2>
 
             <p
-              class="mb-10 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-slate-400"
+              class="mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground"
             >
-              Մենք կառուցում ենք ինտերակտիվ հարթակ, որտեղ ուսանողները կարող են
-              լուծել, պատկերացնել և խորությամբ հասկանալ բարդ մաթեմատիկական
-              խնդիրներ՝ 2D ֆունկցիաներից մինչև 3D երկրաչափություն։
+              {{
+                __(
+                  "Explore graphing, geometry, calculators, and guided exercises in one focused workspace built to make learning math feel clear and engaging.",
+                )
+              }}
             </p>
           </div>
 
@@ -111,25 +114,28 @@ onBeforeUnmount(() => {
             "
           >
             <div
-              class="group relative col-span-1 overflow-hidden rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-200/60 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/40 dark:shadow-none md:col-span-2"
+              class="group relative col-span-1 overflow-hidden rounded-2xl border border-border bg-card/90 p-6 shadow-xl shadow-border/60 backdrop-blur-sm dark:border-border dark:bg-card/40 dark:shadow-none md:col-span-2"
             >
               <div
-                class="absolute right-4 top-4 flex items-center gap-1 rounded border border-slate-300 bg-slate-100 px-2 py-1 font-mono text-[10px] text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                class="absolute right-4 top-4 flex items-center gap-1 rounded border border-border bg-muted px-2 py-1 font-mono text-[10px] text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground"
               >
-                <Lock :size="10" /> ՆԱԽԱԴԻՏՈՒՄ
+                <Lock :size="10" /> {{ __("Coming Soon") }}
               </div>
 
               <h3
-                class="mb-2 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white"
+                class="mb-2 flex items-center gap-2 text-xl font-semibold text-foreground dark:text-primary-foreground"
               >
-                <Box class="text-indigo-400" /> 3D տարածական շարժիչ
+                <Box class="text-primary" /> {{ __("3D Geometry") }}
               </h3>
 
               <p
-                class="mb-8 max-w-sm text-sm text-slate-600 dark:text-slate-400"
+                class="mb-8 max-w-sm text-sm text-muted-foreground dark:text-muted-foreground"
               >
-                Պտտեք, մոտեցրեք և ուսումնասիրեք երկրաչափական մարմիններն ու
-                բազմափոփոխական կալկուլուսի գաղափարները իրական ժամանակում։
+                {{
+                  __(
+                    "Practice with shapes, dimensions, and 3D reasoning through tools designed for hands-on exploration.",
+                  )
+                }}
               </p>
 
               <div
@@ -137,34 +143,34 @@ onBeforeUnmount(() => {
               >
                 <div class="cube-3d relative h-full w-full">
                   <div
-                    class="cube-face border-indigo-500/50 bg-indigo-500/10"
+                    class="cube-face border-primary/50 bg-primary/10"
                   />
                   <div
-                    class="cube-face cube-back border-emerald-500/50 bg-emerald-500/10"
+                    class="cube-face cube-back border-chart-2/50 bg-chart-2/10"
                   />
                   <div
-                    class="cube-face cube-right border-purple-500/50 bg-purple-500/10"
+                    class="cube-face cube-right border-chart-4/50 bg-chart-4/10"
                   />
                   <div
-                    class="cube-face cube-left border-indigo-500/50 bg-indigo-500/10"
+                    class="cube-face cube-left border-primary/50 bg-primary/10"
                   />
                   <div
-                    class="cube-face cube-top border-blue-500/50 bg-blue-500/10"
+                    class="cube-face cube-top border-chart-5/50 bg-chart-5/10"
                   />
                   <div
-                    class="cube-face cube-bottom border-indigo-500/50 bg-indigo-500/10"
+                    class="cube-face cube-bottom border-primary/50 bg-primary/10"
                   />
 
                   <div
-                    class="absolute left-0 right-0 top-1/2 h-px bg-red-500"
+                    class="absolute left-0 right-0 top-1/2 h-px bg-destructive"
                     style="transform: translateZ(0)"
                   />
                   <div
-                    class="absolute bottom-0 left-1/2 top-0 w-px bg-green-500"
+                    class="absolute bottom-0 left-1/2 top-0 w-px bg-chart-2"
                     style="transform: translateZ(0)"
                   />
                   <div
-                    class="absolute bottom-0 left-1/2 top-0 w-px bg-blue-500"
+                    class="absolute bottom-0 left-1/2 top-0 w-px bg-chart-5"
                     style="transform: rotateX(90deg) translateZ(0)"
                   />
                 </div>
@@ -172,33 +178,36 @@ onBeforeUnmount(() => {
             </div>
 
             <div
-              class="group relative col-span-1 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-200/60 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/40 dark:shadow-none"
+              class="group relative col-span-1 flex flex-col overflow-hidden rounded-2xl border border-border bg-card/90 p-6 shadow-xl shadow-border/60 backdrop-blur-sm dark:border-border dark:bg-card/40 dark:shadow-none"
             >
               <div
-                class="absolute right-4 top-4 flex items-center gap-1 rounded border border-slate-300 bg-slate-100 px-2 py-1 font-mono text-[10px] text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                class="absolute right-4 top-4 flex items-center gap-1 rounded border border-border bg-muted px-2 py-1 font-mono text-[10px] text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground"
               >
-                <Lock :size="10" /> ՆԱԽԱԴԻՏՈՒՄ
+                <Lock :size="10" /> {{ __("Coming Soon") }}
               </div>
 
               <h3
-                class="mb-2 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white"
+                class="mb-2 flex items-center gap-2 text-xl font-semibold text-foreground dark:text-primary-foreground"
               >
-                <ChartLine class="text-emerald-400" /> 2D գրաֆիկներ
+                <ChartLine class="text-chart-2" /> {{ __("2D Graphing") }}
               </h3>
 
-              <p class="mb-6 text-sm text-slate-600 dark:text-slate-400">
-                Կառուցեք ֆունկցիաների գրաֆիկները, գտեք հատման կետերը և վերլուծեք
-                կորի վարքը քայլ առ քայլ։
+              <p class="mb-6 text-sm text-muted-foreground dark:text-muted-foreground">
+                {{
+                  __(
+                    "Work with graphs, calculators, and visual explanations that turn abstract ideas into something easier to understand.",
+                  )
+                }}
               </p>
 
               <div
-                class="relative mt-auto h-32 w-full border-b border-l border-slate-300 dark:border-slate-700"
+                class="relative mt-auto h-32 w-full border-b border-l border-border dark:border-border"
               >
                 <div class="absolute inset-0 flex flex-col justify-between">
                   <div
                     v-for="line in 4"
                     :key="`h-${line}`"
-                    class="h-px w-full bg-slate-300/70 dark:bg-slate-800/50"
+                    class="h-px w-full bg-muted/70 dark:bg-card/50"
                   />
                 </div>
 
@@ -206,12 +215,12 @@ onBeforeUnmount(() => {
                   <div
                     v-for="line in 6"
                     :key="`v-${line}`"
-                    class="h-full w-px bg-slate-300/70 dark:bg-slate-800/50"
+                    class="h-full w-px bg-muted/70 dark:bg-card/50"
                   />
                 </div>
 
                 <svg
-                  class="absolute inset-0 h-full w-full text-emerald-400"
+                  class="absolute inset-0 h-full w-full text-chart-2"
                   preserveAspectRatio="none"
                   viewBox="0 0 100 100"
                 >
@@ -227,62 +236,60 @@ onBeforeUnmount(() => {
                 </svg>
 
                 <div
-                  class="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-emerald-400 bg-background shadow-[0_0_10px_rgba(52,211,153,0.5)]"
+                  class="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-chart-2 bg-background shadow-lg shadow-chart-2/50"
                 />
               </div>
             </div>
           </div>
 
           <div
-            class="mt-16 rounded-2xl border border-slate-200 bg-white/85 p-6 shadow-lg shadow-slate-200/50 dark:border-slate-800/60 dark:bg-slate-900/30 dark:shadow-none"
+            class="mt-16 rounded-2xl border border-border bg-card/85 p-6 shadow-lg shadow-border/50 dark:border-border/60 dark:bg-card/30 dark:shadow-none"
           >
             <p
-              class="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-500"
+              class="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
             >
-              Մոդուլներ
+              {{ __("Modules") }}
             </p>
 
             <div class="grid gap-3 md:grid-cols-2">
               <div
                 v-for="item in moduleItems"
-                :key="item.label"
-                class="group flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-slate-500 transition-all hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white"
+                :key="item.labelKey"
+                class="group flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:bg-muted hover:text-foreground dark:text-muted-foreground dark:hover:bg-card/50 dark:hover:text-primary-foreground"
               >
                 <div class="flex items-center gap-3">
                   <component :is="item.icon" :size="18" />
-                  <span class="text-sm font-medium">{{ item.label }}</span>
+                  <span class="text-sm font-medium">{{ __(item.labelKey) }}</span>
                 </div>
 
                 <Lock
                   :size="12"
-                  class="text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 dark:text-slate-500"
+                  class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 dark:text-muted-foreground"
                 />
               </div>
             </div>
           </div>
 
           <footer
-            class="mt-16 flex flex-col items-center justify-between border-t border-slate-200/80 pt-8 text-sm text-slate-500 dark:border-slate-800/60 md:flex-row"
+            class="mt-16 flex flex-col items-center justify-between border-t border-border/80 pt-8 text-sm text-muted-foreground dark:border-border/60 md:flex-row"
           >
-            <p>
-              &copy; 2026 MathDash հարթակ։ Բոլոր իրավունքները պաշտպանված են։
-            </p>
+            <p>&copy; 2026 MathDash. {{ __("All rights reserved.") }}</p>
 
             <div class="mt-4 flex gap-6 md:mt-0">
               <a
                 href="#"
-                class="transition-colors hover:text-slate-900 dark:hover:text-white"
-                >Գաղտնիություն</a
+                class="transition-colors hover:text-foreground dark:hover:text-primary-foreground"
+                >{{ __("About") }}</a
               >
               <a
                 href="#"
-                class="transition-colors hover:text-slate-900 dark:hover:text-white"
-                >Պայմաններ</a
+                class="transition-colors hover:text-foreground dark:hover:text-primary-foreground"
+                >{{ __("Careers") }}</a
               >
               <a
                 href="#"
-                class="transition-colors hover:text-slate-900 dark:hover:text-white"
-                >Կապ</a
+                class="transition-colors hover:text-foreground dark:hover:text-primary-foreground"
+                >{{ __("Blog") }}</a
               >
             </div>
           </footer>

@@ -57,28 +57,28 @@ function changeLanguage(event: Event) {
   <div class="relative h-screen overflow-hidden bg-background text-foreground">
     <div class="flex h-screen">
       <aside
-        class="sticky top-0 hidden h-screen w-72 border-r border-slate-200/70 bg-white/90 text-slate-700 backdrop-blur-xl dark:border-slate-800/60 dark:bg-[#0B0F19]/90 dark:text-slate-300 md:flex md:flex-col"
+        class="sticky top-0 hidden h-screen w-72 border-r border-sidebar-border/70 bg-sidebar/90 text-sidebar-foreground backdrop-blur-xl md:flex md:flex-col"
       >
         <div
-          class="flex h-18 items-center border-b border-slate-200/70 px-6 dark:border-slate-800/60"
+          class="flex h-18 items-center border-b border-sidebar-border/70 px-6"
         >
           <div
-            class="flex items-center gap-2 text-xl font-bold tracking-tight text-slate-900 dark:text-white"
+            class="flex items-center gap-2 text-xl font-bold tracking-tight text-sidebar-foreground"
           >
             <div
-              class="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-indigo-500 to-purple-600"
+              class="flex h-8 w-8 items-center justify-center rounded bg-gradient-to-br from-primary to-accent-foreground"
             >
-              <span class="text-lg font-serif italic text-white shadow-sm"
+              <span class="text-lg font-serif italic text-primary-foreground shadow-sm"
                 >fx</span
               >
             </div>
-            MathDash<span class="text-indigo-500">.</span>
+            MathDash<span class="text-primary">.</span>
           </div>
         </div>
 
         <div class="flex-1 overflow-hidden p-4">
           <p
-            class="mb-3 mt-2 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500"
+            class="mb-3 mt-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
             {{ __("Modules") }}
           </p>
@@ -88,7 +88,7 @@ function changeLanguage(event: Event) {
           </nav>
 
           <p
-            class="mb-4 mt-8 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500"
+            class="mb-4 mt-8 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
             {{ __("Coming Soon") }}
           </p>
@@ -96,7 +96,7 @@ function changeLanguage(event: Event) {
             <div
               v-for="item in comingSoonModules"
               :key="item.label"
-              class="group flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-slate-500 transition-all hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-white"
+              class="group flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
               <div class="flex items-center gap-3">
                 <component :is="item.icon" :size="18" />
@@ -104,7 +104,7 @@ function changeLanguage(event: Event) {
               </div>
               <Lock
                 :size="12"
-                class="text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 dark:text-slate-500"
+                class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
               />
             </div>
           </nav>
@@ -113,7 +113,7 @@ function changeLanguage(event: Event) {
 
       <div class="flex h-screen flex-1 flex-col overflow-hidden">
         <header
-          class="sticky top-0 z-[120] border-b border-slate-200/70 bg-white/85 px-6 py-4 text-slate-900 backdrop-blur-xl dark:border-slate-800/60 dark:bg-[#0B0F19]/85 dark:text-slate-100"
+          class="sticky top-0 z-[120] border-b border-border/70 bg-background/85 px-6 py-4 text-foreground backdrop-blur-xl"
         >
           <div class="flex items-center justify-between gap-4">
             <div class="min-w-0 flex-1">
@@ -124,7 +124,7 @@ function changeLanguage(event: Event) {
               <select
                 :value="language"
                 @change="changeLanguage"
-                class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-400 focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                class="rounded-lg border border-border bg-input px-3 py-2 text-sm font-medium text-foreground shadow-sm transition hover:border-ring focus:border-ring focus:outline-none"
               >
                 <option
                   v-for="lang in languages"
@@ -138,7 +138,7 @@ function changeLanguage(event: Event) {
               <Dropdown
                 align="right"
                 width="48"
-                content-classes="py-1 bg-white dark:bg-slate-800"
+                content-classes="py-1 bg-popover text-popover-foreground"
               >
                 <template #trigger>
                   <div class="flex items-center justify-center gap-4">
@@ -148,7 +148,7 @@ function changeLanguage(event: Event) {
                     </div>
                     <button
                       type="button"
-                      class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-slate-300 bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-semibold text-white shadow-sm transition hover:scale-[1.03] dark:border-slate-700"
+                      class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-border bg-gradient-to-br from-primary to-accent-foreground text-sm font-semibold text-primary-foreground shadow-sm transition hover:scale-[1.03]"
                     >
                       <img
                         v-if="user?.profile_photo_url"
@@ -164,11 +164,11 @@ function changeLanguage(event: Event) {
                 <template #content>
                   <div class="px-4 py-2">
                     <p
-                      class="text-sm font-semibold text-slate-800 dark:text-slate-100"
+                      class="text-sm font-semibold text-popover-foreground"
                     >
                       {{ user?.name ?? __("User") }}
                     </p>
-                    <p class="text-xs text-slate-500 dark:text-slate-300">
+                    <p class="text-xs text-muted-foreground">
                       {{ user?.email ?? "" }}
                     </p>
                   </div>
@@ -179,7 +179,7 @@ function changeLanguage(event: Event) {
 
                   <div class="px-4 py-2">
                     <p
-                      class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300"
+                      class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
                     >
                       {{ __("Theme") }}
                     </p>
@@ -189,8 +189,8 @@ function changeLanguage(event: Event) {
                         class="inline-flex items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-xs font-medium transition"
                         :class="
                           theme === 'light'
-                            ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-400 dark:bg-indigo-500/20 dark:text-indigo-200'
-                            : 'border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+                            ? 'border-primary/30 bg-accent text-accent-foreground'
+                            : 'border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                         "
                         @click.stop="setTheme('light')"
                       >
@@ -202,8 +202,8 @@ function changeLanguage(event: Event) {
                         class="inline-flex items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-xs font-medium transition"
                         :class="
                           theme === 'dark'
-                            ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-400 dark:bg-indigo-500/20 dark:text-indigo-200'
-                            : 'border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+                            ? 'border-primary/30 bg-accent text-accent-foreground'
+                            : 'border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                         "
                         @click.stop="setTheme('dark')"
                       >

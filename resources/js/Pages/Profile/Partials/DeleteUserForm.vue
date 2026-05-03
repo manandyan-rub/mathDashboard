@@ -41,11 +41,11 @@ const closeModal = () => {
 <template>
   <section class="space-y-6">
     <header>
-      <h2 class="text-lg font-medium text-slate-900 dark:text-white">
+      <h2 class="text-lg font-medium text-foreground dark:text-primary-foreground">
         Ջնջել հաշիվը
       </h2>
 
-      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+      <p class="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
         Հաշիվը ջնջելուց հետո դրա բոլոր տվյալներն ու ռեսուրսները մշտապես կջնջվեն։
         Ջնջելուց առաջ պահպանեք ձեզ անհրաժեշտ տեղեկությունները։
       </p>
@@ -54,12 +54,12 @@ const closeModal = () => {
     <DangerButton @click="confirmUserDeletion">Ջնջել հաշիվը</DangerButton>
 
     <Modal :show="confirmingUserDeletion" @close="closeModal">
-      <div class="bg-white p-6 dark:bg-gray-800">
-        <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">
+      <div class="bg-card p-6 dark:bg-card">
+        <h2 class="text-lg font-medium text-foreground dark:text-foreground">
           Համոզվա՞ծ եք, որ ցանկանում եք ջնջել հաշիվը։
         </h2>
 
-        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+        <p class="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           Հաշիվը ջնջվելուց հետո դրա բոլոր տվյալներն ու ռեսուրսները մշտապես
           կջնջվեն։ Մուտքագրեք ձեր գաղտնաբառը՝ հաստատելու, որ ցանկանում եք
           շարունակել։

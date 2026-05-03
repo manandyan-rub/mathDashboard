@@ -2,7 +2,6 @@
   Box,
   Calculator,
   EqualApproximately,
-  FileText,
   LayoutDashboard,
   NotebookPen,
   Pi,
@@ -20,18 +19,18 @@ export interface MenuItem {
 export const adminMenu: MenuItem[] = [
   {
     title: "Dashboard",
-    route: "mathematics.index",
+    route: "dashboard",
     icon: LayoutDashboard,
-  },
-  {
-    title: "Math Levels",
-    route: "math-levels.index",
-    icon: Sigma,
   },
   {
     title: "Hall of Fame",
     route: "math-levels.rewards",
     icon: Trophy,
+  },
+  {
+    title: "Math Levels",
+    route: "math-levels.index",
+    icon: Sigma,
   },
   {
     title: "Teacher Exercise Studio",
@@ -75,16 +74,6 @@ export const adminMenu: MenuItem[] = [
         title: "Formula Library",
         route: "formula.index",
         icon: Pi,
-      },
-    ],
-  },
-  {
-    title: "Exercises",
-    children: [
-      {
-        title: "PDF Quiz",
-        route: "pdf-quiz.upload",
-        icon: FileText,
       },
     ],
   },

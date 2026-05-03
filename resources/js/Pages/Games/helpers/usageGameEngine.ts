@@ -17,6 +17,7 @@ import { genStudent } from "./genStudent";
 import { genEinstein } from "./genEinstein";
 import { awardGameXp } from "./gameXp";
 import { useTheme } from "@/composables/useTheme";
+import { themeColor } from "@/lib/themeColors";
 
 MathfieldElement.fontsDirectory = "/fonts/mathlive";
 MathfieldElement.soundsDirectory = "/sounds/mathlive";
@@ -51,10 +52,10 @@ export function useGameEngine() {
   );
   const timerColor = computed(() =>
     timerPct.value > 50
-      ? "#22c55e"
+      ? themeColor("--chart-2")
       : timerPct.value > 25
-        ? "#f59e0b"
-        : "#ef4444",
+        ? themeColor("--chart-3")
+        : themeColor("--destructive"),
   );
   const isEinstein = computed(() => mode.value === "einstein");
   const timerDisplay = computed(() => timeLeft.value.toFixed(1) + "վ");
@@ -94,17 +95,17 @@ export function useGameEngine() {
   }
 
   function renderAll() {
-    const textColor = isDark.value ? "#f1f5f9" : "#0f172a";
+    const textColor = themeColor("--foreground");
     const qEl = document.querySelector<HTMLElement>("[data-mf-question]");
     if (qEl && problem.value.latex)
       injectMath(qEl, problem.value.latex, textColor);
     document.querySelectorAll<HTMLElement>("[data-mf-bubble]").forEach((el) => {
       const lat = el.dataset.mfBubble;
-      if (lat) injectMath(el, lat, "#ffffff");
+      if (lat) injectMath(el, lat, themeColor("--primary-foreground"));
     });
     const aEl = document.querySelector<HTMLElement>("[data-mf-answer]");
     if (aEl && problem.value.answerLatex)
-      injectMath(aEl, problem.value.answerLatex, "#3b82f6");
+      injectMath(aEl, problem.value.answerLatex, themeColor("--chart-5"));
   }
 
   function genWrongs(correct: string, count: number): string[] {
@@ -180,7 +181,7 @@ export function useGameEngine() {
       { v: prob.answer, correct: true },
     ].sort(() => Math.random() - 0.5);
 
-    const colors = BUBBLE_COLORS[m];
+    const colors = BUBBLE_COLORS[m].map((color) => themeColor(color));
     const colorStart = Math.floor(Math.random() * colors.length);
     const placed: Bubble[] = [];
     const topPad = 185;

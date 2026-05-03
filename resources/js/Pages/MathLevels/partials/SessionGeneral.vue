@@ -176,18 +176,18 @@ function renderMath() {
 
   <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
     <div
-      class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+      class="rounded-2xl border border-border/70 bg-card p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
     >
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900 dark:text-white">
+          <h1 class="text-2xl font-semibold text-foreground dark:text-primary-foreground">
             {{ levelTitle }}
           </h1>
-          <p class="text-sm text-slate-500 dark:text-slate-300">
+          <p class="text-sm text-muted-foreground dark:text-muted-foreground">
             XP {{ xpReward }}
           </p>
         </div>
-        <div class="text-sm text-slate-500 dark:text-slate-300">
+        <div class="text-sm text-muted-foreground dark:text-muted-foreground">
           {{ progressText }}
         </div>
       </div>
@@ -195,23 +195,23 @@ function renderMath() {
 
     <div
       v-if="loading"
-      class="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-400 dark:border-slate-800 dark:text-slate-400"
+      class="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground dark:border-border dark:text-muted-foreground"
     >
       Բեռնվում է...
     </div>
 
     <div
       v-else-if="error"
-      class="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-500"
+      class="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
     >
       {{ error }}
     </div>
 
     <div v-else-if="currentQuestion" class="space-y-4">
       <div
-        class="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+        class="rounded-2xl border border-border/70 bg-card p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
       >
-        <p class="text-lg font-semibold text-slate-900 dark:text-white">
+        <p class="text-lg font-semibold text-foreground dark:text-primary-foreground">
           <template
             v-for="(segment, idx) in splitMath(currentQuestion.question)"
             :key="`q-${currentQuestion.id}-${idx}`"
@@ -232,8 +232,8 @@ function renderMath() {
             class="rounded-xl border px-4 py-3 text-left text-sm transition"
             :class="
               currentQuestion.selected_option_id === option.id
-                ? 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:border-indigo-400 dark:bg-indigo-500/20 dark:text-indigo-200'
-                : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-indigo-200 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300'
+                ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary dark:bg-primary/20 dark:text-primary'
+                : 'border-border bg-muted text-muted-foreground hover:border-primary dark:border-border dark:bg-card/60 dark:text-muted-foreground'
             "
             :disabled="saving"
             @click="chooseOption(option.id)"
@@ -255,7 +255,7 @@ function renderMath() {
 
       <div class="flex items-center justify-between">
         <button
-          class="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 transition hover:border-indigo-200 hover:text-indigo-700 dark:border-slate-700 dark:text-slate-300"
+          class="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition hover:border-primary hover:text-primary dark:border-border dark:text-muted-foreground"
           :disabled="currentIndex === 0"
           @click="goPrev"
         >
@@ -263,14 +263,14 @@ function renderMath() {
         </button>
         <div class="flex gap-2">
           <button
-            class="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 transition hover:border-indigo-200 hover:text-indigo-700 dark:border-slate-700 dark:text-slate-300"
+            class="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition hover:border-primary hover:text-primary dark:border-border dark:text-muted-foreground"
             :disabled="currentIndex >= questions.length - 1"
             @click="goNext"
           >
             Հաջորդ
           </button>
           <button
-            class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50"
+            class="rounded-lg bg-chart-2 px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-chart-2 disabled:opacity-50"
             :disabled="finishing"
             @click="finish"
           >

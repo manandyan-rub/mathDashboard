@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\MathUserProfile;
+use App\Models\MathUserXpEvent;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GameXpController extends Controller
 {
@@ -36,24 +38,45 @@ class GameXpController extends Controller
         $xpPerUnit = $xpByMode[$mode] ?? 1;
         $earned = $xpPerUnit * max(1, min(20, $count));
 
-        $profile = MathUserProfile::firstOrCreate(
-            ['user_id' => $user->id],
-            [
-                'total_xp' => 0,
-                'current_rank' => 'Beginner',
-                'streak_days' => 0,
-                'completed_levels' => 0,
-                'total_stars' => 0,
-            ]
-        );
+        $profile = DB::transaction(function () use ($user, $earned, $data, $mode, $count, $xpPerUnit) {
+            $profile = MathUserProfile::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'total_xp' => 0,
+                    'current_rank' => 'Beginner',
+                    'streak_days' => 0,
+                    'completed_levels' => 0,
+                    'total_stars' => 0,
+                ]
+            );
 
-        $profile->increment('total_xp', $earned);
-        $profile->refresh();
+            $profile->increment('total_xp', $earned);
+            $profile->refresh();
+            $newRank = $this->rankForXp((int) $profile->total_xp);
+
+            if ($profile->current_rank !== $newRank) {
+                $profile->update(['current_rank' => $newRank]);
+            }
+
+            MathUserXpEvent::create([
+                'user_id' => $user->id,
+                'amount' => $earned,
+                'source' => 'game',
+                'source_label' => 'Game practice',
+                'reference_type' => 'game',
+                'metadata' => [
+                    'game' => $data['game'],
+                    'mode' => $mode,
+                    'count' => $count,
+                    'xp_per_unit' => $xpPerUnit,
+                ],
+                'earned_at' => now(),
+            ]);
+
+            return $profile;
+        });
+
         $newRank = $this->rankForXp((int) $profile->total_xp);
-
-        if ($profile->current_rank !== $newRank) {
-            $profile->update(['current_rank' => $newRank]);
-        }
 
         return response()->json([
             'xp_earned' => $earned,
@@ -73,4 +96,3 @@ class GameXpController extends Controller
         return 'Beginner';
     }
 }
-

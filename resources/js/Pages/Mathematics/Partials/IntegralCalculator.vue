@@ -3,6 +3,7 @@ import { MathfieldElement } from "mathlive";
 import axios from "axios";
 import { nextTick, onBeforeUnmount, onMounted, onUpdated, ref } from "vue";
 import { useTheme } from "@/composables/useTheme";
+import { themeColor } from "@/lib/themeColors";
 
 const appOrigin =
   typeof window !== "undefined"
@@ -93,13 +94,13 @@ function injectMathField(container: HTMLElement, value: string) {
   const existing = container.querySelector("math-field");
   if (existing) {
     setMathFieldValue(existing as MathfieldLike, value);
-    (existing as HTMLElement).style.color = isDark.value ? "white" : "#1e293b";
+    (existing as HTMLElement).style.color = themeColor("--foreground");
     return;
   }
   const mf = document.createElement("math-field") as MathfieldLike;
   mf.readOnly = true;
   mf.setAttribute("read-only", "");
-  mf.style.cssText = `background:transparent;border:none;pointer-events:none;display:block;width:100%;color:${isDark.value ? "white" : "#1e293b"};`;
+  mf.style.cssText = `background:transparent;border:none;pointer-events:none;display:block;width:100%;color:${themeColor("--foreground")};`;
   container.appendChild(mf);
   requestAnimationFrame(() => setMathFieldValue(mf, value));
 }
@@ -160,8 +161,8 @@ async function calculate() {
     class="mx-auto max-w-3xl rounded-2xl border p-6 transition-colors duration-300"
     :class="
       isDark
-        ? 'border-slate-700 bg-slate-900 text-white'
-        : 'border-slate-200 bg-white text-slate-900'
+        ? 'border-border bg-card text-primary-foreground'
+        : 'border-border bg-card text-foreground'
     "
   >
     <div class="mb-4">
@@ -170,7 +171,7 @@ async function calculate() {
 
     <label
       class="mb-2 block text-sm"
-      :class="isDark ? 'text-slate-300' : 'text-slate-500'"
+      :class="isDark ? 'text-muted-foreground' : 'text-muted-foreground'"
     >
       Մուտքագրեք ինտեգրալ
     </label>
@@ -182,8 +183,8 @@ async function calculate() {
         class="block min-h-[64px] w-full rounded-xl border px-4 py-3 text-lg transition-colors"
         :class="
           isDark
-            ? 'border-slate-600 bg-slate-950'
-            : 'border-slate-300 bg-slate-50'
+            ? 'border-border bg-background'
+            : 'border-border bg-muted'
         "
       >
         \int x^2 \sin(x)\,dx
@@ -191,7 +192,7 @@ async function calculate() {
 
       <button
         type="submit"
-        class="mt-4 rounded-xl bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
+        class="mt-4 rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         :disabled="loading"
       >
         {{ loading ? "Հաշվարկվում է..." : "Հաշվարկել" }}
@@ -200,7 +201,7 @@ async function calculate() {
 
     <div
       v-if="error"
-      class="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-red-500"
+      class="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-destructive"
     >
       {{ error }}
     </div>
@@ -208,7 +209,7 @@ async function calculate() {
     <div v-if="steps.length > 0" class="mt-6 space-y-3">
       <div
         class="text-sm font-semibold uppercase tracking-widest"
-        :class="isDark ? 'text-slate-300' : 'text-slate-500'"
+        :class="isDark ? 'text-muted-foreground' : 'text-muted-foreground'"
       >
         Լուծման քայլեր
       </div>
@@ -219,13 +220,13 @@ async function calculate() {
         class="rounded-xl border p-4 transition-colors"
         :class="
           isDark
-            ? 'border-slate-700 bg-slate-800/60'
-            : 'border-slate-200 bg-slate-50'
+            ? 'border-border bg-card/60'
+            : 'border-border bg-muted'
         "
       >
         <div class="flex items-start gap-3">
           <span
-            class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white"
+            class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground"
           >
             {{ i + 1 }}
           </span>
@@ -234,7 +235,7 @@ async function calculate() {
             <div
               v-if="step.explanation"
               class="text-sm"
-              :class="isDark ? 'text-slate-400' : 'text-slate-500'"
+              :class="isDark ? 'text-muted-foreground' : 'text-muted-foreground'"
             >
               {{ step.explanation }}
             </div>
@@ -250,8 +251,8 @@ async function calculate() {
               class="overflow-x-auto rounded-lg px-3 py-2 font-mono text-sm"
               :class="
                 isDark
-                  ? 'bg-slate-900 text-slate-100'
-                  : 'bg-slate-100 text-slate-800'
+                  ? 'bg-card text-foreground'
+                  : 'bg-muted text-muted-foreground'
               "
               >{{ step.latex }}</pre
             >
@@ -262,7 +263,7 @@ async function calculate() {
 
     <div
       v-else-if="result && stepsNote"
-      class="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-500"
+      class="mt-4 rounded-xl border border-chart-3/30 bg-chart-3/10 p-3 text-sm text-chart-3"
     >
       {{ stepsNote }}
     </div>
@@ -272,13 +273,13 @@ async function calculate() {
       class="mt-4 rounded-xl border p-4 transition-colors"
       :class="
         isDark
-          ? 'border-emerald-500/30 bg-emerald-500/10'
-          : 'border-emerald-400/40 bg-emerald-50'
+          ? 'border-chart-2/30 bg-chart-2/10'
+          : 'border-chart-2/40 bg-chart-2'
       "
     >
       <div
         class="mb-2 text-sm font-semibold uppercase tracking-widest"
-        :class="isDark ? 'text-emerald-300' : 'text-emerald-700'"
+        :class="isDark ? 'text-chart-2' : 'text-chart-2'"
       >
         Արդյունք
       </div>
@@ -293,8 +294,8 @@ async function calculate() {
         class="overflow-x-auto rounded-lg px-3 py-2 font-mono text-sm"
         :class="
           isDark
-            ? 'bg-slate-900/60 text-slate-100'
-            : 'bg-emerald-100/60 text-slate-800'
+            ? 'bg-card/60 text-foreground'
+            : 'bg-chart-2/60 text-muted-foreground'
         "
         >{{ result }}</pre
       >
@@ -305,14 +306,14 @@ async function calculate() {
 <style scoped>
 math-field {
   width: 100%;
-  --caret-color: #fff;
-  --primary: #6366f1;
-  --selection-background-color: rgba(99, 102, 241, 0.25);
+  --caret-color: var(--foreground);
+  --primary: var(--ring);
+  --selection-background-color: color-mix(in srgb, var(--ring) 25%, transparent);
   --keyboard-zindex: 50;
 }
 
 math-field:focus-within {
-  outline: 2px solid rgba(99, 102, 241, 0.8);
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 

@@ -48,12 +48,12 @@ onBeforeUnmount(() => {
 
 <template>
   <section
-    class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/80 p-6 md:p-8 dark:border-slate-800 dark:bg-slate-900/40"
+    class="relative overflow-hidden rounded-2xl border border-border bg-card/80 p-6 md:p-8 dark:border-border dark:bg-card/40"
   >
     <h3
-      class="mb-6 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white"
+      class="mb-6 flex items-center gap-2 text-xl font-semibold text-foreground dark:text-primary-foreground"
     >
-      <Key class="text-emerald-500 dark:text-emerald-400" :size="20" />
+      <Key class="text-chart-2 dark:text-chart-2" :size="20" />
       Թարմացնել գաղտնաբառը
     </h3>
 
@@ -61,7 +61,7 @@ onBeforeUnmount(() => {
       <div class="space-y-2">
         <label
           for="current_password"
-          class="text-sm font-medium text-slate-700 dark:text-slate-300"
+          class="text-sm font-medium text-muted-foreground dark:text-muted-foreground"
           >Ներկայիս գաղտնաբառ</label
         >
         <input
@@ -72,7 +72,7 @@ onBeforeUnmount(() => {
           required
           placeholder="********"
           autocomplete="current-password"
-          class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition-all focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-slate-700/50 dark:bg-background dark:text-white"
+          class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-foreground transition-all focus:border-chart-2 focus:outline-none focus:ring-1 focus:ring-chart-2 dark:border-border/50 dark:bg-background dark:text-primary-foreground"
         />
         <InputError :message="form.errors.current_password" class="mt-1" />
       </div>
@@ -80,7 +80,7 @@ onBeforeUnmount(() => {
       <div class="space-y-2">
         <label
           for="password"
-          class="text-sm font-medium text-slate-700 dark:text-slate-300"
+          class="text-sm font-medium text-muted-foreground dark:text-muted-foreground"
           >Նոր գաղտնաբառ</label
         >
         <input
@@ -91,7 +91,7 @@ onBeforeUnmount(() => {
           required
           placeholder="********"
           autocomplete="new-password"
-          class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition-all focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-slate-700/50 dark:bg-background dark:text-white"
+          class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-foreground transition-all focus:border-chart-2 focus:outline-none focus:ring-1 focus:ring-chart-2 dark:border-border/50 dark:bg-background dark:text-primary-foreground"
         />
         <InputError :message="form.errors.password" class="mt-1" />
       </div>
@@ -99,7 +99,7 @@ onBeforeUnmount(() => {
       <div class="space-y-2">
         <label
           for="password_confirmation"
-          class="text-sm font-medium text-slate-700 dark:text-slate-300"
+          class="text-sm font-medium text-muted-foreground dark:text-muted-foreground"
           >Հաստատել նոր գաղտնաբառը</label
         >
         <input
@@ -109,14 +109,14 @@ onBeforeUnmount(() => {
           required
           placeholder="********"
           autocomplete="new-password"
-          class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition-all focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-slate-700/50 dark:bg-background dark:text-white"
+          class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-foreground transition-all focus:border-chart-2 focus:outline-none focus:ring-1 focus:ring-chart-2 dark:border-border/50 dark:bg-background dark:text-primary-foreground"
         />
         <InputError :message="form.errors.password_confirmation" class="mt-1" />
       </div>
 
       <div class="flex items-center justify-between pt-2">
         <span
-          class="text-sm text-emerald-400 transition-opacity duration-300"
+          class="text-sm text-chart-2 transition-opacity duration-300"
           :style="{ opacity: passwordSaved ? 1 : 0 }"
         >
           Գաղտնաբառը հաջողությամբ փոխվեց։
@@ -125,7 +125,7 @@ onBeforeUnmount(() => {
         <button
           type="submit"
           :disabled="form.processing"
-          class="rounded-lg border border-slate-300 bg-white px-6 py-2.5 font-medium text-slate-800 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+          class="rounded-lg border border-border bg-card px-6 py-2.5 font-medium text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60 dark:border-border dark:bg-card dark:text-primary-foreground dark:hover:bg-card"
         >
           Թարմացնել գաղտնաբառը
         </button>

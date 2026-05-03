@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
+import { cmsTranslate as __ } from "@/lib/i18n";
 import { Head, Link } from "@inertiajs/vue3";
 import {
   ArrowRight,
@@ -20,22 +21,22 @@ defineProps<{
   <Head title="MathDash" />
 
   <section
-    class="relative min-h-screen overflow-hidden bg-background text-slate-700 selection:bg-indigo-500/20 dark:text-slate-300 dark:selection:bg-indigo-500/30"
+    class="relative min-h-screen overflow-hidden bg-background text-muted-foreground selection:bg-primary/20 dark:text-muted-foreground dark:selection:bg-primary/30"
   >
     <div
       class="pointer-events-none absolute inset-0 z-0 opacity-[0.04]"
       style="
         background-image:
-          linear-gradient(to right, #ffffff 1px, transparent 1px),
-          linear-gradient(to bottom, #ffffff 1px, transparent 1px);
+          linear-gradient(to right, var(--border) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--border) 1px, transparent 1px);
         background-size: 44px 44px;
       "
     />
     <div
-      class="pointer-events-none absolute left-[-12%] top-[-14%] z-0 h-[45%] w-[45%] rounded-full bg-indigo-600/20 blur-[120px]"
+      class="pointer-events-none absolute left-[-12%] top-[-14%] z-0 h-[45%] w-[45%] rounded-full bg-primary/20 blur-[120px]"
     />
     <div
-      class="pointer-events-none absolute bottom-[-14%] right-[-10%] z-0 h-[45%] w-[45%] rounded-full bg-emerald-600/15 blur-[120px]"
+      class="pointer-events-none absolute bottom-[-14%] right-[-10%] z-0 h-[45%] w-[45%] rounded-full bg-chart-2/15 blur-[120px]"
     />
 
     <header class="relative z-20">
@@ -44,12 +45,12 @@ defineProps<{
       >
         <Link href="/" class="flex items-center gap-3">
           <div
-            class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600"
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-chart-4"
           >
-            <span class="font-serif text-xl italic text-white">fx</span>
+            <span class="font-serif text-xl italic text-primary-foreground">fx</span>
           </div>
-          <div class="text-lg font-semibold text-slate-900 dark:text-white">
-            MathDash<span class="text-indigo-500">.</span>
+          <div class="text-lg font-semibold text-foreground dark:text-primary-foreground">
+            MathDash<span class="text-primary">.</span>
           </div>
         </Link>
 
@@ -65,25 +66,25 @@ defineProps<{
       <div class="grid w-full items-center gap-10 lg:grid-cols-2">
         <div>
           <div
-            class="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-300"
+            class="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary dark:text-primary"
           >
             <Sparkles :size="14" />
             {{ __("Adaptive Learning Workspace") }}
           </div>
 
           <h1
-            class="text-4xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white md:text-6xl"
+            class="text-4xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground md:text-6xl"
           >
             {{ __("Smarter math practice for every student") }}
             <span
-              class="bg-gradient-to-r from-indigo-500 to-emerald-500 bg-clip-text text-transparent"
+              class="bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent"
             >
               MathDash
             </span>
           </h1>
 
           <p
-            class="mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-slate-400"
+            class="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground"
           >
             {{
               __(
@@ -96,7 +97,7 @@ defineProps<{
             <Link
               v-if="canRegister"
               :href="route('register')"
-              class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-500"
+              class="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
             >
               {{ __("Get Started") }}
               <ArrowRight :size="16" />
@@ -105,7 +106,7 @@ defineProps<{
             <Link
               v-if="canLogin"
               :href="route('login')"
-              class="rounded-xl border border-slate-300 bg-white/80 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-white dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:bg-slate-900"
+              class="rounded-xl border border-border bg-card/80 px-5 py-3 text-sm font-medium text-muted-foreground transition hover:bg-card dark:border-border dark:bg-card/70 dark:text-foreground dark:hover:bg-card"
             >
               {{ __("Log In") }}
             </Link>
@@ -114,17 +115,17 @@ defineProps<{
 
         <div class="grid gap-4 sm:grid-cols-2">
           <article
-            class="rounded-2xl border border-slate-200/80 bg-white/80 p-5 shadow-lg backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/50"
+            class="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-lg backdrop-blur-sm dark:border-border/50 dark:bg-card/50"
           >
             <div
-              class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-300"
+              class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary dark:text-primary"
             >
               <ChartLine :size="18" />
             </div>
-            <h3 class="text-base font-semibold text-slate-900 dark:text-white">
+            <h3 class="text-base font-semibold text-foreground dark:text-primary-foreground">
               {{ __("Interactive visual tools") }}
             </h3>
-            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            <p class="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
               {{
                 __(
                   "Work with graphs, calculators, and visual explanations that turn abstract ideas into something easier to understand."
@@ -134,17 +135,17 @@ defineProps<{
           </article>
 
           <article
-            class="rounded-2xl border border-slate-200/80 bg-white/80 p-5 shadow-lg backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/50"
+            class="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-lg backdrop-blur-sm dark:border-border/50 dark:bg-card/50"
           >
             <div
-              class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"
+              class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-chart-2/15 text-chart-2 dark:text-chart-2"
             >
               <Box :size="18" />
             </div>
-            <h3 class="text-base font-semibold text-slate-900 dark:text-white">
+            <h3 class="text-base font-semibold text-foreground dark:text-primary-foreground">
               {{ __("Spatial thinking and geometry") }}
             </h3>
-            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            <p class="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
               {{
                 __(
                   "Practice with shapes, dimensions, and 3D reasoning through tools designed for hands-on exploration."
@@ -154,10 +155,10 @@ defineProps<{
           </article>
 
           <article
-            class="sm:col-span-2 rounded-2xl border border-slate-200/80 bg-white/80 p-5 shadow-lg backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-900/50"
+            class="sm:col-span-2 rounded-2xl border border-border/80 bg-card/80 p-5 shadow-lg backdrop-blur-sm dark:border-border/50 dark:bg-card/50"
           >
             <div
-              class="mb-3 flex items-center gap-2 text-indigo-600 dark:text-indigo-300"
+              class="mb-3 flex items-center gap-2 text-primary dark:text-primary"
             >
               <BookOpen :size="18" />
               <span class="text-sm font-semibold">
@@ -165,7 +166,7 @@ defineProps<{
               </span>
             </div>
             <p
-              class="text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+              class="text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground"
             >
               {{
                 __(

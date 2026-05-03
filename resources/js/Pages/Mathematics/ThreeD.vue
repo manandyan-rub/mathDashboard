@@ -4,7 +4,9 @@ import { TresCanvas } from "@tresjs/core";
 import { OrbitControls } from "@tresjs/cientos";
 import * as THREE from "three";
 import AdminFormLayout from "@/Layouts/AdminFormLayout.vue";
+import { useTheme } from "@/composables/useTheme";
 import { cmsTranslate as __ } from "@/lib/i18n";
+import { themeColor } from "@/lib/themeColors";
 import {
   Select,
   SelectContent,
@@ -36,6 +38,7 @@ type StairInput = {
 };
 
 const shape = ref("cuboid");
+const { theme } = useTheme();
 
 const formDimensions = ref<Dimensions>({ length: 4, width: 3, height: 2 });
 const submittedDimensions = ref<Dimensions>({ length: 4, width: 3, height: 2 });
@@ -152,6 +155,19 @@ const steps = computed(() =>
     };
   }),
 );
+
+const sceneColors = computed(() => {
+  theme.value;
+
+  return {
+    background: themeColor("--background"),
+    cuboid: themeColor("--chart-4"),
+    sphere: themeColor("--chart-2"),
+    stairs: themeColor("--chart-3"),
+    cone: themeColor("--chart-3"),
+    cylinder: themeColor("--destructive"),
+  };
+});
 </script>
 
 <template>
@@ -173,7 +189,7 @@ const steps = computed(() =>
       </div>
 
       <div class="h-120 overflow-hidden rounded-xl border bg-background">
-        <TresCanvas clear-color="#0b0f19">
+        <TresCanvas :clear-color="sceneColors.background">
           <TresPerspectiveCamera :position="[8, 6, 10]" :look-at="[0, 0, 0]" />
           <OrbitControls />
           <TresAmbientLight :intensity="1.5" />
@@ -187,7 +203,7 @@ const steps = computed(() =>
             <TresBoxGeometry
               :args="[renderBox.length, renderBox.height, renderBox.width]"
             />
-            <TresMeshStandardMaterial color="#8b5cf6" />
+            <TresMeshStandardMaterial :color="sceneColors.cuboid" />
           </TresMesh>
 
           <TresMesh
@@ -195,7 +211,7 @@ const steps = computed(() =>
             :position="[0, renderSphereRadius, 0]"
           >
             <TresSphereGeometry :args="[renderSphereRadius, 32, 32]" />
-            <TresMeshStandardMaterial color="#10b981" />
+            <TresMeshStandardMaterial :color="sceneColors.sphere" />
           </TresMesh>
 
           <template v-else-if="shape === 'stairs'">
@@ -214,7 +230,7 @@ const steps = computed(() =>
                   },
                 ]"
               />
-              <TresMeshStandardMaterial color="#c49a6c" />
+              <TresMeshStandardMaterial :color="sceneColors.stairs" />
             </TresMesh>
           </template>
 
@@ -225,7 +241,7 @@ const steps = computed(() =>
             <TresConeGeometry
               :args="[renderConeRadius, renderConeHeight, 32]"
             />
-            <TresMeshStandardMaterial color="#f59e0b" />
+            <TresMeshStandardMaterial :color="sceneColors.cone" />
           </TresMesh>
 
           <TresMesh
@@ -240,7 +256,7 @@ const steps = computed(() =>
                 32,
               ]"
             />
-            <TresMeshStandardMaterial color="#ec4899" />
+            <TresMeshStandardMaterial :color="sceneColors.cylinder" />
           </TresMesh>
         </TresCanvas>
       </div>

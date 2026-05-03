@@ -248,15 +248,10 @@ function clearLines() {
 <style scoped>
 .freehand-draw-node {
   margin: 0.6rem 0;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 10px;
-  background: rgba(248, 250, 252, 0.8);
-}
-
-.dark .freehand-draw-node {
-  border-color: rgba(71, 85, 105, 0.8);
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--muted);
 }
 
 .freehand-controls {
@@ -270,17 +265,13 @@ function clearLines() {
 .freehand-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #475569;
-}
-
-.dark .freehand-label {
-  color: #cbd5e1;
+  color: var(--muted-foreground);
 }
 
 .freehand-color {
   height: 1.9rem;
   width: 2.4rem;
-  border: 1px solid rgba(148, 163, 184, 0.45);
+  border: 1px solid var(--border);
   border-radius: 8px;
   background: transparent;
   padding: 2px;
@@ -288,27 +279,21 @@ function clearLines() {
 
 .freehand-size {
   width: 3.25rem;
-  border: 1px solid rgba(148, 163, 184, 0.45);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #fff;
-  color: #1e293b;
+  background: var(--input);
+  color: var(--foreground);
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.25rem;
   padding: 0.25rem 0.4rem;
 }
 
-.dark .freehand-size {
-  border-color: rgba(71, 85, 105, 0.9);
-  background: rgba(15, 23, 42, 0.85);
-  color: #e2e8f0;
-}
-
 .freehand-clear-btn {
-  border: 1px solid rgba(148, 163, 184, 0.55);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #fff;
-  color: #334155;
+  background: var(--card);
+  color: var(--card-foreground);
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.1rem;
@@ -317,42 +302,22 @@ function clearLines() {
 }
 
 .freehand-clear-btn:hover {
-  border-color: rgba(79, 70, 229, 0.55);
-  color: #4338ca;
-}
-
-.dark .freehand-clear-btn {
-  border-color: rgba(71, 85, 105, 0.9);
-  background: rgba(15, 23, 42, 0.85);
-  color: #cbd5e1;
-}
-
-.dark .freehand-clear-btn:hover {
-  border-color: rgba(99, 102, 241, 0.7);
-  color: #c7d2fe;
+  border-color: var(--ring);
+  color: var(--primary);
 }
 
 .freehand-canvas {
   width: 100%;
   min-height: 220px;
-  background: #f8fafc;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 10px;
   cursor: crosshair;
   touch-action: none;
 }
 
-.dark .freehand-canvas {
-  background: rgba(15, 23, 42, 0.8);
-  border-color: rgba(71, 85, 105, 0.8);
-}
-
 .freehand-placeholder {
-  fill: #94a3b8;
+  fill: var(--muted-foreground);
   font-size: 14px;
-}
-
-.dark .freehand-placeholder {
-  fill: #64748b;
 }
 </style>

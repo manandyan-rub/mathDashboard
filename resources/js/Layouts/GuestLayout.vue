@@ -15,13 +15,13 @@ import { Link } from "@inertiajs/vue3";
     <div>
       <Link href="/">
         <ApplicationLogo
-          class="h-20 w-20 fill-current text-slate-500 dark:text-slate-400"
+          class="h-20 w-20 fill-current text-muted-foreground"
         />
       </Link>
     </div>
 
     <div
-      class="mt-6 w-full overflow-hidden border border-slate-200/70 bg-white px-6 py-4 shadow-md sm:max-w-md sm:rounded-lg dark:border-slate-700/60 dark:bg-slate-900/70"
+      class="mt-6 w-full overflow-hidden border border-border bg-card px-6 py-4 text-card-foreground shadow-md sm:max-w-md sm:rounded-lg"
     >
       <slot />
     </div>

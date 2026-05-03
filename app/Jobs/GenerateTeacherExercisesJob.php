@@ -248,24 +248,52 @@ class GenerateTeacherExercisesJob implements ShouldQueue
         $html = '<h2>' . e($title) . '</h2>';
         foreach ($items as $item) {
             $html .= '<h3>Exercise ' . (int) ($item['item_order'] ?? 1) . '</h3>';
-            $html .= '<p>' . e((string) ($item['question'] ?? '')) . '</p>';
+            $html .= $this->renderBlockHtml((string) ($item['question'] ?? ''));
 
             $options = is_array($item['options'] ?? null) ? $item['options'] : [];
             if (!empty($options)) {
                 $html .= '<ol>';
                 foreach ($options as $option) {
-                    $html .= '<li>' . e((string) $option) . '</li>';
+                    $html .= '<li>' . $this->renderInlineHtml((string) $option) . '</li>';
                 }
                 $html .= '</ol>';
             }
 
-            $html .= '<p><strong>Answer:</strong> ' . e((string) ($item['answer'] ?? '')) . '</p>';
+            $html .= '<p><strong>Answer:</strong> ' . $this->renderInlineHtml((string) ($item['answer'] ?? '')) . '</p>';
             if (!empty($item['explanation'])) {
-                $html .= '<p><strong>Explanation:</strong> ' . e((string) $item['explanation']) . '</p>';
+                $html .= '<p><strong>Explanation:</strong> ' . $this->renderInlineHtml((string) $item['explanation']) . '</p>';
             }
         }
 
         return $html;
     }
-}
 
+    private function renderBlockHtml(string $value): string
+    {
+        $content = trim($value);
+        if ($content === '') {
+            return '<p></p>';
+        }
+
+        if ($this->looksLikeHtml($content)) {
+            return $content;
+        }
+
+        return '<p>' . e($content) . '</p>';
+    }
+
+    private function renderInlineHtml(string $value): string
+    {
+        $content = trim($value);
+        if ($content === '') {
+            return '';
+        }
+
+        return $this->looksLikeHtml($content) ? $content : e($content);
+    }
+
+    private function looksLikeHtml(string $value): bool
+    {
+        return (bool) preg_match('/<[^>]+>/u', $value);
+    }
+}

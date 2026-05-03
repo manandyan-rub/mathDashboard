@@ -99,7 +99,7 @@ const FreehandDrawingNode = Node.create({
           width: "100%",
           height: String(BOARD_HEIGHT),
           style:
-            "background:#f8fafc;border:1px solid rgba(148,163,184,.35);border-radius:10px;",
+            "background:var(--card);border:1px solid var(--border);border-radius:10px;",
           "aria-label": "Freehand drawing",
         },
         ...lines.map((line) => lineDomSpec(line)),

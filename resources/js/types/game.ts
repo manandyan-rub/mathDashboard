@@ -73,10 +73,27 @@ export const MODES: Record<Mode, ModeConfig> = {
 };
 
 export const BUBBLE_COLORS: Record<Mode, string[]> = {
-  child: ["#3b82f6", "#8b5cf6", "#ec4899", "#f97316", "#10b981"],
-  student: ["#6366f1", "#0ea5e9", "#14b8a6", "#f59e0b", "#8b5cf6"],
-  einstein: ["#ef4444", "#b91c1c", "#dc2626", "#991b1b", "#7f1d1d"],
+  child: [
+    "--chart-5",
+    "--chart-4",
+    "--destructive",
+    "--chart-3",
+    "--chart-2",
+  ],
+  student: [
+    "--primary",
+    "--chart-5",
+    "--chart-2",
+    "--chart-3",
+    "--chart-4",
+  ],
+  einstein: [
+    "--destructive",
+    "--destructive",
+    "--destructive",
+    "--destructive",
+    "--destructive",
+  ],
 };
 
 export const TICK = 50;
-

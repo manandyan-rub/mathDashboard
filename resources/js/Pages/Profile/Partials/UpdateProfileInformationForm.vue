@@ -75,12 +75,12 @@ onBeforeUnmount(() => {
 
 <template>
   <section
-    class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white/80 p-6 md:p-8 dark:border-slate-800 dark:bg-slate-900/40"
+    class="relative overflow-hidden rounded-2xl border border-border bg-card/80 p-6 md:p-8 dark:border-border dark:bg-card/40"
   >
     <h3
-      class="mb-6 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white"
+      class="mb-6 flex items-center gap-2 text-xl font-semibold text-foreground dark:text-primary-foreground"
     >
-      <User class="text-indigo-500 dark:text-indigo-400" :size="20" /> Անձնական
+      <User class="text-primary dark:text-primary" :size="20" /> Անձնական
       տվյալներ
     </h3>
 
@@ -88,27 +88,27 @@ onBeforeUnmount(() => {
       <div class="flex items-center gap-6">
         <div class="group relative cursor-pointer">
           <div
-            class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-2xl font-bold text-white shadow-lg"
+            class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-chart-4 text-2xl font-bold text-primary-foreground shadow-lg"
           >
             {{ initials }}
           </div>
           <div
-            class="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+            class="absolute inset-0 flex items-center justify-center rounded-full bg-foreground/50 opacity-0 transition-opacity group-hover:opacity-100"
           >
-            <Camera :size="20" class="text-white" />
+            <Camera :size="20" class="text-primary-foreground" />
           </div>
         </div>
 
         <div>
-          <h4 class="font-medium text-slate-900 dark:text-white">
+          <h4 class="font-medium text-foreground dark:text-primary-foreground">
             Պրոֆիլի նկար
           </h4>
-          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <p class="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
             PNG, JPG մինչև 5MB
           </p>
           <button
             type="button"
-            class="mt-2 text-xs font-medium text-indigo-600 transition-colors hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+            class="mt-2 text-xs font-medium text-primary transition-colors hover:text-primary dark:text-primary dark:hover:text-primary"
           >
             Վերբեռնել նոր նկար
           </button>
@@ -119,7 +119,7 @@ onBeforeUnmount(() => {
         <div class="space-y-2">
           <label
             for="first_name"
-            class="text-sm font-medium text-slate-700 dark:text-slate-300"
+            class="text-sm font-medium text-muted-foreground dark:text-muted-foreground"
             >Անուն</label
           >
           <input
@@ -129,14 +129,14 @@ onBeforeUnmount(() => {
             required
             autofocus
             autocomplete="given-name"
-            class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition-all focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-700/50 dark:bg-background dark:text-white"
+            class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-foreground transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring dark:border-border/50 dark:bg-background dark:text-primary-foreground"
           />
         </div>
 
         <div class="space-y-2">
           <label
             for="last_name"
-            class="text-sm font-medium text-slate-700 dark:text-slate-300"
+            class="text-sm font-medium text-muted-foreground dark:text-muted-foreground"
             >Ազգանուն</label
           >
           <input
@@ -144,7 +144,7 @@ onBeforeUnmount(() => {
             v-model="lastName"
             type="text"
             autocomplete="family-name"
-            class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition-all focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-700/50 dark:bg-background dark:text-white"
+            class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-foreground transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring dark:border-border/50 dark:bg-background dark:text-primary-foreground"
           />
         </div>
       </div>
@@ -154,7 +154,7 @@ onBeforeUnmount(() => {
       <div class="space-y-2">
         <label
           for="email"
-          class="text-sm font-medium text-slate-700 dark:text-slate-300"
+          class="text-sm font-medium text-muted-foreground dark:text-muted-foreground"
           >Էլ․ հասցե</label
         >
         <input
@@ -163,7 +163,7 @@ onBeforeUnmount(() => {
           type="email"
           required
           autocomplete="username"
-          class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition-all focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-700/50 dark:bg-background dark:text-white"
+          class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-foreground transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring dark:border-border/50 dark:bg-background dark:text-primary-foreground"
         />
         <InputError class="mt-1" :message="form.errors.email" />
       </div>
@@ -171,34 +171,34 @@ onBeforeUnmount(() => {
       <div class="space-y-2">
         <label
           for="institution"
-          class="text-sm font-medium text-slate-700 dark:text-slate-300"
+          class="text-sm font-medium text-muted-foreground dark:text-muted-foreground"
           >Համալսարան / Կազմակերպություն</label
         >
         <input
           id="institution"
           v-model="institution"
           type="text"
-          class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition-all focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-700/50 dark:bg-background dark:text-white"
+          class="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-foreground transition-all focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring dark:border-border/50 dark:bg-background dark:text-primary-foreground"
         />
       </div>
 
       <div
         v-if="props.mustVerifyEmail && user.email_verified_at === null"
-        class="rounded-lg border border-amber-400/40 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100"
+        class="rounded-lg border border-chart-3/40 bg-chart-3/10 px-4 py-3 text-sm text-chart-3 dark:border-chart-3/20 dark:bg-chart-3/10 dark:text-chart-3"
       >
         Ձեր էլ․ հասցեն հաստատված չէ։
         <Link
           :href="route('verification.send')"
           method="post"
           as="button"
-          class="ml-1 font-medium text-indigo-700 underline decoration-indigo-500/60 underline-offset-2 transition-colors hover:text-indigo-600 dark:text-indigo-300 dark:hover:text-indigo-200"
+          class="ml-1 font-medium text-primary underline decoration-primary/60 underline-offset-2 transition-colors hover:text-primary dark:text-primary dark:hover:text-primary"
         >
           Սեղմեք այստեղ՝ հաստատման նամակը նորից ուղարկելու համար։
         </Link>
 
         <p
           v-if="props.status === 'verification-link-sent'"
-          class="mt-2 text-sm font-medium text-emerald-400"
+          class="mt-2 text-sm font-medium text-chart-2"
         >
           Հաստատման նոր հղումը ուղարկվել է ձեր էլ․ հասցեին։
         </p>
@@ -206,7 +206,7 @@ onBeforeUnmount(() => {
 
       <div class="flex items-center justify-between pt-2">
         <span
-          class="text-sm text-emerald-400 transition-opacity duration-300"
+          class="text-sm text-chart-2 transition-opacity duration-300"
           :style="{ opacity: profileSaved ? 1 : 0 }"
         >
           Պրոֆիլը հաջողությամբ թարմացվեց։
@@ -215,7 +215,7 @@ onBeforeUnmount(() => {
         <button
           type="submit"
           :disabled="form.processing"
-          class="rounded-lg bg-indigo-600 px-6 py-2.5 font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+          class="rounded-lg bg-primary px-6 py-2.5 font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Պահպանել փոփոխությունները
         </button>

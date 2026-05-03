@@ -18,16 +18,17 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
-                'email_verified_at' => now(),
                 'password' => Hash::make('password'),
             ]
         );
+        $admin->forceFill(['email_verified_at' => now()])->save();
 
         $this->call(FormulaSeeder::class);
         $this->call(MathLevelsSeeder::class);
+        $this->call(DashboardDemoSeeder::class);
     }
 }

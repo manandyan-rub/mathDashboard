@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import "mathlive";
 import { MathfieldElement } from "mathlive";
 import {
@@ -160,55 +160,55 @@ const COLOR_MAP: Record<
   { bg: string; text: string; border: string; badge: string }
 > = {
   blue: {
-    bg: "bg-blue-50 dark:bg-blue-950/30",
-    text: "text-blue-700 dark:text-blue-300",
-    border: "border-blue-200 dark:border-blue-800",
-    badge: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+    bg: "bg-chart-5 dark:bg-chart-5/30",
+    text: "text-chart-5 dark:text-chart-5",
+    border: "border-chart-5 dark:border-chart-5",
+    badge: "bg-chart-5/10 text-chart-5 dark:bg-chart-5/20 dark:text-chart-5",
   },
   violet: {
-    bg: "bg-violet-50 dark:bg-violet-950/30",
-    text: "text-violet-700 dark:text-violet-300",
-    border: "border-violet-200 dark:border-violet-800",
+    bg: "bg-chart-4 dark:bg-chart-4/30",
+    text: "text-chart-4 dark:text-chart-4",
+    border: "border-chart-4 dark:border-chart-4",
     badge:
-      "bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300",
+      "bg-chart-4/10 text-chart-4 dark:bg-chart-4/20 dark:text-chart-4",
   },
   emerald: {
-    bg: "bg-emerald-50 dark:bg-emerald-950/30",
-    text: "text-emerald-700 dark:text-emerald-300",
-    border: "border-emerald-200 dark:border-emerald-800",
+    bg: "bg-chart-2 dark:bg-chart-2/30",
+    text: "text-chart-2 dark:text-chart-2",
+    border: "border-chart-2 dark:border-chart-2",
     badge:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300",
+      "bg-chart-2/10 text-chart-2 dark:bg-chart-2/20 dark:text-chart-2",
   },
   cyan: {
-    bg: "bg-cyan-50 dark:bg-cyan-950/30",
-    text: "text-cyan-700 dark:text-cyan-300",
-    border: "border-cyan-200 dark:border-cyan-800",
-    badge: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900 dark:text-cyan-300",
+    bg: "bg-chart-5 dark:bg-chart-5/30",
+    text: "text-chart-5 dark:text-chart-5",
+    border: "border-chart-5 dark:border-chart-5",
+    badge: "bg-chart-5/10 text-chart-5 dark:bg-chart-5/20 dark:text-chart-5",
   },
   amber: {
-    bg: "bg-amber-50 dark:bg-amber-950/30",
-    text: "text-amber-700 dark:text-amber-300",
-    border: "border-amber-200 dark:border-amber-800",
-    badge: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
+    bg: "bg-chart-3 dark:bg-chart-3/30",
+    text: "text-chart-3 dark:text-chart-3",
+    border: "border-chart-3 dark:border-chart-3",
+    badge: "bg-chart-3/10 text-chart-3 dark:bg-chart-3/20 dark:text-chart-3",
   },
   rose: {
-    bg: "bg-rose-50 dark:bg-rose-950/30",
-    text: "text-rose-700 dark:text-rose-300",
-    border: "border-rose-200 dark:border-rose-800",
-    badge: "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300",
+    bg: "bg-destructive dark:bg-destructive/30",
+    text: "text-destructive dark:text-destructive",
+    border: "border-destructive dark:border-destructive",
+    badge: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive",
   },
   indigo: {
-    bg: "bg-indigo-50 dark:bg-indigo-950/30",
-    text: "text-indigo-700 dark:text-indigo-300",
-    border: "border-indigo-200 dark:border-indigo-800",
+    bg: "bg-primary dark:bg-primary/30",
+    text: "text-primary dark:text-primary",
+    border: "border-primary dark:border-primary",
     badge:
-      "bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300",
+      "bg-accent text-accent-foreground dark:bg-primary/20 dark:text-primary",
   },
   teal: {
-    bg: "bg-teal-50 dark:bg-teal-950/30",
-    text: "text-teal-700 dark:text-teal-300",
-    border: "border-teal-200 dark:border-teal-800",
-    badge: "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300",
+    bg: "bg-chart-2 dark:bg-chart-2/30",
+    text: "text-chart-2 dark:text-chart-2",
+    border: "border-chart-2 dark:border-chart-2",
+    badge: "bg-chart-2/10 text-chart-2 dark:bg-chart-2/20 dark:text-chart-2",
   },
 };
 
@@ -671,12 +671,12 @@ function selectCategory(id: string) {
         <Dropdown
           align="right"
           width="48"
-          content-classes="py-1 bg-white dark:bg-slate-800"
+          content-classes="py-1 bg-card dark:bg-card"
         >
           <template #trigger>
             <button
               type="button"
-              class="flex h-9 w-9 items-center justify-center rounded-full border bg-gradient-to-br from-indigo-500 to-violet-600 text-xs font-semibold text-white shadow-sm"
+              class="flex h-9 w-9 items-center justify-center rounded-full border bg-gradient-to-br from-primary to-chart-4 text-xs font-semibold text-primary-foreground shadow-sm"
             >
               <img
                 v-if="user?.profile_photo_url"
@@ -696,7 +696,7 @@ function selectCategory(id: string) {
             <DropdownLink :href="route('profile.edit')">Պրոֆիլ</DropdownLink>
 
             <div class="px-4 py-2">
-              <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-300">
+              <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                 Թեմա
               </p>
               <div class="grid grid-cols-2 gap-2">
@@ -705,8 +705,8 @@ function selectCategory(id: string) {
                   class="inline-flex items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-xs font-medium transition"
                   :class="
                     theme === 'light'
-                      ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-400 dark:bg-indigo-500/20 dark:text-indigo-200'
-                      : 'border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary dark:bg-primary/20 dark:text-primary'
+                      : 'border-border text-muted-foreground hover:bg-muted dark:border-border dark:text-muted-foreground dark:hover:bg-card'
                   "
                   @click.stop="setTheme('light')"
                 >
@@ -718,8 +718,8 @@ function selectCategory(id: string) {
                   class="inline-flex items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-xs font-medium transition"
                   :class="
                     theme === 'dark'
-                      ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-400 dark:bg-indigo-500/20 dark:text-indigo-200'
-                      : 'border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary dark:bg-primary/20 dark:text-primary'
+                      : 'border-border text-muted-foreground hover:bg-muted dark:border-border dark:text-muted-foreground dark:hover:bg-card'
                   "
                   @click.stop="setTheme('dark')"
                 >
@@ -748,7 +748,7 @@ function selectCategory(id: string) {
       >
         <div
           v-if="sidebarOpen"
-          class="lg:hidden fixed inset-0 bg-black/30 z-[-1]"
+          class="lg:hidden fixed inset-0 bg-foreground/30 z-[-1]"
           @click="sidebarOpen = false"
         />
         <ScrollArea class="h-full py-3">
@@ -776,16 +776,16 @@ function selectCategory(id: string) {
       <main class="min-h-0 flex-1 overflow-y-auto">
         <div class="max-w-6xl mx-auto px-4 py-6 md:px-6 md:py-8">
           <div
-            class="mb-8 rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-indigo-50 p-6 shadow-sm dark:border-slate-800 dark:from-slate-900 dark:via-slate-950 dark:to-indigo-950/40"
+            class="mb-8 rounded-2xl border border-border bg-gradient-to-br from-white via-muted to-primary p-6 shadow-sm dark:border-border dark:from-card dark:via-background dark:to-primary/40"
           >
-            <div class="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-indigo-500 dark:text-indigo-300">
+            <div class="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary dark:text-primary">
               <Sigma :size="14" />
               Knowledge Base
             </div>
-            <h2 class="mt-4 text-2xl font-bold text-slate-900 dark:text-white md:text-3xl">
+            <h2 class="mt-4 text-2xl font-bold text-foreground dark:text-primary-foreground md:text-3xl">
               {{ activeCategory.label }}
             </h2>
-            <p class="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+            <p class="mt-2 max-w-3xl text-sm text-muted-foreground dark:text-muted-foreground">
               Սեղմիր ցանկացած քարտի վրա և տես քայլ առ քայլ բացատրությունը անիմացիայով։
             </p>
           </div>
@@ -798,7 +798,7 @@ function selectCategory(id: string) {
           </div>
           <div
             v-else-if="error"
-            class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200"
+            class="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive dark:border-destructive/60 dark:bg-destructive/30 dark:text-destructive"
           >
             {{ error }}
           </div>
@@ -816,7 +816,7 @@ function selectCategory(id: string) {
             class="mb-10 space-y-4"
           >
             <div class="flex items-center gap-3">
-              <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+              <h3 class="text-base font-semibold text-foreground dark:text-foreground">
                 {{ section.title }}
               </h3>
               <Separator class="flex-1" />
@@ -829,44 +829,44 @@ function selectCategory(id: string) {
                 :key="formula.id"
                 role="button"
                 tabindex="0"
-                class="group relative cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/80"
+                class="group relative cursor-pointer overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-border dark:bg-card/80"
                 @click="openFormulaStepsDialog(formula)"
                 @keydown.enter.prevent="openFormulaStepsDialog(formula)"
                 @keydown.space.prevent="openFormulaStepsDialog(formula)"
               >
                 <div
-                  class="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-gradient-to-br from-indigo-500/30 to-cyan-500/20 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  class="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-gradient-to-br from-primary/30 to-chart-5/20 blur-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                 />
 
                 <div class="relative z-10 mb-4 flex items-start justify-between gap-4">
-                  <span class="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  <span class="rounded-md border border-border bg-muted px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground">
                     {{ section.title }}
                   </span>
-                  <div class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors group-hover:text-indigo-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:group-hover:text-indigo-300">
+                  <div class="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors group-hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground dark:group-hover:text-primary">
                     <Play :size="14" class="translate-x-[1px]" />
                   </div>
                 </div>
 
-                <h4 class="relative z-10 text-lg font-bold text-slate-900 dark:text-white">
+                <h4 class="relative z-10 text-lg font-bold text-foreground dark:text-primary-foreground">
                   {{ formula.name }}
                 </h4>
 
                 <p
                   v-if="formula.description"
-                  class="relative z-10 mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300"
+                  class="relative z-10 mt-2 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground"
                 >
                   {{ formula.description }}
                 </p>
 
-                <div class="relative z-10 mt-5 rounded-xl border border-slate-200 bg-slate-100 p-3 text-center shadow-inner dark:border-slate-700 dark:bg-slate-950">
+                <div class="relative z-10 mt-5 rounded-xl border border-border bg-muted p-3 text-center shadow-inner dark:border-border dark:bg-background">
                   <div
                     :data-latex="formula.latex"
-                    class="min-h-[34px] flex items-center justify-center overflow-x-auto text-emerald-700 dark:text-emerald-300"
+                    class="min-h-[34px] flex items-center justify-center overflow-x-auto text-chart-2 dark:text-chart-2"
                   />
                 </div>
 
-                <div class="relative z-10 mt-4 border-t border-dashed border-slate-200 pt-3 dark:border-slate-700">
-                  <span class="text-[11px] font-medium text-indigo-600 dark:text-indigo-300">
+                <div class="relative z-10 mt-4 border-t border-dashed border-border pt-3 dark:border-border">
+                  <span class="text-[11px] font-medium text-primary dark:text-primary">
                     Բացել անիմացված լուծում
                   </span>
                 </div>
@@ -878,8 +878,8 @@ function selectCategory(id: string) {
     </div>
 
     <Dialog :open="stepsDialogOpen" @update:open="onStepsDialogToggle">
-      <DialogContent class="formula-steps-dialog sm:max-w-5xl max-h-[90vh] p-0 overflow-hidden border-slate-200 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-        <div class="max-h-[90vh] flex flex-col bg-white text-slate-900 dark:bg-slate-950 dark:text-white">
+      <DialogContent class="formula-steps-dialog sm:max-w-5xl max-h-[90vh] p-0 overflow-hidden border-border bg-card text-foreground dark:border-border dark:bg-background dark:text-primary-foreground">
+        <div class="max-h-[90vh] flex flex-col bg-card text-foreground dark:bg-background dark:text-primary-foreground">
           <DialogHeader class="sr-only">
             <DialogTitle>{{ selectedFormula?.name ?? "Formula" }}</DialogTitle>
             <DialogDescription>
@@ -887,22 +887,22 @@ function selectCategory(id: string) {
             </DialogDescription>
           </DialogHeader>
 
-          <div class="flex items-start justify-between border-b border-slate-200 p-5 dark:border-slate-800">
+          <div class="flex items-start justify-between border-b border-border p-5 dark:border-border">
             <div>
-              <span class="inline-flex items-center rounded-md border border-indigo-500/30 bg-indigo-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-indigo-500 dark:text-indigo-300">
+              <span class="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary dark:text-primary">
                 Քայլերով բացատրություն
               </span>
               <h3 class="mt-2 text-xl font-bold md:text-2xl">
                 {{ selectedFormula?.name ?? "Բանաձև" }}
               </h3>
-              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+              <p class="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
                 {{ selectedFormula?.description ?? "Տես քայլ առ քայլ լուծման անիմացիան" }}
               </p>
             </div>
             <div class="flex items-center gap-2">
               <button
                 type="button"
-                class="inline-flex h-9 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-60 dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-card dark:hover:text-primary-foreground"
                 :disabled="stepsLoading || stepsRegenerating || !selectedFormula"
                 @click="regenerateSelectedFormulaSteps"
               >
@@ -911,7 +911,7 @@ function selectCategory(id: string) {
               </button>
               <button
                 type="button"
-                class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition hover:bg-muted hover:text-foreground dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-card dark:hover:text-primary-foreground"
                 @click="onStepsDialogToggle(false)"
               >
                 <X :size="16" />
@@ -922,11 +922,11 @@ function selectCategory(id: string) {
           <div class="custom-scrollbar overflow-y-auto p-5 md:p-6 space-y-5">
             <div
               v-if="selectedFormula"
-              class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 dark:border-slate-700 dark:bg-[#0A122B]"
+              class="rounded-xl border border-border bg-muted px-4 py-3 dark:border-border dark:bg-card"
             >
               <div
                 :data-latex="selectedFormula.latex"
-                class="min-h-[34px] flex items-center justify-center overflow-x-auto text-emerald-700 dark:text-emerald-300"
+                class="min-h-[34px] flex items-center justify-center overflow-x-auto text-chart-2 dark:text-chart-2"
               />
             </div>
 
@@ -939,14 +939,14 @@ function selectCategory(id: string) {
 
             <div
               v-else-if="stepsError"
-              class="rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200"
+              class="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive dark:border-destructive/60 dark:bg-destructive/30 dark:text-destructive"
             >
               {{ stepsError }}
             </div>
 
             <div
               v-else-if="selectedSteps.length === 0"
-              class="rounded-md border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200"
+              class="rounded-md border border-chart-3/30 bg-chart-3/10 p-4 text-sm text-chart-3 dark:border-chart-3/60 dark:bg-chart-3/30 dark:text-chart-3"
             >
               Քայլերը դեռ չեն գեներացվել։ Սեղմիր Regenerate կոճակը։
             </div>
@@ -955,13 +955,13 @@ function selectCategory(id: string) {
               v-else
               class="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]"
             >
-              <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-[#0B0F19]">
-                <div class="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900/70">
+              <div class="overflow-hidden rounded-xl border border-border bg-muted dark:border-border dark:bg-card">
+                <div class="flex items-center justify-between border-b border-border bg-card px-4 py-3 dark:border-border dark:bg-card/70">
                   <p class="text-sm font-semibold">Live Example</p>
                   <div class="flex items-center gap-2">
                     <button
                       type="button"
-                      class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 transition hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-indigo-300"
+                      class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:text-primary"
                       :title="stepsPlaying ? 'Pause' : 'Play'"
                       @click="stepsPlaying ? pauseSelectedFormulaSteps() : playSelectedFormulaSteps()"
                     >
@@ -970,7 +970,7 @@ function selectCategory(id: string) {
                     </button>
                     <button
                       type="button"
-                      class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 transition hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-indigo-300"
+                      class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:text-primary"
                       title="Replay"
                       @click="replaySelectedFormulaSteps"
                     >
@@ -980,7 +980,7 @@ function selectCategory(id: string) {
                 </div>
 
                 <div class="relative h-[260px] overflow-hidden px-5 py-8 md:h-[300px] md:px-8">
-                  <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-cyan-500/10" />
+                  <div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-chart-5/10" />
                   <div class="relative z-10 h-full">
                   <Transition
                     name="stepfade"
@@ -993,9 +993,9 @@ function selectCategory(id: string) {
                       >
                         <div
                           :data-latex="activeStep?.latex ?? ''"
-                          class="min-h-[70px] w-full flex items-center justify-center overflow-x-auto text-center text-2xl text-slate-900 dark:text-white"
+                          class="min-h-[70px] w-full flex items-center justify-center overflow-x-auto text-center text-2xl text-foreground dark:text-primary-foreground"
                         />
-                        <div class="inline-flex min-h-[38px] max-w-full items-center justify-center rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-center text-sm font-medium text-indigo-700 dark:text-indigo-200">
+                        <div class="inline-flex min-h-[38px] max-w-full items-center justify-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-center text-sm font-medium text-primary dark:text-primary">
                           {{ activeStep?.note ?? `Քայլ ${activeStepIndex + 1}` }}
                         </div>
                       </div>
@@ -1003,16 +1003,16 @@ function selectCategory(id: string) {
                   </div>
                 </div>
 
-                <div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800">
+                <div class="h-1.5 w-full bg-muted dark:bg-card">
                   <div
-                    class="h-full bg-emerald-500 transition-all duration-500"
+                    class="h-full bg-chart-2 transition-all duration-500"
                     :style="{ width: `${stepProgressPercent}%` }"
                   />
                 </div>
               </div>
 
-              <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900/55">
-                <p class="mb-2 px-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <div class="rounded-xl border border-border bg-card p-3 dark:border-border dark:bg-card/55">
+                <p class="mb-2 px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                   Steps
                 </p>
                 <div class="space-y-2 max-h-[460px] overflow-y-auto custom-scrollbar pr-1">
@@ -1022,20 +1022,20 @@ function selectCategory(id: string) {
                     class="rounded-lg border p-3 transition-colors"
                     :class="
                       index === activeStepIndex
-                        ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900/35'
+                        ? 'border-primary bg-primary dark:bg-primary/35'
                         : index < activeStepIndex
-                          ? 'border-emerald-500 bg-emerald-100 dark:bg-emerald-900/25'
-                          : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/40'
+                          ? 'border-chart-2 bg-chart-2 dark:bg-chart-2/25'
+                          : 'border-border bg-muted dark:border-border dark:bg-card/40'
                     "
                   >
-                    <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                    <p class="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
                       Քայլ {{ index + 1 }}
                     </p>
                     <div
                       :data-latex="step.latex"
-                      class="mt-1 min-h-[30px] flex items-center overflow-x-auto text-sm text-slate-900 dark:text-slate-100"
+                      class="mt-1 min-h-[30px] flex items-center overflow-x-auto text-sm text-foreground dark:text-foreground"
                     />
-                    <p v-if="step.note" class="mt-1 text-xs text-slate-700 dark:text-slate-300">
+                    <p v-if="step.note" class="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                       {{ step.note }}
                     </p>
                   </div>
@@ -1085,17 +1085,17 @@ math-field[read-only]::part(menu-toggle) {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(148, 163, 184, 0.12);
+  background: color-mix(in srgb, var(--muted-foreground) 12%, transparent);
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.45);
+  background: color-mix(in srgb, var(--ring) 45%, transparent);
   border-radius: 9999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.7);
+  background: color-mix(in srgb, var(--ring) 70%, transparent);
 }
 
 .formula-steps-dialog > button.absolute.right-4.top-4 {

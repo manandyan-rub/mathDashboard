@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { reactive, ref, computed, watch } from "vue";
 import FormInput from "@/Forms/FormInput.vue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -448,7 +448,7 @@ watch(
 
     <Alert
       v-if="note"
-      class="border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
+      class="border-chart-3/30 bg-chart-3/10 text-chart-3 dark:border-chart-3 dark:bg-chart-3/20 dark:text-chart-3"
     >
       <AlertDescription>⚠️ {{ note }}</AlertDescription>
     </Alert>

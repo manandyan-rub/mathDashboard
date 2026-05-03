@@ -221,21 +221,21 @@ onUpdated(() => nextTick(renderMath));
 
   <div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
     <div
-      class="flex flex-col gap-4 rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-sm dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+      class="flex flex-col gap-4 rounded-2xl border border-border/70 bg-card/90 p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
     >
       <div class="flex flex-wrap items-center gap-3">
         <div
-          class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white"
+          class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-chart-4 text-primary-foreground"
         >
           <Sparkles :size="18" />
         </div>
         <div class="space-y-1">
           <h1
-            class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white"
+            class="text-2xl font-semibold tracking-tight text-foreground dark:text-primary-foreground"
           >
             AI վարժությունների գեներատոր
           </h1>
-          <p class="text-sm text-slate-500 dark:text-slate-300">
+          <p class="text-sm text-muted-foreground dark:text-muted-foreground">
             Գրիր, թե ինչ վարժություն է պետք, և ստացիր պատրաստ հարց ու պատասխան։
           </p>
         </div>
@@ -244,11 +244,11 @@ onUpdated(() => nextTick(renderMath));
     </div>
     <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
       <div
-        class="flex flex-col gap-5 rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+        class="flex flex-col gap-5 rounded-2xl border border-border/70 bg-card p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
       >
         <div class="space-y-2">
           <label
-            class="text-sm font-semibold text-slate-700 dark:text-slate-200"
+            class="text-sm font-semibold text-muted-foreground dark:text-foreground"
             >Վարժության նկարագրություն</label
           >
           <Textarea
@@ -260,7 +260,7 @@ onUpdated(() => nextTick(renderMath));
         </div>
         <div class="space-y-2">
           <label
-            class="text-sm font-semibold text-slate-700 dark:text-slate-200"
+            class="text-sm font-semibold text-muted-foreground dark:text-foreground"
             >Exercise count</label
           >
           <Input v-model.number="count" type="number" min="1" max="10" />
@@ -268,7 +268,7 @@ onUpdated(() => nextTick(renderMath));
 
         <div class="space-y-2">
           <label
-            class="text-sm font-semibold text-slate-700 dark:text-slate-200"
+            class="text-sm font-semibold text-muted-foreground dark:text-foreground"
             >PDF վերնագիր (ոչ պարտադիր)</label
           >
           <Input
@@ -279,7 +279,7 @@ onUpdated(() => nextTick(renderMath));
 
         <div class="space-y-2">
           <p
-            class="text-xs font-semibold uppercase tracking-wider text-slate-400"
+            class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
             Օրինակ հարցումներ
           </p>
@@ -288,7 +288,7 @@ onUpdated(() => nextTick(renderMath));
               v-for="sample in samples"
               :key="sample"
               type="button"
-              class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 transition hover:border-indigo-200 hover:text-indigo-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-white"
+              class="rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:text-primary-foreground"
               @click="applySample(sample)"
             >
               {{ sample }}
@@ -310,16 +310,16 @@ onUpdated(() => nextTick(renderMath));
           </Button>
         </div>
 
-        <p v-if="error" class="text-sm text-red-600 dark:text-red-400">
+        <p v-if="error" class="text-sm text-destructive dark:text-destructive">
           {{ error }}
         </p>
       </div>
 
       <div
-        class="flex flex-col gap-4 rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+        class="flex flex-col gap-4 rounded-2xl border border-border/70 bg-card p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
       >
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
+          <h2 class="text-lg font-semibold text-foreground dark:text-primary-foreground">
             Արդյունք
           </h2>
           <Badge variant="outline" class="text-xs">
@@ -329,7 +329,7 @@ onUpdated(() => nextTick(renderMath));
 
         <div
           v-if="exercises.length === 0 && !loading"
-          class="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-400 dark:border-slate-800 dark:text-slate-400"
+          class="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground dark:border-border dark:text-muted-foreground"
         >
           <Sparkles :size="24" />
           Նկարագրիր վարժությունը՝ արդյունքը այստեղ ցույց տալու համար
@@ -337,13 +337,13 @@ onUpdated(() => nextTick(renderMath));
 
         <div v-if="loading" class="space-y-3">
           <div
-            class="h-4 w-2/3 animate-pulse rounded bg-slate-200/70 dark:bg-slate-800/70"
+            class="h-4 w-2/3 animate-pulse rounded bg-muted/70 dark:bg-card/70"
           />
           <div
-            class="h-4 w-full animate-pulse rounded bg-slate-200/70 dark:bg-slate-800/70"
+            class="h-4 w-full animate-pulse rounded bg-muted/70 dark:bg-card/70"
           />
           <div
-            class="h-4 w-5/6 animate-pulse rounded bg-slate-200/70 dark:bg-slate-800/70"
+            class="h-4 w-5/6 animate-pulse rounded bg-muted/70 dark:bg-card/70"
           />
         </div>
 
@@ -353,13 +353,13 @@ onUpdated(() => nextTick(renderMath));
             :key="index"
             class="space-y-4"
           >
-            <div class="text-xs font-semibold uppercase text-slate-400">
+            <div class="text-xs font-semibold uppercase text-muted-foreground">
               Վարժություն {{ index + 1 }}
             </div>
             <div
-              class="rounded-xl bg-slate-50 p-4 text-sm text-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
+              class="rounded-xl bg-muted p-4 text-sm text-muted-foreground dark:bg-card/60 dark:text-foreground"
             >
-              <p class="text-xs font-semibold uppercase text-slate-400">Հարց</p>
+              <p class="text-xs font-semibold uppercase text-muted-foreground">Հարց</p>
               <p class="mt-2 whitespace-pre-line">
                 <template
                   v-for="(segment, segmentIndex) in splitMath(
@@ -379,9 +379,9 @@ onUpdated(() => nextTick(renderMath));
               </p>
             </div>
             <div
-              class="rounded-xl bg-slate-50 p-4 text-sm text-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
+              class="rounded-xl bg-muted p-4 text-sm text-muted-foreground dark:bg-card/60 dark:text-foreground"
             >
-              <p class="text-xs font-semibold uppercase text-slate-400">
+              <p class="text-xs font-semibold uppercase text-muted-foreground">
                 Պատասխան
               </p>
               <p class="mt-2 whitespace-pre-line">
@@ -403,11 +403,11 @@ onUpdated(() => nextTick(renderMath));
               </p>
             </div>
             <div
-              class="flex items-center justify-between text-xs text-slate-400 dark:text-slate-400"
+              class="flex items-center justify-between text-xs text-muted-foreground dark:text-muted-foreground"
             >
               <span>
                 Բարդություն:
-                <span class="text-slate-600 dark:text-slate-200">{{
+                <span class="text-muted-foreground dark:text-foreground">{{
                   exerciseItem.difficulty || "Չնշված"
                 }}</span>
               </span>
@@ -425,7 +425,7 @@ onUpdated(() => nextTick(renderMath));
             <Download :size="16" />
             {{ pdfLoading ? "PDF-ը ստեղծվում է..." : "Բեռնել PDF" }}
           </Button>
-          <p v-if="pdfError" class="text-xs text-red-600 dark:text-red-400">
+          <p v-if="pdfError" class="text-xs text-destructive dark:text-destructive">
             {{ pdfError }}
           </p>
         </div>

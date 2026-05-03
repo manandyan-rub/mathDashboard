@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import { cmsTranslate as __ } from "@/lib/i18n";
 import axios from "axios";
@@ -154,7 +154,7 @@ const ImageBlockNode = Node.create({
       "img",
       mergeAttributes(HTMLAttributes, {
         style:
-          "max-width:100%;height:auto;border-radius:10px;margin:8px 0;border:1px solid rgba(148,163,184,.35);",
+          "max-width:100%;height:auto;border-radius:10px;margin:8px 0;border:1px solid var(--border);",
       }),
     ];
   },
@@ -294,7 +294,7 @@ const GeometryDrawingNode = Node.create({
       mergeAttributes(attrs, {
         "data-geometry-drawing": "true",
         style:
-          "max-width:100%;height:auto;border-radius:10px;margin:8px 0;border:1px solid rgba(148,163,184,.35);",
+          "max-width:100%;height:auto;border-radius:10px;margin:8px 0;border:1px solid var(--border);",
       }),
     ];
   },
@@ -638,7 +638,7 @@ const editor = useEditor({
   editorProps: {
     attributes: {
       class:
-        "exercise-studio-editor rounded-xl border border-slate-200 bg-white text-sm leading-7 text-slate-800 focus:outline-none dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-100",
+        "exercise-studio-editor rounded-xl border border-border bg-card text-sm leading-7 text-muted-foreground focus:outline-none dark:border-border dark:bg-card/50 dark:text-foreground",
     },
   },
   onCreate: () => {
@@ -776,9 +776,13 @@ async function saveDraft(showSuccessTimestamp = true) {
         item_order: idx + 1,
         type: item.type,
         question: item.question,
+        question_html: item.question_html ?? item.question,
         options: item.options,
+        options_html: item.options_html ?? item.options,
         answer: item.answer,
+        answer_html: item.answer_html ?? item.answer,
         explanation: item.explanation,
+        explanation_html: item.explanation_html ?? item.explanation,
         difficulty: item.difficulty,
         points: item.points,
         source: item.source,
@@ -921,7 +925,7 @@ async function regenerateItem(item: ExerciseItem) {
       {
         document_id: documentId.value,
         item_id: item.id,
-        topic: topic.value.trim() || item.question,
+        topic: topic.value.trim() || stripHtml(item.question) || item.question,
         difficulty: difficulty.value,
         language: language.value,
         instructions: instructions.value.trim() || null,
@@ -935,8 +939,9 @@ async function regenerateItem(item: ExerciseItem) {
         ...items.value[index],
         ...sanitizeExerciseItem(next),
       };
-      const doc = buildEditorDocFromItems();
-      editor.value?.commands.setContent(doc, { emitUpdate: true });
+      editor.value?.commands.setContent(buildEditorHtmlFromItems(), {
+        emitUpdate: true,
+      });
       dirty.value = true;
     }
   } catch (error: any) {
@@ -964,7 +969,7 @@ function buildEditorDocFromItems(): Record<string, unknown> {
 
       content.push({
         type: "paragraph",
-        content: buildInlineContent(item.question),
+        content: buildInlineContent(stripHtml(item.question) || item.question),
       });
 
       if (Array.isArray(item.options) && item.options.length > 0) {
@@ -976,7 +981,7 @@ function buildEditorDocFromItems(): Record<string, unknown> {
             content: [
               {
                 type: "paragraph",
-                content: buildInlineContent(option),
+                content: buildInlineContent(stripHtml(option) || option),
               },
             ],
           })),
@@ -988,7 +993,7 @@ function buildEditorDocFromItems(): Record<string, unknown> {
           type: "paragraph",
           content: [
             { type: "text", text: `${__("Answer")}: ` },
-            ...buildInlineContent(item.answer),
+            ...buildInlineContent(stripHtml(item.answer) || item.answer),
           ],
         });
       }
@@ -1001,7 +1006,9 @@ function buildEditorDocFromItems(): Record<string, unknown> {
               type: "text",
               text: `${__("Explanation")}: `,
             },
-            ...buildInlineContent(item.explanation ?? ""),
+            ...buildInlineContent(
+              stripHtml(item.explanation ?? "") || (item.explanation ?? ""),
+            ),
           ],
         });
       }
@@ -1011,6 +1018,41 @@ function buildEditorDocFromItems(): Record<string, unknown> {
     type: "doc",
     content,
   };
+}
+
+function buildEditorHtmlFromItems(): string {
+  const htmlParts: string[] = [];
+
+  items.value
+    .slice()
+    .sort((a, b) => a.item_order - b.item_order)
+    .forEach((item, idx) => {
+      htmlParts.push(`<h3>${__("Exercise")} ${idx + 1}</h3>`);
+      htmlParts.push(ensureBlockHtml(item.question_html ?? item.question));
+
+      if (Array.isArray(item.options) && item.options.length > 0) {
+        htmlParts.push("<ol>");
+        item.options.forEach((option, optionIndex) => {
+          const optionHtml = item.options_html?.[optionIndex] ?? option;
+          htmlParts.push(`<li>${ensureInlineHtml(optionHtml)}</li>`);
+        });
+        htmlParts.push("</ol>");
+      }
+
+      if (showCorrectAnswers.value) {
+        htmlParts.push(
+          `<p><strong>${__("Answer")}:</strong> ${ensureInlineHtml(item.answer_html ?? item.answer)}</p>`,
+        );
+      }
+
+      if (showCorrectAnswers.value && item.explanation) {
+        htmlParts.push(
+          `<p><strong>${__("Explanation")}:</strong> ${ensureInlineHtml(item.explanation_html ?? item.explanation)}</p>`,
+        );
+      }
+    });
+
+  return htmlParts.join("");
 }
 
 function applyDocument(documentPayload: ExerciseDocument) {
@@ -1033,45 +1075,130 @@ function applyDocument(documentPayload: ExerciseDocument) {
   }
 
   const jsonContent = documentPayload.content_json;
+  const htmlContent = String(documentPayload.content_html ?? "").trim();
   if (editor.value) {
-    const jsonSerialized = jsonContent ? JSON.stringify(jsonContent) : "";
-    const hasBrokenMediaMarkdown =
-      jsonSerialized.includes("![") ||
-      jsonSerialized.includes("](") ||
-      jsonSerialized.includes("http://") ||
-      jsonSerialized.includes("https://");
-
-    if (
-      jsonContent &&
-      Object.keys(jsonContent).length > 0 &&
-      !hasBrokenMediaMarkdown
-    ) {
-      editor.value.commands.setContent(
-        sanitizeEditorJsonText(jsonContent) as Content,
-        { emitUpdate: false },
-      );
+    if (looksLikeHtml(htmlContent)) {
+      editor.value.commands.setContent(htmlContent, { emitUpdate: false });
     } else {
-      editor.value.commands.setContent(buildEditorDocFromItems(), {
-        emitUpdate: false,
-      });
+      const jsonSerialized = jsonContent ? JSON.stringify(jsonContent) : "";
+      const hasBrokenMediaMarkdown =
+        jsonSerialized.includes("![") ||
+        jsonSerialized.includes("](") ||
+        jsonSerialized.includes("http://") ||
+        jsonSerialized.includes("https://");
+
+      if (
+        jsonContent &&
+        Object.keys(jsonContent).length > 0 &&
+        !hasBrokenMediaMarkdown
+      ) {
+        editor.value.commands.setContent(
+          sanitizeEditorJsonText(jsonContent) as Content,
+          { emitUpdate: false },
+        );
+      } else {
+        editor.value.commands.setContent(buildEditorHtmlFromItems(), {
+          emitUpdate: false,
+        });
+      }
     }
   }
 }
 
 function sanitizeExerciseItem(item: ExerciseItem): ExerciseItem {
+  const question = String(item.question_html ?? item.question ?? "");
+  const options = Array.isArray(item.options_html)
+    ? item.options_html.map((option) => String(option ?? ""))
+    : Array.isArray(item.options)
+      ? item.options.map((option) => String(option ?? ""))
+      : [];
+  const answer = String(item.answer_html ?? item.answer ?? "");
+  const explanationSource = item.explanation_html ?? item.explanation;
+
   return {
     ...item,
-    question: String(item.question ?? ""),
-    options: Array.isArray(item.options)
-      ? item.options.map((option) => String(option ?? ""))
-      : [],
-    answer: String(item.answer ?? ""),
-    explanation: item.explanation ? String(item.explanation) : item.explanation,
+    question,
+    question_html: question,
+    options,
+    options_html: options,
+    answer,
+    answer_html: answer,
+    explanation:
+      explanationSource !== undefined && explanationSource !== null
+        ? String(explanationSource)
+        : null,
+    explanation_html:
+      explanationSource !== undefined && explanationSource !== null
+        ? String(explanationSource)
+        : null,
   };
 }
 
 function sanitizeEditorJsonText(value: unknown): unknown {
   return convertLatexTextNodesToMathNodes(value);
+}
+
+function looksLikeHtml(value: string | null | undefined): boolean {
+  const source = String(value ?? "").trim();
+  if (source === "") return false;
+  return /<[^>]+>/u.test(source);
+}
+
+function escapeHtmlAttribute(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function escapeHtmlText(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function ensureBlockHtml(value: string | null | undefined): string {
+  const source = String(value ?? "").trim();
+  if (source === "") return "<p></p>";
+  if (looksLikeHtml(source)) return source;
+  return `<p>${escapeHtmlText(source)}</p>`;
+}
+
+function ensureInlineHtml(value: string | null | undefined): string {
+  const source = String(value ?? "").trim();
+  if (source === "") return "";
+  if (looksLikeHtml(source)) return source;
+  return escapeHtmlText(source);
+}
+
+function stripHtml(value: string | null | undefined): string {
+  const source = String(value ?? "");
+  if (source.trim() === "") return "";
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(source, "text/html");
+  return (doc.body.textContent || "").trim();
+}
+
+function renderExercisePreviewHtml(value: string | null | undefined): string {
+  const source = String(value ?? "").trim();
+  if (source === "") return "";
+
+  const wrapPlainText = !looksLikeHtml(source);
+  const html = wrapPlainText ? `<span>${escapeHtmlText(source)}</span>` : source;
+  const mathRegex =
+    /\$\$([\s\S]+?)\$\$|\$([^$]+)\$|\\\((.+?)\\\)|\\\[(.+?)\\\]|\\begin\{cases\}[\s\S]+?\\end\{cases\}/g;
+
+  return html.replace(mathRegex, (...args: any[]) => {
+    const latex =
+      args[1] || args[2] || args[3] || args[4] || String(args[0] ?? "");
+    const escaped = escapeHtmlAttribute(latex.trim());
+    if (!escaped) return "";
+    return `<span class="inline-math" data-latex="${escaped}"></span>`;
+  });
 }
 
 function splitMath(text: string): Segment[] {
@@ -1563,8 +1690,8 @@ function addSelectedShapeAt(x: number, y: number) {
     y: safeY,
     width: size.width,
     height: size.height,
-    fill: "rgba(99, 102, 241, 0.14)",
-    stroke: "#4f46e5",
+    fill: "color-mix(in srgb, var(--primary) 14%, transparent)",
+    stroke: "var(--primary)",
     strokeWidth: 2,
   };
 
@@ -1923,19 +2050,19 @@ onUpdated(() => {
 
   <div class="mx-auto flex w-full max-w-[1500px] flex-col gap-6">
     <div
-      class="rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-sm dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+      class="rounded-2xl border border-border/70 bg-card/90 p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
     >
       <div class="flex flex-wrap items-center gap-4">
         <div
-          class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white"
+          class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-chart-4 text-primary-foreground"
         >
           <WandSparkles :size="18" />
         </div>
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900 dark:text-white">
+          <h1 class="text-2xl font-semibold text-foreground dark:text-primary-foreground">
             {{ __("Teacher Exercise Studio") }}
           </h1>
-          <p class="text-sm text-slate-500 dark:text-slate-300">
+          <p class="text-sm text-muted-foreground dark:text-muted-foreground">
             {{
               __(
                 "Generate, edit, and publish classroom-ready exercises from one workspace.",
@@ -1948,12 +2075,12 @@ onUpdated(() => {
             class="rounded-full border px-3 py-1 text-xs font-semibold"
             :class="
               generationStatus === 'processing'
-                ? 'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300'
+                ? 'border-chart-3/30 bg-chart-3/10 text-chart-3 dark:border-chart-3/30 dark:bg-chart-3/10 dark:text-chart-3'
                 : generationStatus === 'ready'
-                  ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300'
+                  ? 'border-chart-2/30 bg-chart-2/10 text-chart-2 dark:border-chart-2/30 dark:bg-chart-2/10 dark:text-chart-2'
                   : generationStatus === 'failed'
-                    ? 'border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300'
-                    : 'border-slate-300 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                    ? 'border-destructive/30 bg-destructive/10 text-destructive dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive'
+                    : 'border-border bg-muted text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
             "
           >
             {{
@@ -1968,7 +2095,7 @@ onUpdated(() => {
           </span>
           <span
             v-if="lastSavedAt"
-            class="rounded-full border border-slate-300 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            class="rounded-full border border-border bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground"
           >
             {{ __("Saved at") }} {{ lastSavedAt }}
           </span>
@@ -1978,29 +2105,29 @@ onUpdated(() => {
 
     <div
       v-if="generationError"
-      class="rounded-xl border border-rose-400/40 bg-rose-500/10 p-4 text-sm text-rose-600 dark:text-rose-300"
+      class="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive dark:text-destructive"
     >
       {{ generationError }}
     </div>
 
     <div class="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)_340px]">
       <section
-        class="space-y-4 overflow-y-auto rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+        class="space-y-4 overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-border/60 dark:bg-card/60"
       >
-        <h2 class="text-base font-semibold text-slate-900 dark:text-white">
+        <h2 class="text-base font-semibold text-foreground dark:text-primary-foreground">
           {{ __("Generate with AI") }}
         </h2>
 
         <div class="space-y-1">
           <label
-            class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+            class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
             {{ __("Topic") }}
           </label>
           <input
             v-model="topic"
             type="text"
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-300 transition focus:ring dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-100"
+            class="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground outline-none ring-ring transition focus:ring dark:border-border dark:bg-card/60 dark:text-foreground"
             :placeholder="__('Linear equations, percentages, geometry...')"
           />
         </div>
@@ -2008,20 +2135,20 @@ onUpdated(() => {
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1">
             <label
-              class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+              class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
             >
               {{ __("Grade") }}
             </label>
             <input
               v-model="grade"
               type="text"
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-300 transition focus:ring dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-100"
+              class="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground outline-none ring-ring transition focus:ring dark:border-border dark:bg-card/60 dark:text-foreground"
               placeholder="9"
             />
           </div>
           <div class="space-y-1">
             <label
-              class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+              class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
             >
               {{ __("Count") }}
             </label>
@@ -2030,7 +2157,7 @@ onUpdated(() => {
               type="number"
               min="1"
               max="20"
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-300 transition focus:ring dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-100"
+              class="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground outline-none ring-ring transition focus:ring dark:border-border dark:bg-card/60 dark:text-foreground"
             />
           </div>
         </div>
@@ -2038,13 +2165,13 @@ onUpdated(() => {
         <div class="grid grid-cols-2 gap-3">
           <div class="space-y-1">
             <label
-              class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+              class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
             >
               {{ __("Difficulty") }}
             </label>
             <select
               v-model="difficulty"
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-300 transition focus:ring dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-100"
+              class="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground outline-none ring-ring transition focus:ring dark:border-border dark:bg-card/60 dark:text-foreground"
             >
               <option value="easy">{{ __("Easy") }}</option>
               <option value="medium">{{ __("Medium") }}</option>
@@ -2053,13 +2180,13 @@ onUpdated(() => {
           </div>
           <div class="space-y-1">
             <label
-              class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+              class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
             >
               {{ __("Language") }}
             </label>
             <select
               v-model="language"
-              class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-300 transition focus:ring dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-100"
+              class="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground outline-none ring-ring transition focus:ring dark:border-border dark:bg-card/60 dark:text-foreground"
             >
               <option value="en">{{ __("English") }}</option>
               <option value="hy">{{ __("Armenian") }}</option>
@@ -2071,14 +2198,14 @@ onUpdated(() => {
 
         <div class="space-y-1">
           <label
-            class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+            class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
             {{ __("Teacher instructions") }}
           </label>
           <textarea
             v-model="instructions"
             rows="4"
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none ring-indigo-300 transition focus:ring dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-100"
+            class="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground outline-none ring-ring transition focus:ring dark:border-border dark:bg-card/60 dark:text-foreground"
             :placeholder="
               __(
                 'Focus on real-life contexts, include one word problem, keep distractors realistic...',
@@ -2088,14 +2215,14 @@ onUpdated(() => {
         </div>
 
         <label
-          class="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-300"
+          class="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground dark:border-border dark:text-muted-foreground"
         >
           <input v-model="replaceItems" type="checkbox" />
           {{ __("Replace existing generated items") }}
         </label>
 
         <label
-          class="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 dark:border-slate-700 dark:text-slate-300"
+          class="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground dark:border-border dark:text-muted-foreground"
         >
           <input v-model="showCorrectAnswers" type="checkbox" />
           {{ __("Show correct answers") }}
@@ -2103,7 +2230,7 @@ onUpdated(() => {
 
         <button
           type="button"
-          class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="!canGenerate"
           @click="generateExercises"
         >
@@ -2115,7 +2242,7 @@ onUpdated(() => {
         <div class="grid grid-cols-1 gap-2">
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:border-indigo-400 hover:bg-indigo-100 disabled:opacity-50 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200"
+            class="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/30 bg-accent px-3 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/90 disabled:opacity-50 dark:border-primary/40 dark:bg-primary/20 dark:text-primary"
             :disabled="!canDownloadPdf"
             @click="downloadPdf"
           >
@@ -2127,16 +2254,16 @@ onUpdated(() => {
       </section>
 
       <section
-        class="space-y-4 overflow-y-auto rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+        class="space-y-4 overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-border/60 dark:bg-card/60"
       >
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <h2 class="text-base font-semibold text-slate-900 dark:text-white">
+          <h2 class="text-base font-semibold text-foreground dark:text-primary-foreground">
             {{ __("Editor") }}
           </h2>
           <div class="flex flex-wrap items-center gap-1">
             <select
               v-model="selectedFontFamily"
-              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
               @change="applySelectedFontFamily"
             >
               <option
@@ -2149,7 +2276,7 @@ onUpdated(() => {
             </select>
             <select
               v-model="selectedFontSize"
-              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
               @change="applySelectedFontSize"
             >
               <option
@@ -2162,7 +2289,7 @@ onUpdated(() => {
             </select>
             <select
               v-model="selectedLineHeight"
-              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
               @change="applySelectedLineHeight"
             >
               <option value="default">{{ __("Line") }}</option>
@@ -2179,8 +2306,8 @@ onUpdated(() => {
               class="rounded border px-2 py-1 text-xs font-semibold"
               :class="
                 isEditorActive('bold')
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               "
               @click="
                 runEditorCommand(() =>
@@ -2195,8 +2322,8 @@ onUpdated(() => {
               class="rounded border px-2 py-1 text-xs font-semibold italic font-serif"
               :class="
                 isEditorActive('italic')
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               "
               @click="
                 runEditorCommand(() =>
@@ -2211,8 +2338,8 @@ onUpdated(() => {
               class="rounded border px-2 py-1 text-xs font-semibold"
               :class="
                 isEditorActive('underline')
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               "
               @click="
                 runEditorCommand(() =>
@@ -2227,8 +2354,8 @@ onUpdated(() => {
               class="rounded border px-2 py-1 text-xs font-semibold"
               :class="
                 isEditorActive('bulletList')
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               "
               @click="
                 runEditorCommand(() =>
@@ -2243,8 +2370,8 @@ onUpdated(() => {
               class="rounded border px-2 py-1 text-xs font-semibold"
               :class="
                 isTextAlignActive('left')
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               "
               @click="
                 runEditorCommand(() =>
@@ -2259,8 +2386,8 @@ onUpdated(() => {
               class="rounded border px-2 py-1 text-xs font-semibold"
               :class="
                 isTextAlignActive('center')
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               "
               @click="
                 runEditorCommand(() =>
@@ -2272,7 +2399,7 @@ onUpdated(() => {
             </button>
             <button
               type="button"
-              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
               :disabled="!canOutdent"
               @click="
                 runEditorCommand(() => editor?.chain().focus().outdent().run())
@@ -2282,7 +2409,7 @@ onUpdated(() => {
             </button>
             <button
               type="button"
-              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
               :disabled="!canIndent"
               @click="
                 runEditorCommand(() => editor?.chain().focus().indent().run())
@@ -2292,7 +2419,7 @@ onUpdated(() => {
             </button>
             <button
               type="button"
-              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
               :disabled="!canUndo"
               @click="
                 runEditorCommand(() => editor?.chain().focus().undo().run())
@@ -2302,7 +2429,7 @@ onUpdated(() => {
             </button>
             <button
               type="button"
-              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
               :disabled="!canRedo"
               @click="
                 runEditorCommand(() => editor?.chain().focus().redo().run())
@@ -2312,7 +2439,7 @@ onUpdated(() => {
             </button>
             <button
               type="button"
-              class="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
               :disabled="uploadingImage"
               @click="openImagePicker"
             >
@@ -2325,8 +2452,8 @@ onUpdated(() => {
               class="rounded border px-2 py-1 text-xs font-semibold"
               :class="
                 showMathPanel
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               "
               @click="toggleMathPanel"
             >
@@ -2337,8 +2464,8 @@ onUpdated(() => {
               class="rounded border px-2 py-1 text-xs font-semibold"
               :class="
                 showCanvasPanel
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200'
-                  : 'border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
               "
               @click="toggleCanvasPanel"
             >
@@ -2346,7 +2473,7 @@ onUpdated(() => {
             </button>
             <button
               type="button"
-              class="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground"
               @click="insertFreehandDrawing"
             >
               <PencilLine :size="13" />
@@ -2364,25 +2491,25 @@ onUpdated(() => {
 
         <div
           v-if="showMathPanel"
-          class="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/50"
+          class="space-y-2 rounded-lg border border-border bg-muted p-3 dark:border-border dark:bg-card/50"
         >
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span
-              class="text-xs font-semibold text-slate-600 dark:text-slate-300"
+              class="text-xs font-semibold text-muted-foreground dark:text-muted-foreground"
             >
               {{ __("Math Input") }}
             </span>
             <div class="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                class="rounded border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 hover:border-indigo-400 hover:bg-indigo-100 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200"
+                class="rounded border border-primary/30 bg-accent px-2 py-1 text-xs font-semibold text-primary hover:border-primary hover:bg-primary/90 dark:border-primary/40 dark:bg-primary/20 dark:text-primary"
                 @click="insertFormulaInline"
               >
                 {{ __("Insert Inline Math") }}
               </button>
               <button
                 type="button"
-                class="rounded border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 hover:border-indigo-400 hover:bg-indigo-100 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200"
+                class="rounded border border-primary/30 bg-accent px-2 py-1 text-xs font-semibold text-primary hover:border-primary hover:bg-primary/90 dark:border-primary/40 dark:bg-primary/20 dark:text-primary"
                 @click="insertFormulaBlock"
               >
                 {{ __("Insert Block Math") }}
@@ -2392,7 +2519,7 @@ onUpdated(() => {
 
           <math-field
             ref="formulaFieldRef"
-            class="editor-math-field block min-h-[52px] w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            class="editor-math-field block min-h-[52px] w-full rounded-md border border-border bg-card px-3 py-2 text-sm dark:border-border dark:bg-background dark:text-foreground"
           >
             \int_0^1 x^2\,dx
           </math-field>
@@ -2403,16 +2530,16 @@ onUpdated(() => {
           class="mx-auto flex w-full max-w-[210mm] flex-col gap-3"
         >
           <div
-            class="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-900/50"
+            class="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted p-2 dark:border-border dark:bg-card/50"
           >
             <span
-              class="text-xs font-semibold text-slate-600 dark:text-slate-300"
+              class="text-xs font-semibold text-muted-foreground dark:text-muted-foreground"
             >
               {{ __("Geometry Builder") }}
             </span>
             <select
               v-model="selectedGeometryKey"
-              class="min-w-[190px] rounded border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              class="min-w-[190px] rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
             >
               <optgroup :label="__('2D Shapes')">
                 <option
@@ -2435,7 +2562,7 @@ onUpdated(() => {
             </select>
             <button
               type="button"
-              class="rounded border border-indigo-300 bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 hover:border-indigo-400 hover:bg-indigo-100 dark:border-indigo-500/40 dark:bg-indigo-500/20 dark:text-indigo-200"
+              class="rounded border border-primary/30 bg-accent px-2 py-1 text-xs font-semibold text-primary hover:border-primary hover:bg-primary/90 dark:border-primary/40 dark:bg-primary/20 dark:text-primary"
               @click="insertGeometryTemplate"
             >
               {{ __("Add Selected Shape") }}
@@ -2445,7 +2572,7 @@ onUpdated(() => {
           <div class="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-foreground"
               :disabled="!selectedDrawnId"
               @click="removeSelectedShape"
             >
@@ -2453,7 +2580,7 @@ onUpdated(() => {
             </button>
             <button
               type="button"
-              class="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-foreground"
               :disabled="drawnShapes.length === 0"
               @click="clearDrawingBoard"
             >
@@ -2461,7 +2588,7 @@ onUpdated(() => {
             </button>
             <button
               type="button"
-              class="rounded border border-emerald-300 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700 hover:border-emerald-400 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/20 dark:text-emerald-200"
+              class="rounded border border-chart-2/30 bg-chart-2/10 px-2 py-1 text-xs font-semibold text-chart-2 hover:border-chart-2 hover:bg-chart-2/20 dark:border-chart-2/40 dark:bg-chart-2/20 dark:text-chart-2"
               :disabled="
                 drawnShapes.length === 0 || !editor || insertingDrawing
               "
@@ -2477,10 +2604,10 @@ onUpdated(() => {
 
           <div
             v-if="selectedDrawnShape"
-            class="grid gap-2 rounded-md border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900"
+            class="grid gap-2 rounded-md border border-border bg-card p-2 dark:border-border dark:bg-card"
           >
             <p
-              class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+              class="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
             >
               {{ __("Resize Selected Shape") }}
             </p>
@@ -2489,7 +2616,7 @@ onUpdated(() => {
               v-if="selectedShapeIsUniform"
               class="grid grid-cols-[1fr_72px] items-center gap-2"
             >
-              <label class="text-xs text-slate-600 dark:text-slate-300">{{
+              <label class="text-xs text-muted-foreground dark:text-muted-foreground">{{
                 __("Size")
               }}</label>
               <input
@@ -2497,7 +2624,7 @@ onUpdated(() => {
                 min="30"
                 :max="selectedShapeMaxSize"
                 :value="Math.round(selectedDrawnShape.width)"
-                class="rounded border border-slate-300 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                class="rounded border border-border px-2 py-1 text-xs dark:border-border dark:bg-background dark:text-foreground"
                 @input="onSelectedSizeInput"
               />
               <input
@@ -2505,13 +2632,13 @@ onUpdated(() => {
                 min="30"
                 :max="selectedShapeMaxSize"
                 :value="Math.round(selectedDrawnShape.width)"
-                class="col-span-2 accent-indigo-600"
+                class="col-span-2 accent-primary"
                 @input="onSelectedSizeInput"
               />
             </div>
 
             <div v-else class="grid grid-cols-[1fr_72px] items-center gap-2">
-              <label class="text-xs text-slate-600 dark:text-slate-300">{{
+              <label class="text-xs text-muted-foreground dark:text-muted-foreground">{{
                 __("Width")
               }}</label>
               <input
@@ -2519,7 +2646,7 @@ onUpdated(() => {
                 min="30"
                 :max="selectedShapeMaxWidth"
                 :value="Math.round(selectedDrawnShape.width)"
-                class="rounded border border-slate-300 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                class="rounded border border-border px-2 py-1 text-xs dark:border-border dark:bg-background dark:text-foreground"
                 @input="onSelectedWidthInput"
               />
               <input
@@ -2527,11 +2654,11 @@ onUpdated(() => {
                 min="30"
                 :max="selectedShapeMaxWidth"
                 :value="Math.round(selectedDrawnShape.width)"
-                class="col-span-2 accent-indigo-600"
+                class="col-span-2 accent-primary"
                 @input="onSelectedWidthInput"
               />
 
-              <label class="text-xs text-slate-600 dark:text-slate-300">{{
+              <label class="text-xs text-muted-foreground dark:text-muted-foreground">{{
                 __("Height")
               }}</label>
               <input
@@ -2539,7 +2666,7 @@ onUpdated(() => {
                 min="30"
                 :max="selectedShapeMaxHeight"
                 :value="Math.round(selectedDrawnShape.height)"
-                class="rounded border border-slate-300 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                class="rounded border border-border px-2 py-1 text-xs dark:border-border dark:bg-background dark:text-foreground"
                 @input="onSelectedHeightInput"
               />
               <input
@@ -2547,14 +2674,14 @@ onUpdated(() => {
                 min="30"
                 :max="selectedShapeMaxHeight"
                 :value="Math.round(selectedDrawnShape.height)"
-                class="col-span-2 accent-indigo-600"
+                class="col-span-2 accent-primary"
                 @input="onSelectedHeightInput"
               />
             </div>
           </div>
 
           <div
-            class="mx-auto w-full max-w-[210mm] overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/50"
+            class="mx-auto w-full max-w-[210mm] overflow-hidden rounded-xl border border-border bg-card dark:border-border dark:bg-card/50"
           >
             <svg
               ref="paintBoardRef"
@@ -2806,7 +2933,7 @@ onUpdated(() => {
                   :width="shape.width + 8"
                   :height="shape.height + 8"
                   fill="none"
-                  stroke="#f59e0b"
+                  stroke="var(--chart-3)"
                   stroke-width="1.5"
                   stroke-dasharray="5 4"
                 />
@@ -2818,14 +2945,14 @@ onUpdated(() => {
                 y="50%"
                 text-anchor="middle"
                 dominant-baseline="middle"
-                class="fill-slate-400 text-[14px]"
+                class="fill-muted-foreground text-[14px]"
               >
                 {{ __("No shapes yet. Choose a shape and click the canvas.") }}
               </text>
             </svg>
           </div>
 
-          <p class="text-xs text-slate-500 dark:text-slate-400">
+          <p class="text-xs text-muted-foreground dark:text-muted-foreground">
             {{
               __(
                 "Click on empty canvas to place selected shape. Drag any shape to move.",
@@ -2836,7 +2963,7 @@ onUpdated(() => {
 
         <div
           v-if="loadingDocument"
-          class="py-10 text-center text-sm text-slate-500"
+          class="py-10 text-center text-sm text-muted-foreground"
         >
           {{ __("Loading...") }}
         </div>
@@ -2845,22 +2972,22 @@ onUpdated(() => {
 
         <p
           v-if="dirty"
-          class="text-xs font-medium text-amber-600 dark:text-amber-400"
+          class="text-xs font-medium text-chart-3 dark:text-chart-3"
         >
           {{ __("Unsaved changes") }}
         </p>
       </section>
 
       <section
-        class="space-y-3 overflow-y-auto rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-slate-800/60 dark:bg-[#0B0F19]/60"
+        class="space-y-3 overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-border/60 dark:bg-card/60"
       >
-        <h2 class="text-base font-semibold text-slate-900 dark:text-white">
+        <h2 class="text-base font-semibold text-foreground dark:text-primary-foreground">
           {{ __("Generated Items") }}
         </h2>
 
         <div
           v-if="items.length === 0"
-          class="rounded-lg border border-dashed border-slate-200 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400"
+          class="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground dark:border-border dark:text-muted-foreground"
         >
           {{
             __("No generated items yet. Run generation from the left panel.")
@@ -2871,17 +2998,17 @@ onUpdated(() => {
           <article
             v-for="item in items"
             :key="item.id"
-            class="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40"
+            class="rounded-xl border border-border bg-muted p-3 dark:border-border dark:bg-card/40"
           >
             <div class="mb-2 flex items-center justify-between gap-2">
               <p
-                class="text-xs font-semibold uppercase tracking-wider text-slate-500"
+                class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
               >
                 {{ __("Exercise") }} {{ item.item_order }}
               </p>
               <button
                 type="button"
-                class="inline-flex items-center gap-1 rounded border border-slate-300 px-2 py-1 text-[11px] font-semibold text-slate-700 hover:border-indigo-300 hover:text-indigo-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300"
+                class="inline-flex items-center gap-1 rounded border border-border px-2 py-1 text-[11px] font-semibold text-muted-foreground hover:border-primary hover:text-primary disabled:opacity-50 dark:border-border dark:text-muted-foreground"
                 :disabled="regeneratingItemId === item.id"
                 @click="regenerateItem(item)"
               >
@@ -2894,58 +3021,35 @@ onUpdated(() => {
                 {{ __("Regenerate") }}
               </button>
             </div>
-            <p class="text-sm text-slate-800 dark:text-slate-100">
-              <template
-                v-for="(segment, idx) in splitMath(item.question)"
-                :key="`gq-${item.id}-${idx}`"
-              >
-                <span v-if="segment.type === 'text'">{{ segment.value }}</span>
-                <span
-                  v-else
-                  class="inline-math"
-                  :data-latex="segment.value"
-                ></span>
-              </template>
-            </p>
+            <div
+              class="text-sm text-muted-foreground dark:text-foreground"
+              v-html="renderExercisePreviewHtml(item.question_html ?? item.question)"
+            ></div>
             <ul
-              class="mt-2 space-y-1 text-xs text-slate-600 dark:text-slate-300"
+              class="mt-2 space-y-1 text-xs text-muted-foreground dark:text-muted-foreground"
             >
               <li
                 v-for="(option, index) in item.options"
                 :key="`${item.id}-${index}`"
               >
                 {{ index + 1 }}.
-                <template
-                  v-for="(segment, idx) in splitMath(option)"
-                  :key="`go-${item.id}-${index}-${idx}`"
-                >
-                  <span v-if="segment.type === 'text'">{{
-                    segment.value
-                  }}</span>
-                  <span
-                    v-else
-                    class="inline-math"
-                    :data-latex="segment.value"
-                  ></span>
-                </template>
+                <span
+                  v-html="
+                    renderExercisePreviewHtml(
+                      item.options_html?.[index] ?? option,
+                    )
+                  "
+                ></span>
               </li>
             </ul>
             <p
               v-if="showCorrectAnswers"
-              class="mt-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+              class="mt-2 text-xs font-semibold text-chart-2 dark:text-chart-2"
             >
               {{ __("Answer") }}:
-              <template
-                v-for="(segment, idx) in splitMath(item.answer)"
-                :key="`ga-${item.id}-${idx}`"
-              >
-                <span v-if="segment.type === 'text'">{{ segment.value }}</span>
-                <span
-                  v-else
-                  class="inline-math"
-                  :data-latex="segment.value"
-                ></span>
-              </template>
+              <span
+                v-html="renderExercisePreviewHtml(item.answer_html ?? item.answer)"
+              ></span>
             </p>
           </article>
         </div>
@@ -3044,13 +3148,9 @@ onUpdated(() => {
 }
 
 :deep(.editor-math-field) {
-  --caret-color: #0f172a;
-  --primary: #4f46e5;
-  --selection-background-color: rgba(79, 70, 229, 0.2);
+  --caret-color: var(--foreground);
+  --primary: var(--ring);
+  --selection-background-color: color-mix(in srgb, var(--ring) 20%, transparent);
   --keyboard-zindex: 50;
-}
-
-:deep(.dark .editor-math-field) {
-  --caret-color: #e2e8f0;
 }
 </style>

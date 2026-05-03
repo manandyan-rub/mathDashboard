@@ -5,8 +5,6 @@ use App\Http\Controllers\IntegralController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\MathematicsControlller;
 use App\Http\Controllers\FormulaController;
-use App\Http\Controllers\PdfQuizController;
-use App\Http\Controllers\PdfQuizApiController;
 use App\Http\Controllers\MathLevelController;
 use App\Http\Controllers\TeacherExerciseStudioController;
 use Illuminate\Foundation\Application;
@@ -46,20 +44,11 @@ Route::middleware('auth')->group(function () {
     Route::get('math-levels/rewards', [MathLevelController::class, 'rewards'])->name('math-levels.rewards');
     Route::get('math-levels/attempts/{attempt}', [MathLevelController::class, 'session'])->name('math-levels.session');
     Route::get('math-levels/attempts/{attempt}/result', [MathLevelController::class, 'result'])->name('math-levels.result');
-    Route::get('pdf-quiz/upload', [PdfQuizController::class, 'upload'])->name('pdf-quiz.upload');
-    Route::get('pdf-quiz/{quiz}/preview', [PdfQuizController::class, 'preview'])->name('pdf-quiz.preview');
-    Route::get('pdf-quiz/attempts/{attempt}', [PdfQuizController::class, 'session'])->name('pdf-quiz.session');
-    Route::get('pdf-quiz/attempts/{attempt}/result', [PdfQuizController::class, 'result'])->name('pdf-quiz.result');
-
-    Route::post('pdf-quiz/imports', [PdfQuizApiController::class, 'store']);
-    Route::get('pdf-quiz/quizzes/{quiz}', [PdfQuizApiController::class, 'showQuiz']);
-    Route::post('pdf-quiz/quizzes/{quiz}/attempts', [PdfQuizApiController::class, 'startAttempt']);
-    Route::post('pdf-quiz/attempts/{attempt}/submit', [PdfQuizApiController::class, 'submitAttempt']);
-    Route::get('pdf-quiz/attempts/{attempt}', [PdfQuizApiController::class, 'showAttempt']);
 
 });
 
 Route::middleware('auth')->prefix('api')->group(function () {
+    Route::get('dashboard/xp-analytics', [\App\Http\Controllers\Api\XpAnalyticsController::class, 'index']);
     Route::get('math-levels', [\App\Http\Controllers\Api\MathLevelController::class, 'index']);
     Route::get('math-levels/leaderboard', [\App\Http\Controllers\Api\MathLevelController::class, 'leaderboard']);
     Route::post('math-levels/start', [\App\Http\Controllers\Api\MathLevelController::class, 'start']);

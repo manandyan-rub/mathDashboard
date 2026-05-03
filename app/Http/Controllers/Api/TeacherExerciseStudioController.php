@@ -310,10 +310,12 @@ class TeacherExerciseStudioController extends Controller
 
         $item->update([
             'type' => (string) ($newItem['type'] ?? 'mcq'),
-            'question' => (string) ($newItem['question'] ?? $item->question),
-            'options' => $newItem['options'] ?? $item->options,
-            'answer' => (string) ($newItem['answer'] ?? $item->answer),
-            'explanation' => $newItem['explanation'] ?? $item->explanation,
+            'question' => (string) ($newItem['question_html'] ?? $newItem['question'] ?? $item->question),
+            'options' => is_array($newItem['options_html'] ?? null)
+                ? $newItem['options_html']
+                : ($newItem['options'] ?? $item->options),
+            'answer' => (string) ($newItem['answer_html'] ?? $newItem['answer'] ?? $item->answer),
+            'explanation' => $newItem['explanation_html'] ?? $newItem['explanation'] ?? $item->explanation,
             'difficulty' => $newItem['difficulty'] ?? $item->difficulty,
             'points' => (int) ($newItem['points'] ?? $item->points),
             'source' => 'ai',
@@ -339,7 +341,7 @@ class TeacherExerciseStudioController extends Controller
                     continue;
                 }
 
-                $question = trim((string) ($item['question'] ?? ''));
+                $question = trim((string) ($item['question_html'] ?? $item['question'] ?? ''));
                 if ($question === '') {
                     continue;
                 }
@@ -354,9 +356,11 @@ class TeacherExerciseStudioController extends Controller
                     'item_order' => $currentOrder,
                     'type' => (string) ($item['type'] ?? 'mcq'),
                     'question' => $question,
-                    'options' => is_array($item['options'] ?? null) ? $item['options'] : [],
-                    'answer' => (string) ($item['answer'] ?? ''),
-                    'explanation' => $item['explanation'] ?? null,
+                    'options' => is_array($item['options_html'] ?? null)
+                        ? $item['options_html']
+                        : (is_array($item['options'] ?? null) ? $item['options'] : []),
+                    'answer' => (string) ($item['answer_html'] ?? $item['answer'] ?? ''),
+                    'explanation' => $item['explanation_html'] ?? $item['explanation'] ?? null,
                     'difficulty' => $item['difficulty'] ?? null,
                     'points' => max(1, (int) ($item['points'] ?? 1)),
                     'source' => (string) ($item['source'] ?? 'manual'),
@@ -385,9 +389,13 @@ class TeacherExerciseStudioController extends Controller
                 'item_order' => $item->item_order,
                 'type' => $item->type,
                 'question' => $item->question,
+                'question_html' => $item->question,
                 'options' => $item->options ?? [],
+                'options_html' => $item->options ?? [],
                 'answer' => $item->answer,
+                'answer_html' => $item->answer,
                 'explanation' => $item->explanation,
+                'explanation_html' => $item->explanation,
                 'difficulty' => $item->difficulty,
                 'points' => $item->points,
                 'source' => $item->source,
@@ -458,26 +466,55 @@ class TeacherExerciseStudioController extends Controller
         $html = '<h2>' . e($document->title) . '</h2>';
         foreach ($items as $item) {
             $html .= '<h3>' . e(__('Exercise')) . ' ' . (int) $item->item_order . '</h3>';
-            $html .= '<p>' . e((string) $item->question) . '</p>';
+            $html .= $this->renderBlockHtml((string) $item->question);
 
             $options = is_array($item->options) ? $item->options : [];
             if (!empty($options)) {
                 $html .= '<ol>';
                 foreach ($options as $option) {
-                    $html .= '<li>' . e((string) $option) . '</li>';
+                    $html .= '<li>' . $this->renderInlineHtml((string) $option) . '</li>';
                 }
                 $html .= '</ol>';
             }
 
             if ($showAnswers) {
-                $html .= '<p><strong>' . e(__('Answer')) . ':</strong> ' . e((string) $item->answer) . '</p>';
+                $html .= '<p><strong>' . e(__('Answer')) . ':</strong> ' . $this->renderInlineHtml((string) $item->answer) . '</p>';
             }
             if ($showAnswers && !empty($item->explanation)) {
-                $html .= '<p><strong>' . e(__('Explanation')) . ':</strong> ' . e((string) $item->explanation) . '</p>';
+                $html .= '<p><strong>' . e(__('Explanation')) . ':</strong> ' . $this->renderInlineHtml((string) $item->explanation) . '</p>';
             }
         }
 
         return $this->renderLatexForPdf($html);
+    }
+
+    private function renderBlockHtml(string $value): string
+    {
+        $content = trim($value);
+        if ($content === '') {
+            return '<p></p>';
+        }
+
+        if ($this->looksLikeHtml($content)) {
+            return $content;
+        }
+
+        return '<p>' . e($content) . '</p>';
+    }
+
+    private function renderInlineHtml(string $value): string
+    {
+        $content = trim($value);
+        if ($content === '') {
+            return '';
+        }
+
+        return $this->looksLikeHtml($content) ? $content : e($content);
+    }
+
+    private function looksLikeHtml(string $value): bool
+    {
+        return (bool) preg_match('/<[^>]+>/u', $value);
     }
 
     private function stripAnswersFromHtml(string $html): string
