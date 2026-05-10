@@ -160,52 +160,52 @@ const COLOR_MAP: Record<
   { bg: string; text: string; border: string; badge: string }
 > = {
   blue: {
-    bg: "bg-chart-5 dark:bg-chart-5/30",
+    bg: "bg-chart-5/10 dark:bg-chart-5/20",
     text: "text-chart-5 dark:text-chart-5",
     border: "border-chart-5 dark:border-chart-5",
     badge: "bg-chart-5/10 text-chart-5 dark:bg-chart-5/20 dark:text-chart-5",
   },
   violet: {
-    bg: "bg-chart-4 dark:bg-chart-4/30",
+    bg: "bg-chart-4/10 dark:bg-chart-4/20",
     text: "text-chart-4 dark:text-chart-4",
     border: "border-chart-4 dark:border-chart-4",
     badge:
       "bg-chart-4/10 text-chart-4 dark:bg-chart-4/20 dark:text-chart-4",
   },
   emerald: {
-    bg: "bg-chart-2 dark:bg-chart-2/30",
+    bg: "bg-chart-2/10 dark:bg-chart-2/20",
     text: "text-chart-2 dark:text-chart-2",
     border: "border-chart-2 dark:border-chart-2",
     badge:
       "bg-chart-2/10 text-chart-2 dark:bg-chart-2/20 dark:text-chart-2",
   },
   cyan: {
-    bg: "bg-chart-5 dark:bg-chart-5/30",
+    bg: "bg-chart-5/10 dark:bg-chart-5/20",
     text: "text-chart-5 dark:text-chart-5",
     border: "border-chart-5 dark:border-chart-5",
     badge: "bg-chart-5/10 text-chart-5 dark:bg-chart-5/20 dark:text-chart-5",
   },
   amber: {
-    bg: "bg-chart-3 dark:bg-chart-3/30",
+    bg: "bg-chart-3/10 dark:bg-chart-3/20",
     text: "text-chart-3 dark:text-chart-3",
     border: "border-chart-3 dark:border-chart-3",
     badge: "bg-chart-3/10 text-chart-3 dark:bg-chart-3/20 dark:text-chart-3",
   },
   rose: {
-    bg: "bg-destructive dark:bg-destructive/30",
+    bg: "bg-destructive/10 dark:bg-destructive/20",
     text: "text-destructive dark:text-destructive",
     border: "border-destructive dark:border-destructive",
     badge: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive",
   },
   indigo: {
-    bg: "bg-primary dark:bg-primary/30",
+    bg: "bg-primary/10 dark:bg-primary/20",
     text: "text-primary dark:text-primary",
     border: "border-primary dark:border-primary",
     badge:
       "bg-accent text-accent-foreground dark:bg-primary/20 dark:text-primary",
   },
   teal: {
-    bg: "bg-chart-2 dark:bg-chart-2/30",
+    bg: "bg-chart-2/10 dark:bg-chart-2/20",
     text: "text-chart-2 dark:text-chart-2",
     border: "border-chart-2 dark:border-chart-2",
     badge: "bg-chart-2/10 text-chart-2 dark:bg-chart-2/20 dark:text-chart-2",
@@ -759,7 +759,7 @@ function selectCategory(id: string) {
               class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left"
               :class="
                 activeId === cat.id
-                  ? `${COLOR_MAP[cat.color]?.bg} ${COLOR_MAP[cat.color]?.text} font-medium`
+                  ? `${COLOR_MAP[cat.color]?.bg} ${COLOR_MAP[cat.color]?.text} ring-1 ring-inset ring-current/20 font-semibold`
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               "
               @click="selectCategory(cat.id)"
