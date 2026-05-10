@@ -178,16 +178,18 @@ onUnmounted(() => {
             {{ userAt(1).xp.toLocaleString() }} XP
           </div>
           <div
-            class="z-10 mb-[-1.5rem] flex h-16 w-16 items-center justify-center rounded-full border-4 border-border bg-card text-xl font-bold text-muted-foreground shadow-lg shadow-border/40 dark:bg-card dark:text-muted-foreground"
+            class="z-10 mb-[-1.5rem] flex h-16 w-16 items-center justify-center rounded-full border-4 border-slate-300/70 bg-card text-xl font-bold text-slate-300 shadow-lg shadow-slate-300/20 dark:bg-card dark:text-slate-300"
           >
             {{ userAt(1).avatar }}
           </div>
           <div
-            class="relative flex h-32 w-full flex-col items-center justify-start overflow-hidden rounded-t-xl border-t-2 border-border bg-gradient-to-t from-muted via-muted to-card pt-8 pb-4 dark:from-card dark:via-card dark:to-card"
+            class="relative flex h-32 w-full flex-col items-center justify-start overflow-hidden rounded-t-xl border border-slate-300/30 bg-card pt-8 pb-4 shadow-sm"
           >
-            <div class="absolute inset-0 bg-muted/5" />
-            <Medal :size="24" class="mb-1 text-muted-foreground" />
-            <span class="text-2xl font-bold text-muted-foreground dark:text-foreground"
+            <div class="absolute inset-x-0 top-0 h-2 bg-slate-300" />
+            <div class="mb-1 rounded-full bg-slate-300/10 p-1.5">
+              <Medal :size="22" class="text-slate-300" />
+            </div>
+            <span class="text-2xl font-bold text-foreground"
               >2</span
             >
           </div>
@@ -197,7 +199,7 @@ onUnmounted(() => {
             >
               {{ userAt(1).name }}
             </p>
-            <p class="mt-0.5 text-xs text-primary">
+            <p class="mt-0.5 text-xs text-slate-300">
               LvL {{ userAt(1).level }}
             </p>
           </div>

@@ -3,6 +3,7 @@
   Calculator,
   EqualApproximately,
   Globe2,
+  LayoutDashboard,
   NotebookPen,
   Pi,
   Sigma,
@@ -21,6 +22,7 @@ export const adminMenu: MenuItem[] = [
   {
     title: "Dashboard",
     route: "dashboard",
+    icon: LayoutDashboard,
     children: [
       {
         title: "Local",

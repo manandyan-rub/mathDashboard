@@ -11,6 +11,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  contentWidth: {
+    type: String,
+    default: "little",
+  },
 });
 
 const page = usePage();
@@ -36,7 +40,7 @@ function titleFromComponent(component) {
 </script>
 
 <template>
-  <AdminLayout>
+  <AdminLayout :content-width="contentWidth">
     <template #sidebar>
       <AdminSidebarItem
         v-for="item in adminMenu"

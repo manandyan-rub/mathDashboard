@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import ApplicationLogo from "@/components/ApplicationLogo.vue";
+import AnimatedBackground from "@/components/AnimatedBackground.vue";
 import Dropdown from "@/components/Dropdown.vue";
 import DropdownLink from "@/components/DropdownLink.vue";
 import NavLink from "@/components/NavLink.vue";
@@ -11,8 +12,10 @@ const showingNavigationDropdown = ref(false);
 </script>
 
 <template>
-  <div>
-    <div class="min-h-screen bg-background text-foreground">
+  <div class="relative min-h-screen overflow-hidden bg-background text-foreground">
+    <AnimatedBackground />
+
+    <div class="relative z-10 min-h-screen bg-background">
       <nav class="border-b border-border bg-card text-card-foreground">
         <!-- Primary Navigation Menu -->
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -165,7 +168,10 @@ const showingNavigationDropdown = ref(false);
       </nav>
 
       <!-- Page Heading -->
-      <header class="bg-card text-card-foreground shadow" v-if="$slots.header">
+      <header
+        v-if="$slots.header"
+        class="bg-card text-card-foreground shadow"
+      >
         <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <slot name="header" />
         </div>

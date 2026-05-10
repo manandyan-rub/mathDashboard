@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Checkbox from "@/components/Checkbox.vue";
+import AnimatedBackground from "@/components/AnimatedBackground.vue";
 import InputError from "@/components/InputError.vue";
 import PrimaryButton from "@/components/PrimaryButton.vue";
 import TextInput from "@/components/TextInput.vue";
@@ -52,6 +53,8 @@ function changeLanguage(event: Event) {
   <section
     class="relative min-h-screen overflow-hidden bg-background text-muted-foreground selection:bg-primary/20 dark:text-muted-foreground dark:selection:bg-primary/30"
   >
+    <AnimatedBackground />
+
     <div class="absolute right-6 top-6 z-20 flex items-center gap-3">
       <select
         :value="language"
@@ -115,7 +118,7 @@ function changeLanguage(event: Event) {
 
         <div class="flex items-center justify-center">
           <div
-            class="w-full max-w-md rounded-2xl border border-border/80 bg-card/80 p-6 shadow-2xl backdrop-blur-xl dark:border-border/50 dark:bg-card/40"
+            class="w-full max-w-md rounded-2xl border border-border/80 bg-card p-6 shadow-2xl dark:border-border/50 dark:bg-card"
           >
             <div class="mb-6 flex items-center justify-between">
               <div>
@@ -167,7 +170,7 @@ function changeLanguage(event: Event) {
                   required
                   autofocus
                   autocomplete="username"
-                  class="block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card/50 dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
+                  class="block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
@@ -187,7 +190,7 @@ function changeLanguage(event: Event) {
                   type="password"
                   required
                   autocomplete="current-password"
-                  class="block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card/50 dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
+                  class="block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
                 />
 
                 <InputError class="mt-2" :message="form.errors.password" />

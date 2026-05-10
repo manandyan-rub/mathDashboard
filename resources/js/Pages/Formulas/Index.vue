@@ -1019,23 +1019,35 @@ function selectCategory(id: string) {
                   <div
                     v-for="(step, index) in selectedSteps"
                     :key="`formula-step-list-${index}`"
-                    class="rounded-lg border p-3 transition-colors"
+                    class="rounded-lg border p-3 text-foreground transition-colors"
                     :class="
                       index === activeStepIndex
-                        ? 'border-primary bg-primary dark:bg-primary/35'
+                        ? 'border-primary/40 bg-primary/10 ring-1 ring-primary/20 dark:bg-primary/15'
                         : index < activeStepIndex
-                          ? 'border-chart-2 bg-chart-2 dark:bg-chart-2/25'
+                          ? 'border-chart-2/40 bg-chart-2/10 dark:bg-chart-2/15'
                           : 'border-border bg-muted dark:border-border dark:bg-card/40'
                     "
                   >
-                    <p class="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
+                    <p
+                      class="text-xs font-semibold"
+                      :class="
+                        index === activeStepIndex
+                          ? 'text-primary'
+                          : index < activeStepIndex
+                            ? 'text-chart-2'
+                            : 'text-muted-foreground'
+                      "
+                    >
                       Քայլ {{ index + 1 }}
                     </p>
                     <div
                       :data-latex="step.latex"
                       class="mt-1 min-h-[30px] flex items-center overflow-x-auto text-sm text-foreground dark:text-foreground"
                     />
-                    <p v-if="step.note" class="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                    <p
+                      v-if="step.note"
+                      class="mt-1 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground"
+                    >
                       {{ step.note }}
                     </p>
                   </div>

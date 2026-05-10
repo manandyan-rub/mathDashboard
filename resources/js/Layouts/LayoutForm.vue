@@ -5,11 +5,12 @@ import AdminSidebarItem from "./AdminSidebarItem.vue";
 
 defineProps<{
   title?: string;
+  contentWidth?: "little" | "big";
 }>();
 </script>
 
 <template>
-  <AdminLayout>
+  <AdminLayout :content-width="contentWidth ?? 'little'">
     <template #sidebar>
       <AdminSidebarItem
         v-for="item in adminMenu"

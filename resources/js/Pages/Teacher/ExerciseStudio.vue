@@ -6,7 +6,7 @@ import ExerciseStudioGeneral from "./partials/ExerciseStudioGeneral.vue";
 </script>
 
 <template>
-  <AdminLayout>
+  <AdminLayout content-width="big">
     <template #sidebar>
       <AdminSidebarItem
         v-for="item in adminMenu"
@@ -17,4 +17,3 @@ import ExerciseStudioGeneral from "./partials/ExerciseStudioGeneral.vue";
     <ExerciseStudioGeneral />
   </AdminLayout>
 </template>
-

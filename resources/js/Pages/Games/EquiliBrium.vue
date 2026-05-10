@@ -6,7 +6,7 @@ import EquiliBriumGeneral from "./partials/EquiliBriumGeneral.vue";
 </script>
 
 <template>
-  <AdminLayout class="z-10">
+  <AdminLayout class="z-10" content-width="big">
     <template #sidebar>
       <AdminSidebarItem
         v-for="item in adminMenu"

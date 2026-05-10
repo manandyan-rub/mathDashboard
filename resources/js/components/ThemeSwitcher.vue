@@ -7,7 +7,7 @@ const { theme, setTheme } = useTheme();
 
 <template>
   <div
-    class="inline-flex items-center gap-1 rounded-full border border-border bg-card/80 p-1 text-sm shadow-sm backdrop-blur"
+    class="inline-flex items-center gap-1 rounded-full border border-border bg-card p-1 text-sm shadow-sm"
   >
     <button
       type="button"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { usePage } from "@inertiajs/vue3";
+import AnimatedBackground from "@/components/AnimatedBackground.vue";
 import Dropdown from "@/components/Dropdown.vue";
 import DropdownLink from "@/components/DropdownLink.vue";
 import { useTheme } from "@/composables/useTheme";
@@ -44,6 +45,21 @@ const languages = [
   { value: "ru", label: "Russian" },
 ];
 
+const props = withDefaults(
+  defineProps<{
+    contentWidth?: "little" | "big";
+  }>(),
+  {
+    contentWidth: "little",
+  },
+);
+
+const contentShellClass = computed(() =>
+  props.contentWidth === "big"
+    ? "admin-content-shell--big"
+    : "admin-content-shell--little",
+);
+
 function changeLanguage(event: Event) {
   const value = (event.target as HTMLSelectElement).value as LocaleCode;
   if (value === language.value) return;
@@ -55,9 +71,9 @@ function changeLanguage(event: Event) {
 
 <template>
   <div class="relative h-screen overflow-hidden bg-background text-foreground">
-    <div class="flex h-screen">
+    <div class="relative z-10 flex h-screen">
       <aside
-        class="sticky top-0 hidden h-screen w-72 border-r border-sidebar-border/70 bg-sidebar/90 text-sidebar-foreground backdrop-blur-xl md:flex md:flex-col"
+        class="sticky top-0 hidden h-screen w-72 border-r border-sidebar-border/70 bg-sidebar text-sidebar-foreground md:flex md:flex-col"
       >
         <div
           class="flex h-18 items-center border-b border-sidebar-border/70 px-6"
@@ -113,7 +129,7 @@ function changeLanguage(event: Event) {
 
       <div class="flex h-screen flex-1 flex-col overflow-hidden">
         <header
-          class="sticky top-0 z-[120] border-b border-border/70 bg-background/85 px-6 py-4 text-foreground backdrop-blur-xl"
+          class="sticky top-0 z-[120] border-b border-border/70 bg-background px-6 py-4 text-foreground"
         >
           <div class="flex items-center justify-between gap-4">
             <div class="min-w-0 flex-1">
@@ -226,10 +242,46 @@ function changeLanguage(event: Event) {
           </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto bg-background p-6">
-          <slot />
+        <main class="relative flex-1 overflow-y-auto bg-background">
+          <div
+            class="admin-side-background pointer-events-none absolute inset-0 z-0 overflow-hidden"
+          >
+            <AnimatedBackground />
+          </div>
+
+          <div
+            class="admin-content-shell relative z-10 mx-auto min-h-full w-full border-x border-border bg-background p-6"
+            :class="contentShellClass"
+          >
+            <slot />
+          </div>
         </main>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.admin-content-shell {
+  box-shadow: 0 0 36px color-mix(in srgb, var(--ring) 10%, transparent);
+}
+
+.admin-content-shell--little {
+  max-width: 72rem;
+}
+
+.admin-content-shell--big {
+  max-width: 1548px;
+}
+
+@media (max-width: 80rem) {
+  .admin-side-background {
+    display: none;
+  }
+
+  .admin-content-shell {
+    border-left: 0;
+    border-right: 0;
+  }
+}
+</style>

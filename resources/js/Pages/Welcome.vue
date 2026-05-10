@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AnimatedBackground from "@/components/AnimatedBackground.vue";
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
 import { cmsTranslate as __ } from "@/lib/i18n";
 import { Head, Link } from "@inertiajs/vue3";
@@ -23,6 +24,8 @@ defineProps<{
   <section
     class="relative min-h-screen overflow-hidden bg-background text-muted-foreground selection:bg-primary/20 dark:text-muted-foreground dark:selection:bg-primary/30"
   >
+    <AnimatedBackground />
+
     <div
       class="pointer-events-none absolute inset-0 z-0 opacity-[0.04]"
       style="
@@ -31,12 +34,6 @@ defineProps<{
           linear-gradient(to bottom, var(--border) 1px, transparent 1px);
         background-size: 44px 44px;
       "
-    />
-    <div
-      class="pointer-events-none absolute left-[-12%] top-[-14%] z-0 h-[45%] w-[45%] rounded-full bg-primary/20 blur-[120px]"
-    />
-    <div
-      class="pointer-events-none absolute bottom-[-14%] right-[-10%] z-0 h-[45%] w-[45%] rounded-full bg-chart-2/15 blur-[120px]"
     />
 
     <header class="relative z-20">
@@ -106,7 +103,7 @@ defineProps<{
             <Link
               v-if="canLogin"
               :href="route('login')"
-              class="rounded-xl border border-border bg-card/80 px-5 py-3 text-sm font-medium text-muted-foreground transition hover:bg-card dark:border-border dark:bg-card/70 dark:text-foreground dark:hover:bg-card"
+              class="rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-muted-foreground transition hover:bg-card dark:border-border dark:bg-card dark:text-foreground dark:hover:bg-card"
             >
               {{ __("Log In") }}
             </Link>
@@ -115,7 +112,7 @@ defineProps<{
 
         <div class="grid gap-4 sm:grid-cols-2">
           <article
-            class="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-lg backdrop-blur-sm dark:border-border/50 dark:bg-card/50"
+            class="rounded-2xl border border-border/80 bg-card p-5 shadow-lg dark:border-border/50 dark:bg-card"
           >
             <div
               class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15 text-primary dark:text-primary"
@@ -135,7 +132,7 @@ defineProps<{
           </article>
 
           <article
-            class="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-lg backdrop-blur-sm dark:border-border/50 dark:bg-card/50"
+            class="rounded-2xl border border-border/80 bg-card p-5 shadow-lg dark:border-border/50 dark:bg-card"
           >
             <div
               class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-chart-2/15 text-chart-2 dark:text-chart-2"
@@ -155,7 +152,7 @@ defineProps<{
           </article>
 
           <article
-            class="sm:col-span-2 rounded-2xl border border-border/80 bg-card/80 p-5 shadow-lg backdrop-blur-sm dark:border-border/50 dark:bg-card/50"
+            class="sm:col-span-2 rounded-2xl border border-border/80 bg-card p-5 shadow-lg dark:border-border/50 dark:bg-card"
           >
             <div
               class="mb-3 flex items-center gap-2 text-primary dark:text-primary"
