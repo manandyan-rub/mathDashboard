@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "vue";
+import type { AuthPermissions, UserRole } from "./auth";
 import type { UserModel, WorkspaceModel } from "./resources";
 
 export interface CmsflyConfig {}
@@ -8,6 +9,8 @@ export type NavigationMenus = CmsflyConfig extends { menus: string }
   : "main";
 
 export interface AuthUser extends UserModel {
+  role: UserRole;
+  profile_photo_url?: string | null;
   unread_notifications_count: number;
   active_workspace: CmsflyConfig extends { workspaces: true }
     ? WorkspaceModel
@@ -17,6 +20,7 @@ export interface AuthUser extends UserModel {
 export type DefaultPageProps = {
   auth: {
     user: AuthUser | null;
+    permissions: AuthPermissions;
   };
   config: {
     locale: {

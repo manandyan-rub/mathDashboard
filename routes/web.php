@@ -5,6 +5,7 @@ use App\Http\Controllers\IntegralController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\MathematicsControlller;
 use App\Http\Controllers\FormulaController;
+use App\Http\Controllers\Api\FormulaController as ApiFormulaController;
 use App\Http\Controllers\MathLevelController;
 use App\Http\Controllers\TeacherExerciseStudioController;
 use Illuminate\Foundation\Application;
@@ -43,7 +44,9 @@ Route::middleware('auth')->group(function () {
     Route::get('game/oneplusone', [GameController::class, 'oneplusone'])->name('game.oneplusone');
     Route::get('game/equilibrium', [GameController::class, 'equilibrium'])->name('game.equilibrium');
     Route::get('fomula', [FormulaController::class, 'index'])->name('formula.index');
-    Route::get('teacher/exercises/studio', [TeacherExerciseStudioController::class, 'index'])->name('teacher.exercises.studio');
+    Route::get('teacher/exercises/studio', [TeacherExerciseStudioController::class, 'index'])
+        ->middleware('role:admin,lecturer')
+        ->name('teacher.exercises.studio');
     Route::get('math-levels', [MathLevelController::class, 'index'])->name('math-levels.index');
     Route::get('math-levels/rewards', [MathLevelController::class, 'rewards'])->name('math-levels.rewards');
     Route::get('math-levels/attempts/{attempt}', [MathLevelController::class, 'session'])->name('math-levels.session');
@@ -62,14 +65,23 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('math-levels/attempts/{attempt}/result', [\App\Http\Controllers\Api\MathLevelController::class, 'result']);
     Route::post('games/xp', [\App\Http\Controllers\Api\GameXpController::class, 'store']);
 
-    Route::post('teacher/exercises/generate', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'generate']);
-    Route::get('teacher/exercises/generations/{generationLog}', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'generationStatus']);
-    Route::post('teacher/exercises/regenerate-item', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'regenerateItem']);
-    Route::post('teacher/exercises/images', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'uploadImage']);
-    Route::post('teacher/exercises/save-draft', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'saveDraft']);
-    Route::post('teacher/exercises/publish', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'publish']);
-    Route::post('teacher/exercises/pdf', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'pdf']);
-    Route::get('teacher/exercises/{document}', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'show']);
+    Route::get('formula-groups', [ApiFormulaController::class, 'groups']);
+
+    Route::middleware('role:admin')->group(function () {
+        Route::post('formula-groups', [ApiFormulaController::class, 'storeGroup']);
+        Route::post('formulas', [ApiFormulaController::class, 'store']);
+    });
+
+    Route::middleware('role:admin,lecturer')->group(function () {
+        Route::post('teacher/exercises/generate', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'generate']);
+        Route::get('teacher/exercises/generations/{generationLog}', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'generationStatus']);
+        Route::post('teacher/exercises/regenerate-item', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'regenerateItem']);
+        Route::post('teacher/exercises/images', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'uploadImage']);
+        Route::post('teacher/exercises/save-draft', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'saveDraft']);
+        Route::post('teacher/exercises/publish', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'publish']);
+        Route::post('teacher/exercises/pdf', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'pdf']);
+        Route::get('teacher/exercises/{document}', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'show']);
+    });
 });
 
 require __DIR__.'/auth.php';

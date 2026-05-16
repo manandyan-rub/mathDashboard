@@ -13,6 +13,10 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    public const ROLE_STUDENT = 'student';
+    public const ROLE_LECTURER = 'lecturer';
+    public const ROLE_ADMIN = 'admin';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +25,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'role',
         'password',
     ];
 
@@ -44,6 +49,27 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => 'string',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isLecturer(): bool
+    {
+        return $this->role === self::ROLE_LECTURER;
+    }
+
+    public function canUseEditors(): bool
+    {
+        return $this->isAdmin() || $this->isLecturer();
+    }
+
+    public function canManageFormulas(): bool
+    {
+        return $this->isAdmin();
     }
 }

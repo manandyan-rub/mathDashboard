@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import "mathlive";
 import { MathfieldElement } from "mathlive";
+import axios from "axios";
 import {
   ref,
   computed,
@@ -20,6 +21,8 @@ import {
   X,
   Moon,
   Sun,
+  Plus,
+  Save,
 } from "lucide-vue-next";
 import { route } from "ziggy-js";
 import Dropdown from "@/components/Dropdown.vue";
@@ -38,6 +41,8 @@ import {
 } from "@/components/ui/dialog";
 import type {
   FormulaCategory,
+  FormulaApiRecord,
+  FormulaGroupApiRecord,
   Formula,
   FormulaStep,
   FormulaStepsResponse,
@@ -50,15 +55,6 @@ const appOrigin =
 
 MathfieldElement.fontsDirectory = `${appOrigin}/fonts/mathlive`;
 MathfieldElement.soundsDirectory = `${appOrigin}/sounds/mathlive`;
-
-type ApiFormula = {
-  id: number;
-  name: string;
-  category: string;
-  formula: string;
-  description?: string | null;
-  example?: string | null;
-};
 
 const CATEGORY_META = [
   {
@@ -212,7 +208,12 @@ const COLOR_MAP: Record<
   },
 };
 
-const formulas = ref<ApiFormula[]>([]);
+function categoryColor(color: string) {
+  return COLOR_MAP[color] ?? COLOR_MAP.indigo;
+}
+
+const formulas = ref<FormulaApiRecord[]>([]);
+const customGroups = ref<FormulaGroupApiRecord[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
@@ -221,6 +222,12 @@ const activeId = ref(CATEGORY_META[0]?.id ?? "arithmetic");
 const sidebarOpen = ref(false);
 const page = usePage();
 const user = computed(() => (page.props as any).auth?.user);
+const canUseEditors = computed(() =>
+  Boolean((page.props as any).auth?.permissions?.use_editors),
+);
+const canManageFormulas = computed(() =>
+  Boolean((page.props as any).auth?.permissions?.manage_formulas),
+);
 const { theme, setTheme } = useTheme();
 const initials = computed(() => {
   const parts = (user.value?.name ?? "Օ").trim().split(/\s+/);
@@ -247,8 +254,10 @@ const formulasBySection = computed<Record<string, Formula[]>>(() => {
   return map;
 });
 
+const categoryMeta = computed(() => [...CATEGORY_META, ...customGroups.value]);
+
 const allCategories = computed<FormulaCategory[]>(() =>
-  CATEGORY_META.map((cat) => ({
+  categoryMeta.value.map((cat) => ({
     id: cat.id,
     label: cat.label,
     color: cat.color,
@@ -281,6 +290,26 @@ const filteredSections = computed(() => {
 });
 
 const totalFormulaCount = computed(() => formulas.value.length);
+
+const groupFormOpen = ref(false);
+const groupSaving = ref(false);
+const groupFormError = ref<string | null>(null);
+const groupForm = ref({
+  label: "",
+  sectionTitle: "",
+  color: "indigo",
+});
+
+const formulaFormOpen = ref(false);
+const formulaSaving = ref(false);
+const formulaFormError = ref<string | null>(null);
+const formulaForm = ref({
+  sectionId: "",
+  name: "",
+  formula: "",
+  description: "",
+  example: "",
+});
 
 const stepsDialogOpen = ref(false);
 const stepsLoading = ref(false);
@@ -574,11 +603,113 @@ function renderAll() {
   });
 }
 
+function requestErrorMessage(err: unknown, fallback: string) {
+  if (axios.isAxiosError(err)) {
+    const payload = err.response?.data as { message?: string } | undefined;
+    return payload?.message ?? fallback;
+  }
+
+  return err instanceof Error ? err.message : fallback;
+}
+
+function resetGroupForm() {
+  groupForm.value = {
+    label: "",
+    sectionTitle: "",
+    color: "indigo",
+  };
+  groupFormError.value = null;
+}
+
+function resetFormulaForm(sectionId = activeCategory.value?.sections[0]?.id ?? "") {
+  formulaForm.value = {
+    sectionId,
+    name: "",
+    formula: "",
+    description: "",
+    example: "",
+  };
+  formulaFormError.value = null;
+}
+
+function openFormulaForm(sectionId = activeCategory.value?.sections[0]?.id ?? "") {
+  resetFormulaForm(sectionId);
+  formulaFormOpen.value = true;
+}
+
+async function createFormulaGroup() {
+  if (!canManageFormulas.value || groupSaving.value) {
+    return;
+  }
+
+  groupSaving.value = true;
+  groupFormError.value = null;
+
+  try {
+    const response = await axios.post<FormulaGroupApiRecord>("/api/formula-groups", {
+      label: groupForm.value.label,
+      section_title: groupForm.value.sectionTitle,
+      color: groupForm.value.color,
+    });
+
+    customGroups.value.push(response.data);
+    activeId.value = response.data.id;
+    groupFormOpen.value = false;
+    resetGroupForm();
+  } catch (err) {
+    groupFormError.value = requestErrorMessage(err, "Could not create formula group.");
+  } finally {
+    groupSaving.value = false;
+  }
+}
+
+async function createFormula() {
+  const category = activeCategory.value;
+  if (!canManageFormulas.value || formulaSaving.value || !category) {
+    return;
+  }
+
+  formulaSaving.value = true;
+  formulaFormError.value = null;
+
+  try {
+    const sectionId =
+      formulaForm.value.sectionId || category.sections[0]?.id || "general";
+    const response = await axios.post<FormulaApiRecord>("/api/formulas", {
+      category: `${category.id}:${sectionId}`,
+      name: formulaForm.value.name,
+      formula: formulaForm.value.formula,
+      description: formulaForm.value.description,
+      example: formulaForm.value.example,
+      locale: (document?.documentElement?.lang ?? "en").slice(0, 5),
+    });
+
+    formulas.value.push(response.data);
+    formulaFormOpen.value = false;
+    resetFormulaForm(sectionId);
+    await nextTick();
+    renderAll();
+  } catch (err) {
+    formulaFormError.value = requestErrorMessage(err, "Could not create formula.");
+  } finally {
+    formulaSaving.value = false;
+  }
+}
+
+async function fetchFormulaGroups() {
+  const res = await fetch("/api/formula-groups");
+  if (!res.ok) {
+    throw new Error("Could not load formula groups.");
+  }
+
+  customGroups.value = await res.json();
+}
+
 async function fetchFormulas() {
   loading.value = true;
   error.value = null;
   try {
-    const res = await fetch("/api/formulas");
+    const [res] = await Promise.all([fetch("/api/formulas"), fetchFormulaGroups()]);
     if (!res.ok) {
       throw new Error("Չհաջողվեց բեռնել բանաձևերը");
     }
@@ -752,6 +883,59 @@ function selectCategory(id: string) {
           @click="sidebarOpen = false"
         />
         <ScrollArea class="h-full py-3">
+          <div v-if="canManageFormulas" class="px-2 pb-3">
+            <button
+              type="button"
+              class="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/15"
+              @click="groupFormOpen = !groupFormOpen"
+            >
+              <Plus :size="14" />
+              New group
+            </button>
+
+            <form
+              v-if="groupFormOpen"
+              class="mt-2 space-y-2 rounded-lg border border-border bg-card p-2"
+              @submit.prevent="createFormulaGroup"
+            >
+              <Input
+                v-model="groupForm.label"
+                required
+                placeholder="Group name"
+                class="h-8 text-xs"
+              />
+              <Input
+                v-model="groupForm.sectionTitle"
+                placeholder="Section name"
+                class="h-8 text-xs"
+              />
+              <select
+                v-model="groupForm.color"
+                class="h-8 w-full rounded-md border border-input bg-background px-2 text-xs text-foreground"
+              >
+                <option value="indigo">Indigo</option>
+                <option value="blue">Blue</option>
+                <option value="violet">Violet</option>
+                <option value="emerald">Emerald</option>
+                <option value="cyan">Cyan</option>
+                <option value="amber">Amber</option>
+                <option value="rose">Rose</option>
+                <option value="teal">Teal</option>
+              </select>
+              <p v-if="groupFormError" class="text-xs text-destructive">
+                {{ groupFormError }}
+              </p>
+              <button
+                type="submit"
+                class="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-2 text-xs font-semibold text-primary-foreground disabled:opacity-60"
+                :disabled="groupSaving"
+              >
+                <Save :size="13" />
+                {{ groupSaving ? "Saving..." : "Save group" }}
+              </button>
+            </form>
+          </div>
+
           <nav class="px-2 space-y-0.5">
             <button
               v-for="cat in allCategories"
@@ -759,7 +943,7 @@ function selectCategory(id: string) {
               class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left"
               :class="
                 activeId === cat.id
-                  ? `${COLOR_MAP[cat.color]?.bg} ${COLOR_MAP[cat.color]?.text} ring-1 ring-inset ring-current/20 font-semibold`
+                  ? `${categoryColor(cat.color).bg} ${categoryColor(cat.color).text} ring-1 ring-inset ring-current/20 font-semibold`
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               "
               @click="selectCategory(cat.id)"
@@ -788,7 +972,111 @@ function selectCategory(id: string) {
             <p class="mt-2 max-w-3xl text-sm text-muted-foreground dark:text-muted-foreground">
               Սեղմիր ցանկացած քարտի վրա և տես քայլ առ քայլ բացատրությունը անիմացիայով։
             </p>
+            <button
+              v-if="canManageFormulas"
+              type="button"
+              class="mt-5 inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+              @click="openFormulaForm()"
+            >
+              <Plus :size="15" />
+              Add formula
+            </button>
           </div>
+
+          <form
+            v-if="formulaFormOpen && canManageFormulas"
+            class="mb-8 grid gap-3 rounded-xl border border-border bg-card p-4 shadow-sm md:grid-cols-2"
+            @submit.prevent="createFormula"
+          >
+            <div class="md:col-span-2 flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-semibold text-foreground">New formula</p>
+                <p class="text-xs text-muted-foreground">
+                  Add it to {{ activeCategory.label }}.
+                </p>
+              </div>
+              <button
+                type="button"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-full border text-muted-foreground hover:bg-muted hover:text-foreground"
+                @click="formulaFormOpen = false"
+              >
+                <X :size="15" />
+              </button>
+            </div>
+
+            <label class="space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Section
+              <select
+                v-model="formulaForm.sectionId"
+                class="h-10 w-full rounded-md border border-input bg-background px-3 text-sm font-medium normal-case tracking-normal text-foreground"
+                required
+              >
+                <option
+                  v-for="section in activeCategory.sections"
+                  :key="section.id"
+                  :value="section.id"
+                >
+                  {{ section.title }}
+                </option>
+              </select>
+            </label>
+            <label class="space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Name
+              <Input
+                v-model="formulaForm.name"
+                required
+                placeholder="Formula name"
+                class="h-10 text-sm normal-case tracking-normal"
+              />
+            </label>
+            <label class="md:col-span-2 space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Latex
+              <Input
+                v-model="formulaForm.formula"
+                required
+                placeholder="a^2 + b^2 = c^2"
+                class="h-10 font-mono text-sm normal-case tracking-normal"
+              />
+            </label>
+            <label class="space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Description
+              <textarea
+                v-model="formulaForm.description"
+                rows="3"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground"
+                placeholder="Short explanation"
+              />
+            </label>
+            <label class="space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Example
+              <textarea
+                v-model="formulaForm.example"
+                rows="3"
+                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground"
+                placeholder="Optional example"
+              />
+            </label>
+            <p v-if="formulaFormError" class="md:col-span-2 text-sm text-destructive">
+              {{ formulaFormError }}
+            </p>
+            <div class="md:col-span-2 flex justify-end gap-2">
+              <button
+                type="button"
+                class="inline-flex h-9 items-center rounded-md border px-3 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
+                @click="formulaFormOpen = false"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+                :disabled="formulaSaving"
+              >
+                <Save :size="15" />
+                {{ formulaSaving ? "Saving..." : "Save formula" }}
+              </button>
+            </div>
+          </form>
 
           <div
             v-if="loading"
@@ -821,6 +1109,15 @@ function selectCategory(id: string) {
               </h3>
               <Separator class="flex-1" />
               <span class="text-xs text-muted-foreground">{{ section.formulas.length }}</span>
+              <button
+                v-if="canManageFormulas"
+                type="button"
+                class="inline-flex h-8 items-center gap-1.5 rounded-md border border-primary/30 px-2.5 text-xs font-semibold text-primary transition hover:bg-primary/10"
+                @click="openFormulaForm(section.id)"
+              >
+                <Plus :size="13" />
+                Add
+              </button>
             </div>
 
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
@@ -901,6 +1198,7 @@ function selectCategory(id: string) {
             </div>
             <div class="flex items-center gap-2">
               <button
+                v-if="canUseEditors"
                 type="button"
                 class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-60 dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-card dark:hover:text-primary-foreground"
                 :disabled="stepsLoading || stepsRegenerating || !selectedFormula"

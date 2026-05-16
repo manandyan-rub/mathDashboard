@@ -6,6 +6,25 @@ export type Formula = {
   example?: string;
 };
 
+export type FormulaApiRecord = {
+  id: number;
+  name: string;
+  category: string;
+  formula: string;
+  description?: string | null;
+  example?: string | null;
+};
+
+export type FormulaGroupApiRecord = {
+  id: string;
+  label: string;
+  color: string;
+  sections: Array<{
+    id: string;
+    title: string;
+  }>;
+};
+
 export type FormulaStep = {
   latex: string;
   note?: string;

@@ -3,6 +3,7 @@ import { computed, ref, watch } from "vue";
 import { Link, usePage } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
 import type { MenuItem } from "@/data/adminMenu";
+import type { UserRole } from "@/types/auth";
 import AdminSidebarItem from "@/Layouts/AdminSidebarItem.vue";
 
 const props = defineProps<{
@@ -12,8 +13,24 @@ const props = defineProps<{
 
 const level = computed(() => props.level ?? 0);
 
-const hasChildren = computed(() => !!props.item.children?.length);
 const page = usePage();
+const isUserRole = (role: unknown): role is UserRole =>
+  role === "student" || role === "lecturer" || role === "admin";
+const currentRole = computed<UserRole>(() => {
+  const role = (page.props as any).auth?.user?.role;
+  return isUserRole(role) ? role : "student";
+});
+const canView = (item: MenuItem) =>
+  !item.roles?.length || item.roles.includes(currentRole.value);
+const visibleChildren = computed(
+  () => props.item.children?.filter((child) => canView(child)) ?? [],
+);
+const isVisible = computed(
+  () =>
+    canView(props.item) &&
+    (!props.item.children?.length || visibleChildren.value.length > 0),
+);
+const hasChildren = computed(() => visibleChildren.value.length > 0);
 const normalizePath = (path: string) => {
   const normalized = path.split("?")[0].replace(/\/+$/, "");
   return normalized === "" ? "/" : normalized;
@@ -40,10 +57,11 @@ const isActive = (routeName?: string) => {
 };
 
 const hasActiveChild = (item: MenuItem): boolean => {
+  if (!canView(item)) return false;
   if (item.route && isActive(item.route)) return true;
   if (!item.children) return false;
 
-  return item.children.some((child) => hasActiveChild(child));
+  return item.children.some((child) => canView(child) && hasActiveChild(child));
 };
 
 const opened = ref(hasActiveChild(props.item));
@@ -59,7 +77,7 @@ watch(
 </script>
 
 <template>
-  <div>
+  <div v-if="isVisible">
     <template v-if="hasChildren">
       <button
         type="button"
@@ -84,7 +102,7 @@ watch(
 
       <div v-if="opened" class="mt-1 space-y-1">
         <AdminSidebarItem
-          v-for="child in item.children"
+          v-for="child in visibleChildren"
           :key="child.title + (child.route ?? '')"
           :item="child"
           :level="level + 1"

@@ -10,11 +10,13 @@
   Trophy,
   UserRound,
 } from "lucide-vue-next";
+import type { UserRole } from "@/types/auth";
 
 export interface MenuItem {
   title: string;
   route?: string;
   icon?: any;
+  roles?: UserRole[];
   children?: MenuItem[];
 }
 
@@ -50,6 +52,7 @@ export const adminMenu: MenuItem[] = [
     title: "Teacher Exercise Studio",
     route: "teacher.exercises.studio",
     icon: NotebookPen,
+    roles: ["lecturer", "admin"],
   },
   {
     title: "Calculators",
