@@ -1,10 +1,11 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, ref, nextTick, onMounted, onUpdated } from "vue";
 import { Head } from "@inertiajs/vue3";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { cmsTranslate as __ } from "@/lib/i18n";
 import { Download, Sparkles } from "lucide-vue-next";
 import "mathlive";
 import { MathfieldElement } from "mathlive";
@@ -33,10 +34,10 @@ MathfieldElement.fontsDirectory = "/fonts/mathlive";
 MathfieldElement.soundsDirectory = "/sounds/mathlive";
 
 const samples = [
-  "Ստեղծիր քառակուսային հավասարումների հեշտ վարժություն",
-  "Ստեղծիր տոկոսների մասին միջին բարդության խնդիր",
-  "Ստեղծիր երկրաչափական վարժություն շրջանների թեմայով",
-  "Ստեղծիր հավասարումների համակարգի բարդ վարժություն",
+  "ХЌХїХҐХІХ®Х«ЦЂ Ц„ХЎХјХЎХЇХёЦ‚ХЅХЎХµХ«Х¶ Х°ХЎХѕХЎХЅХЎЦЂХёЦ‚ХґХ¶ХҐЦЂХ« Х°ХҐХ·Хї ХѕХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶",
+  "ХЌХїХҐХІХ®Х«ЦЂ ХїХёХЇХёХЅХ¶ХҐЦЂХ« ХґХЎХЅХ«Х¶ ХґХ«Х»Х«Х¶ ХўХЎЦЂХ¤ХёЦ‚Х©ХµХЎХ¶ Х­Х¶Х¤Х«ЦЂ",
+  "ХЌХїХҐХІХ®Х«ЦЂ ХҐЦЂХЇЦЂХЎХ№ХЎЦѓХЎХЇХЎХ¶ ХѕХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶ Х·ЦЂХ»ХЎХ¶Х¶ХҐЦЂХ« Х©ХҐХґХЎХµХёХѕ",
+  "ХЌХїХҐХІХ®Х«ЦЂ Х°ХЎХѕХЎХЅХЎЦЂХёЦ‚ХґХ¶ХҐЦЂХ« Х°ХЎХґХЎХЇХЎЦЂХЈХ« ХўХЎЦЂХ¤ ХѕХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶",
 ];
 
 const canGenerate = computed(() => prompt.value.trim().length > 0);
@@ -68,19 +69,19 @@ async function generateExercise() {
       const message =
         typeof errBody?.message === "string"
           ? errBody.message
-          : "Չհաջողվեց ստեղծել վարժությունը";
+          : "Х‰Х°ХЎХ»ХёХІХѕХҐЦЃ ХЅХїХҐХІХ®ХҐХ¬ ХѕХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶ХЁ";
       throw new Error(details ? `${message} (${details})` : message);
     }
     const data = await response.json();
     if (data?.busy) {
       exercises.value = [];
-      error.value = data.message ?? "Մոդելը ծանրաբեռնված է";
+      error.value = data.message ?? "Х„ХёХ¤ХҐХ¬ХЁ Х®ХЎХ¶ЦЂХЎХўХҐХјХ¶ХѕХЎХ® Х§";
       return;
     }
     if (data?.invalid) {
       console.warn("Gemini returned invalid JSON:", data.raw);
       exercises.value = [];
-      error.value = "JSON ձևաչափը սխալ է վերադարձվել։";
+      error.value = "JSON Х±Ц‡ХЎХ№ХЎЦѓХЁ ХЅХ­ХЎХ¬ Х§ ХѕХҐЦЂХЎХ¤ХЎЦЂХ±ХѕХҐХ¬Ц‰";
       return;
     }
     if (Array.isArray(data?.exercises)) {
@@ -98,7 +99,7 @@ async function generateExercise() {
     }
   } catch (err) {
     error.value =
-      err instanceof Error ? err.message : "Տվյալների բեռնումը ձախողվեց";
+      err instanceof Error ? err.message : "ХЏХѕХµХЎХ¬Х¶ХҐЦЂХ« ХўХҐХјХ¶ХёЦ‚ХґХЁ Х±ХЎХ­ХёХІХѕХҐЦЃ";
   } finally {
     loading.value = false;
   }
@@ -127,7 +128,7 @@ async function downloadPdf() {
       const message =
         typeof errBody?.message === "string"
           ? errBody.message
-          : "Չհաջողվեց պատրաստել PDF-ը";
+          : "Х‰Х°ХЎХ»ХёХІХѕХҐЦЃ ХєХЎХїЦЂХЎХЅХїХҐХ¬ PDF-ХЁ";
       throw new Error(details ? `${message} (${details})` : message);
     }
     const blob = await response.blob();
@@ -142,7 +143,7 @@ async function downloadPdf() {
     URL.revokeObjectURL(url);
   } catch (err) {
     pdfError.value =
-      err instanceof Error ? err.message : "PDF-ի ստեղծումը ձախողվեց";
+      err instanceof Error ? err.message : "PDF-Х« ХЅХїХҐХІХ®ХёЦ‚ХґХЁ Х±ХЎХ­ХёХІХѕХҐЦЃ";
   } finally {
     pdfLoading.value = false;
   }
@@ -217,7 +218,7 @@ onUpdated(() => nextTick(renderMath));
 </script>
 
 <template>
-  <Head title="AI վարժությունների գեներատոր" />
+  <Head :title="__('AI Exercise Generator')" />
 
   <div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
     <div
@@ -233,13 +234,13 @@ onUpdated(() => nextTick(renderMath));
           <h1
             class="text-2xl font-semibold tracking-tight text-foreground dark:text-primary-foreground"
           >
-            AI վարժությունների գեներատոր
+            AI ХѕХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶Х¶ХҐЦЂХ« ХЈХҐХ¶ХҐЦЂХЎХїХёЦЂ
           </h1>
           <p class="text-sm text-muted-foreground dark:text-muted-foreground">
-            Գրիր, թե ինչ վարժություն է պետք, և ստացիր պատրաստ հարց ու պատասխան։
+            ФіЦЂХ«ЦЂ, Х©ХҐ Х«Х¶Х№ ХѕХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶ Х§ ХєХҐХїЦ„, Ц‡ ХЅХїХЎЦЃХ«ЦЂ ХєХЎХїЦЂХЎХЅХї Х°ХЎЦЂЦЃ ХёЦ‚ ХєХЎХїХЎХЅХ­ХЎХ¶Ц‰
           </p>
         </div>
-        <Badge variant="secondary" class="ml-auto">AI օգնական</Badge>
+        <Badge variant="secondary" class="ml-auto">AI Ц…ХЈХ¶ХЎХЇХЎХ¶</Badge>
       </div>
     </div>
     <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
@@ -249,19 +250,19 @@ onUpdated(() => nextTick(renderMath));
         <div class="space-y-2">
           <label
             class="text-sm font-semibold text-muted-foreground dark:text-foreground"
-            >Վարժության նկարագրություն</label
+            >ХЋХЎЦЂХЄХёЦ‚Х©ХµХЎХ¶ Х¶ХЇХЎЦЂХЎХЈЦЂХёЦ‚Х©ХµХёЦ‚Х¶</label
           >
           <Textarea
             v-model="prompt"
             rows="6"
-            placeholder="Օրինակ՝ ստեղծիր միջին բարդության հավասարումների խնդիր"
+            placeholder="Х•ЦЂХ«Х¶ХЎХЇХќ ХЅХїХҐХІХ®Х«ЦЂ ХґХ«Х»Х«Х¶ ХўХЎЦЂХ¤ХёЦ‚Х©ХµХЎХ¶ Х°ХЎХѕХЎХЅХЎЦЂХёЦ‚ХґХ¶ХҐЦЂХ« Х­Х¶Х¤Х«ЦЂ"
             class="resize-none"
           />
         </div>
         <div class="space-y-2">
           <label
             class="text-sm font-semibold text-muted-foreground dark:text-foreground"
-            >Exercise count</label
+            >{{ __("Exercise count") }}</label
           >
           <Input v-model.number="count" type="number" min="1" max="10" />
         </div>
@@ -269,11 +270,11 @@ onUpdated(() => nextTick(renderMath));
         <div class="space-y-2">
           <label
             class="text-sm font-semibold text-muted-foreground dark:text-foreground"
-            >PDF վերնագիր (ոչ պարտադիր)</label
+            >{{ __("PDF title (optional)") }}</label
           >
           <Input
             v-model="title"
-            placeholder="Օրինակ՝ Հանրահաշիվ - Վարժություն 1"
+            placeholder="Х•ЦЂХ«Х¶ХЎХЇХќ ХЂХЎХ¶ЦЂХЎХ°ХЎХ·Х«Хѕ - ХЋХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶ 1"
           />
         </div>
 
@@ -281,7 +282,7 @@ onUpdated(() => nextTick(renderMath));
           <p
             class="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
           >
-            Օրինակ հարցումներ
+            Х•ЦЂХ«Х¶ХЎХЇ Х°ХЎЦЂЦЃХёЦ‚ХґХ¶ХҐЦЂ
           </p>
           <div class="flex flex-wrap gap-2">
             <button
@@ -303,10 +304,10 @@ onUpdated(() => nextTick(renderMath));
             @click="generateExercise"
           >
             <Sparkles :size="16" />
-            {{ loading ? "Ստեղծվում է..." : "Ստանալ վարժություն" }}
+            {{ loading ? "ХЌХїХҐХІХ®ХѕХёЦ‚Хґ Х§..." : "ХЌХїХЎХ¶ХЎХ¬ ХѕХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶" }}
           </Button>
           <Button variant="outline" :disabled="loading" @click="clearAll">
-            Մաքրել
+            Х„ХЎЦ„ЦЂХҐХ¬
           </Button>
         </div>
 
@@ -320,10 +321,10 @@ onUpdated(() => nextTick(renderMath));
       >
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold text-foreground dark:text-primary-foreground">
-            Արդյունք
+            Ф±ЦЂХ¤ХµХёЦ‚Х¶Ц„
           </h2>
           <Badge variant="outline" class="text-xs">
-            {{ exercises.length > 0 ? "Պատրաստ է" : "Սպասում է" }}
+            {{ exercises.length > 0 ? "ХЉХЎХїЦЂХЎХЅХї Х§" : "ХЌХєХЎХЅХёЦ‚Хґ Х§" }}
           </Badge>
         </div>
 
@@ -332,7 +333,7 @@ onUpdated(() => nextTick(renderMath));
           class="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground dark:border-border dark:text-muted-foreground"
         >
           <Sparkles :size="24" />
-          Նկարագրիր վարժությունը՝ արդյունքը այստեղ ցույց տալու համար
+          Х†ХЇХЎЦЂХЎХЈЦЂХ«ЦЂ ХѕХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶ХЁХќ ХЎЦЂХ¤ХµХёЦ‚Х¶Ц„ХЁ ХЎХµХЅХїХҐХІ ЦЃХёЦ‚ХµЦЃ ХїХЎХ¬ХёЦ‚ Х°ХЎХґХЎЦЂ
         </div>
 
         <div v-if="loading" class="space-y-3">
@@ -354,12 +355,12 @@ onUpdated(() => nextTick(renderMath));
             class="space-y-4"
           >
             <div class="text-xs font-semibold uppercase text-muted-foreground">
-              Վարժություն {{ index + 1 }}
+              ХЋХЎЦЂХЄХёЦ‚Х©ХµХёЦ‚Х¶ {{ index + 1 }}
             </div>
             <div
               class="rounded-xl bg-muted p-4 text-sm text-muted-foreground dark:bg-card/60 dark:text-foreground"
             >
-              <p class="text-xs font-semibold uppercase text-muted-foreground">Հարց</p>
+              <p class="text-xs font-semibold uppercase text-muted-foreground">ХЂХЎЦЂЦЃ</p>
               <p class="mt-2 whitespace-pre-line">
                 <template
                   v-for="(segment, segmentIndex) in splitMath(
@@ -382,7 +383,7 @@ onUpdated(() => nextTick(renderMath));
               class="rounded-xl bg-muted p-4 text-sm text-muted-foreground dark:bg-card/60 dark:text-foreground"
             >
               <p class="text-xs font-semibold uppercase text-muted-foreground">
-                Պատասխան
+                ХЉХЎХїХЎХЅХ­ХЎХ¶
               </p>
               <p class="mt-2 whitespace-pre-line">
                 <template
@@ -406,9 +407,9 @@ onUpdated(() => nextTick(renderMath));
               class="flex items-center justify-between text-xs text-muted-foreground dark:text-muted-foreground"
             >
               <span>
-                Բարդություն:
+                ФІХЎЦЂХ¤ХёЦ‚Х©ХµХёЦ‚Х¶:
                 <span class="text-muted-foreground dark:text-foreground">{{
-                  exerciseItem.difficulty || "Չնշված"
+                  exerciseItem.difficulty || "Х‰Х¶Х·ХѕХЎХ®"
                 }}</span>
               </span>
             </div>
@@ -423,7 +424,7 @@ onUpdated(() => nextTick(renderMath));
             @click="downloadPdf"
           >
             <Download :size="16" />
-            {{ pdfLoading ? "PDF-ը ստեղծվում է..." : "Բեռնել PDF" }}
+            {{ pdfLoading ? "PDF-ХЁ ХЅХїХҐХІХ®ХѕХёЦ‚Хґ Х§..." : "ФІХҐХјХ¶ХҐХ¬ PDF" }}
           </Button>
           <p v-if="pdfError" class="text-xs text-destructive dark:text-destructive">
             {{ pdfError }}
@@ -433,3 +434,5 @@ onUpdated(() => nextTick(renderMath));
     </div>
   </div>
 </template>
+
+

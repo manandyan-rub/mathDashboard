@@ -174,7 +174,7 @@ function changeLanguage(event: Event) {
                       <img
                         v-if="user?.profile_photo_url"
                         :src="user.profile_photo_url"
-                        alt="Profile"
+                        :alt="__('Profile')"
                         class="h-full w-full object-cover"
                       />
                       <span v-else>{{ initials }}</span>

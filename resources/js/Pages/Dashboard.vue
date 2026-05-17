@@ -5,6 +5,7 @@ import HeatmapChart from "@/charts/HeatmapChart.vue";
 import LineChart from "@/charts/LineChart.vue";
 import FormCalendarRange from "@/Forms/FormCalendarRange.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
+import { cmsTranslate as __ } from "@/lib/i18n";
 import { Head } from "@inertiajs/vue3";
 import {
   Award,
@@ -32,20 +33,20 @@ const props = defineProps({
 const isGlobalDashboard = computed(() => props.scope === "global");
 const isLocalDashboard = computed(() => !isGlobalDashboard.value);
 const pageTitle = computed(() =>
-  isGlobalDashboard.value ? "Global dashboard" : "Local dashboard",
+  isGlobalDashboard.value ? __("Global dashboard") : __("Local dashboard"),
 );
 const pageEyebrow = computed(() =>
-  isGlobalDashboard.value ? "Global activity" : "Your stats",
+  isGlobalDashboard.value ? __("Global activity") : __("Your stats"),
 );
 const pageHeading = computed(() =>
   isGlobalDashboard.value
-    ? "What is happening across the platform"
-    : "Your learning data",
+    ? __("What is happening across the platform")
+    : __("Your learning data"),
 );
 const pageDescription = computed(() =>
   isGlobalDashboard.value
-    ? "Platform-wide mode usage, learner distribution, and completed math levels."
-    : "XP, streak behavior, source mix, and the most recent claims from your account.",
+    ? __("Platform-wide mode usage, learner distribution, and completed math levels.")
+    : __("XP, streak behavior, source mix, and the most recent claims from your account."),
 );
 
 const {
@@ -91,7 +92,7 @@ onMounted(loadAnalytics);
   <div class="mx-auto max-w-7xl space-y-6">
     <section class="flex flex-col gap-2">
       <p class="text-sm font-medium text-primary">
-        Learning analytics
+        {{ __("Learning analytics") }}
       </p>
       <div class="flex flex-col justify-between gap-3 md:flex-row md:items-end">
         <div>
@@ -106,7 +107,7 @@ onMounted(loadAnalytics);
         <div class="flex flex-col gap-2 sm:flex-row sm:items-end">
           <FormCalendarRange
             v-model="dateRange"
-            placeholder="Filter chart range"
+            :placeholder="__('Filter chart range')"
             :number-of-months="2"
             class="sm:w-[310px]"
             trigger-class="h-10 bg-card text-card-foreground shadow-sm"
@@ -119,7 +120,7 @@ onMounted(loadAnalytics);
             @click="loadAnalytics"
           >
             <History :size="16" />
-            Refresh
+            {{ __("Refresh") }}
           </button>
         </div>
       </div>
@@ -137,15 +138,14 @@ onMounted(loadAnalytics);
         <div>
           <p class="text-sm font-semibold text-primary">{{ pageEyebrow }}</p>
           <h3 class="mt-1 text-xl font-bold text-foreground">
-            Your learning data
+            {{ __("Your learning data") }}
           </h3>
           <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
-            XP, streak behavior, source mix, and the most recent claims from
-            your account.
+            {{ __("XP, streak behavior, source mix, and the most recent claims from your account.") }}
           </p>
         </div>
         <div class="rounded-md border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm">
-          <span class="text-muted-foreground">Active days</span>
+          <span class="text-muted-foreground">{{ __("Active days") }}</span>
           <span class="ml-2 font-bold text-primary">{{ retentionRate }}%</span>
         </div>
       </div>
@@ -153,32 +153,32 @@ onMounted(loadAnalytics);
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div class="rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
           <div class="flex items-center justify-between">
-            <p class="text-sm font-medium text-muted-foreground">Total XP</p>
+            <p class="text-sm font-medium text-muted-foreground">{{ __("Total XP") }}</p>
             <Coins :size="18" class="text-primary" />
           </div>
           <p class="mt-3 text-3xl font-bold text-card-foreground">
             {{ formatNumber(totalXp) }}
           </p>
-          <p class="mt-1 text-xs text-muted-foreground">Lifetime claimed XP</p>
+          <p class="mt-1 text-xs text-muted-foreground">{{ __("Lifetime claimed XP") }}</p>
         </div>
 
         <div class="rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
           <div class="flex items-center justify-between">
-            <p class="text-sm font-medium text-muted-foreground">Period XP</p>
+            <p class="text-sm font-medium text-muted-foreground">{{ __("Period XP") }}</p>
             <BarChart3 :size="18" class="text-primary" />
           </div>
           <p class="mt-3 text-3xl font-bold text-card-foreground">
             {{ formatNumber(periodXp) }}
           </p>
           <p class="mt-1 text-xs text-muted-foreground">
-            XP claimed in the selected period
+            {{ __("XP claimed in the selected period") }}
           </p>
         </div>
 
         <div class="rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
           <div class="flex items-center justify-between">
             <p class="text-sm font-medium text-muted-foreground">
-              Period claims
+              {{ __("Period claims") }}
             </p>
             <Clock3 :size="18" class="text-primary" />
           </div>
@@ -186,14 +186,14 @@ onMounted(loadAnalytics);
             {{ formatNumber(periodClaims) }}
           </p>
           <p class="mt-1 text-xs text-muted-foreground">
-            Number of XP claim events
+            {{ __("Number of XP claim events") }}
           </p>
         </div>
 
         <div class="rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
           <div class="flex items-center justify-between">
             <p class="text-sm font-medium text-muted-foreground">
-              Best day XP
+              {{ __("Best day XP") }}
             </p>
             <Award :size="18" class="text-primary" />
           </div>
@@ -201,7 +201,7 @@ onMounted(loadAnalytics);
             {{ formatNumber(bestDayXp) }}
           </p>
           <p class="mt-1 text-xs text-muted-foreground">
-            Highest single-day XP in this period
+            {{ __("Highest single-day XP in this period") }}
           </p>
         </div>
       </div>
@@ -210,9 +210,9 @@ onMounted(loadAnalytics);
         <div class="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm">
           <div class="mb-4 flex items-center justify-between">
             <h3 class="text-base font-semibold text-card-foreground">
-              Claim mix
+              {{ __("Claim mix") }}
             </h3>
-            <p class="text-xs text-muted-foreground">Your flow</p>
+            <p class="text-xs text-muted-foreground">{{ __("Your flow") }}</p>
           </div>
 
           <div class="space-y-3">
@@ -238,14 +238,14 @@ onMounted(loadAnalytics);
         </div>
 
         <LineChart
-          title="Retention"
-          :description="`Active days ${retentionRate}%`"
+          :title="__('Retention')"
+          :description="__('Active days :rate%', { rate: String(retentionRate) })"
           :labels="dailyLabels"
           :values="retentionValues"
           :secondary-values="dailyClaimValues"
-          series-name="Retention"
-          tooltip-value-label="Status"
-          secondary-label="Claims"
+          :series-name="__('Retention')"
+          :tooltip-value-label="__('Status')"
+          :secondary-label="__('Claims')"
           color="--chart-4"
           :binary="true"
           :step="true"
@@ -256,9 +256,9 @@ onMounted(loadAnalytics);
         <div class="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm">
           <div class="mb-4 flex items-center justify-between">
             <h3 class="text-base font-semibold text-card-foreground">
-              Insights
+              {{ __("Insights") }}
             </h3>
-            <p class="text-xs text-muted-foreground">Your summary</p>
+            <p class="text-xs text-muted-foreground">{{ __("Your summary") }}</p>
           </div>
 
           <div class="space-y-3">
@@ -283,14 +283,14 @@ onMounted(loadAnalytics);
 
       <section class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
         <LineChart
-          title="Daily XP claimed"
-          description="Your XP history for the selected period"
+          :title="__('Daily XP claimed')"
+          :description="__('Your XP history for the selected period')"
           :labels="dailyLabels"
           :values="dailyXpValues"
           :secondary-values="dailyClaimValues"
           series-name="XP"
-          tooltip-value-label="XP claimed"
-          secondary-label="Claims"
+          :tooltip-value-label="__('XP claimed')"
+          :secondary-label="__('Claims')"
           color="--chart-2"
           :loading="loading"
         >
@@ -300,26 +300,26 @@ onMounted(loadAnalytics);
         </LineChart>
 
         <DonutChart
-          title="Your XP by source"
-          description="Where your claimed XP comes from"
+          :title="__('Your XP by source')"
+          :description="__('Where your claimed XP comes from')"
           :slices="sourceSlices"
           value-label="XP"
           :loading="loading"
-          empty-text="No XP events yet"
+          :empty-text="__('No XP events yet')"
         />
       </section>
 
       <HeatmapChart
-        title="Your activity heatmap"
-        description="Your XP claims by weekday and hour"
+        :title="__('Your activity heatmap')"
+        :description="__('Your XP claims by weekday and hour')"
         :hours="activityHeatmap.hours"
         :days="activityHeatmap.days"
         :data="activityHeatmap.data"
         :max="activityHeatmap.max"
-        value-label="Claims"
+        :value-label="__('Claims')"
         :loading="loading"
         :empty="!activityHeatmapHasData"
-        empty-text="No hourly XP activity yet"
+        :empty-text="__('No hourly XP activity yet')"
       >
         <template #icon>
           <Clock3 :size="18" class="text-primary" />
@@ -329,10 +329,10 @@ onMounted(loadAnalytics);
       <section class="rounded-lg border border-border bg-card text-card-foreground shadow-sm">
         <div class="border-b border-border px-5 py-4">
           <h3 class="text-base font-semibold text-card-foreground">
-            Your recent XP history
+            {{ __("Your recent XP history") }}
           </h3>
           <p class="text-sm text-muted-foreground">
-            Latest claims stored for your account
+            {{ __("Latest claims stored for your account") }}
           </p>
         </div>
 
@@ -340,21 +340,21 @@ onMounted(loadAnalytics);
           <table class="w-full min-w-[720px] text-left text-sm">
             <thead class="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th class="px-5 py-3 font-semibold">Time</th>
-                <th class="px-5 py-3 font-semibold">Source</th>
-                <th class="px-5 py-3 font-semibold">Detail</th>
+                <th class="px-5 py-3 font-semibold">{{ __("Time") }}</th>
+                <th class="px-5 py-3 font-semibold">{{ __("Source") }}</th>
+                <th class="px-5 py-3 font-semibold">{{ __("Detail") }}</th>
                 <th class="px-5 py-3 text-right font-semibold">XP</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
               <tr v-if="loading">
                 <td colspan="4" class="px-5 py-8 text-center text-muted-foreground">
-                  Loading XP history...
+                  {{ __("Loading XP history...") }}
                 </td>
               </tr>
               <tr v-else-if="recentEvents.length === 0">
                 <td colspan="4" class="px-5 py-8 text-center text-muted-foreground">
-                  No XP claims yet.
+                  {{ __("No XP claims yet.") }}
                 </td>
               </tr>
               <tr
@@ -383,16 +383,15 @@ onMounted(loadAnalytics);
         <div>
           <p class="text-sm font-semibold text-primary">{{ pageEyebrow }}</p>
           <h3 class="mt-1 text-xl font-bold text-foreground">
-            What is happening across the platform
+            {{ __("What is happening across the platform") }}
           </h3>
           <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Platform-wide mode usage, learner distribution, and completed math
-            levels.
+            {{ __("Platform-wide mode usage, learner distribution, and completed math levels.") }}
           </p>
         </div>
         <div class="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm">
           <Globe2 :size="16" class="text-primary" />
-          <span>Global view</span>
+          <span>{{ __("Global view") }}</span>
         </div>
       </div>
 
@@ -419,38 +418,38 @@ onMounted(loadAnalytics);
 
       <section class="grid gap-4 xl:grid-cols-2">
         <BarChart
-          title="Popular game modes"
-          description="Global claim volume by game mode"
+          :title="__('Popular game modes')"
+          :description="__('Global claim volume by game mode')"
           :labels="popularModeLabels"
           :values="popularModeClaimValues"
           :secondary-values="popularModeXpValues"
-          series-name="Claims"
-          tooltip-value-label="Claims"
+          :series-name="__('Claims')"
+          :tooltip-value-label="__('Claims')"
           secondary-label="XP"
           color="--chart-5"
           :loading="loading"
         />
 
         <BarChart
-          title="Users by XP level"
-          description="Global profile distribution across XP levels"
+          :title="__('Users by XP level')"
+          :description="__('Global profile distribution across XP levels')"
           :labels="userLevelLabels"
           :values="userLevelUserValues"
           :secondary-values="userLevelXpValues"
-          series-name="Users"
-          tooltip-value-label="Users"
-          secondary-label="Combined XP"
+          :series-name="__('Users')"
+          :tooltip-value-label="__('Users')"
+          :secondary-label="__('Combined XP')"
           color="--chart-4"
           :loading="loading"
         />
 
         <LineChart
-          title="Completed math levels"
-          description="How many users finished each level"
+          :title="__('Completed math levels')"
+          :description="__('How many users finished each level')"
           :labels="completedLevelLabels"
           :values="completedLevelUserValues"
-          series-name="Users"
-          tooltip-value-label="Completed users"
+          :series-name="__('Users')"
+          :tooltip-value-label="__('Completed users')"
           color="--chart-3"
           :label-interval="0"
           :label-width="90"

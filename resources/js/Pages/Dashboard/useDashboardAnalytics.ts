@@ -9,6 +9,7 @@ import type {
   XpEvent,
   XpSource,
 } from "@/types/charts";
+import { cmsTranslate as __ } from "@/lib/i18n";
 
 export function useDashboardAnalytics() {
   const loading = ref(true);
@@ -45,7 +46,7 @@ export function useDashboardAnalytics() {
     const end = loadedPeriod.value?.end ?? rangeEnd.value;
 
     if (!start && !end) {
-      return "last 14 days";
+      return __("last 14 days");
     }
 
     if (start && end) {
@@ -53,10 +54,10 @@ export function useDashboardAnalytics() {
     }
 
     if (start) {
-      return `${start} - now`;
+      return __(":start - now", { start });
     }
 
-    return `up to ${end}`;
+    return __("up to :end", { end: end ?? "" });
   });
   const dailyLabels = computed(() =>
     dailyPoints.value.map((point) => point.label),
@@ -165,10 +166,10 @@ export function useDashboardAnalytics() {
 
   const funnelSteps = computed<FunnelStep[]>(() => {
     const raw = [
-      { label: "All XP claims", value: totalClaimsAllTime.value },
-      { label: "Game claims", value: gameClaims.value },
-      { label: "Math level claims", value: mathLevelClaims.value },
-      { label: "Einstein claims", value: einsteinClaims.value },
+      { label: __("All XP claims"), value: totalClaimsAllTime.value },
+      { label: __("Game claims"), value: gameClaims.value },
+      { label: __("Math level claims"), value: mathLevelClaims.value },
+      { label: __("Einstein claims"), value: einsteinClaims.value },
     ];
 
     let previous = Number.POSITIVE_INFINITY;
@@ -186,11 +187,11 @@ export function useDashboardAnalytics() {
   });
 
   const topSourceLabel = computed(
-    () => sourcePoints.value[0]?.label ?? "No source yet",
+    () => sourcePoints.value[0]?.label ?? __("No source yet"),
   );
   const topSourceXp = computed(() => sourcePoints.value[0]?.xp ?? 0);
   const topModeLabel = computed(
-    () => popularModePoints.value[0]?.label ?? "No mode yet",
+    () => popularModePoints.value[0]?.label ?? __("No mode yet"),
   );
   const topModeClaims = computed(
     () => popularModePoints.value[0]?.claims ?? 0,
@@ -222,46 +223,49 @@ export function useDashboardAnalytics() {
 
   const insightCards = computed<InsightCard[]>(() => [
     {
-      title: "Momentum",
+      title: __("Momentum"),
       value: `${weeklyGrowthPercent.value >= 0 ? "+" : ""}${weeklyGrowthPercent.value}%`,
-      description: "Week-over-week XP growth in the selected period.",
+      description: __("Week-over-week XP growth in the selected period."),
     },
     {
-      title: "Retention",
+      title: __("Retention"),
       value: `${retentionRate.value}%`,
-      description: "Days with at least one XP claim in the observed period.",
+      description: __("Days with at least one XP claim in the observed period."),
     },
     {
-      title: "Best Source",
+      title: __("Best Source"),
       value: `${topSourceLabel.value} (${formatNumber(topSourceXp.value)} XP)`,
-      description: "Most impactful source by total earned XP.",
+      description: __("Most impactful source by total earned XP."),
     },
     {
-      title: "Most Used Mode",
-      value: `${topModeLabel.value} (${formatNumber(topModeClaims.value)} claims)`,
-      description: "Game mode used most frequently for XP.",
+      title: __("Most Used Mode"),
+      value: __(":mode (:claims claims)", {
+        mode: topModeLabel.value,
+        claims: formatNumber(topModeClaims.value),
+      }),
+      description: __("Game mode used most frequently for XP."),
     },
   ]);
   const globalInsightCards = computed<InsightCard[]>(() => [
     {
-      title: "Learners",
+      title: __("Learners"),
       value: formatNumber(globalLearners.value),
-      description: "Profiles currently represented in XP levels.",
+      description: __("Profiles currently represented in XP levels."),
     },
     {
-      title: "Global XP",
+      title: __("Global XP"),
       value: formatNumber(globalXp.value),
-      description: "Combined XP across all learner profiles.",
+      description: __("Combined XP across all learner profiles."),
     },
     {
-      title: "Game Claims",
+      title: __("Game Claims"),
       value: formatNumber(globalGameClaims.value),
-      description: "All game XP claim events by mode.",
+      description: __("All game XP claim events by mode."),
     },
     {
-      title: "Level Completions",
+      title: __("Level Completions"),
       value: formatNumber(globalLevelCompletions.value),
-      description: "Completed math level records across the platform.",
+      description: __("Completed math level records across the platform."),
     },
   ]);
 
@@ -280,7 +284,7 @@ export function useDashboardAnalytics() {
       );
       analytics.value = response.data;
     } catch {
-      error.value = "Could not load XP analytics.";
+      error.value = __("Could not load XP analytics.");
     } finally {
       loading.value = false;
     }
@@ -348,7 +352,7 @@ function formatNumber(value: number): string {
 
 function formatEventTime(value: string | null): string {
   if (!value) {
-    return "Unknown";
+    return __("Unknown");
   }
 
   return new Intl.DateTimeFormat(undefined, {

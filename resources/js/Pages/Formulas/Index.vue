@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTheme } from "@/composables/useTheme";
+import { cmsTranslate as __ } from "@/lib/i18n";
 import {
   Dialog,
   DialogContent,
@@ -901,26 +902,26 @@ function selectCategory(id: string) {
               <Input
                 v-model="groupForm.label"
                 required
-                placeholder="Group name"
+                :placeholder="__('Group name')"
                 class="h-8 text-xs"
               />
               <Input
                 v-model="groupForm.sectionTitle"
-                placeholder="Section name"
+                :placeholder="__('Section name')"
                 class="h-8 text-xs"
               />
               <select
                 v-model="groupForm.color"
                 class="h-8 w-full rounded-md border border-input bg-background px-2 text-xs text-foreground"
               >
-                <option value="indigo">Indigo</option>
-                <option value="blue">Blue</option>
-                <option value="violet">Violet</option>
-                <option value="emerald">Emerald</option>
-                <option value="cyan">Cyan</option>
-                <option value="amber">Amber</option>
-                <option value="rose">Rose</option>
-                <option value="teal">Teal</option>
+                <option value="indigo">{{ __("Indigo") }}</option>
+                <option value="blue">{{ __("Blue") }}</option>
+                <option value="violet">{{ __("Violet") }}</option>
+                <option value="emerald">{{ __("Emerald") }}</option>
+                <option value="cyan">{{ __("Cyan") }}</option>
+                <option value="amber">{{ __("Amber") }}</option>
+                <option value="rose">{{ __("Rose") }}</option>
+                <option value="teal">{{ __("Teal") }}</option>
               </select>
               <p v-if="groupFormError" class="text-xs text-destructive">
                 {{ groupFormError }}
@@ -1025,7 +1026,7 @@ function selectCategory(id: string) {
               <Input
                 v-model="formulaForm.name"
                 required
-                placeholder="Formula name"
+                :placeholder="__('Formula name')"
                 class="h-10 text-sm normal-case tracking-normal"
               />
             </label>
@@ -1044,7 +1045,7 @@ function selectCategory(id: string) {
                 v-model="formulaForm.description"
                 rows="3"
                 class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground"
-                placeholder="Short explanation"
+                :placeholder="__('Short explanation')"
               />
             </label>
             <label class="space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -1053,7 +1054,7 @@ function selectCategory(id: string) {
                 v-model="formulaForm.example"
                 rows="3"
                 class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground"
-                placeholder="Optional example"
+                :placeholder="__('Optional example')"
               />
             </label>
             <p v-if="formulaFormError" class="md:col-span-2 text-sm text-destructive">
@@ -1260,7 +1261,7 @@ function selectCategory(id: string) {
                     <button
                       type="button"
                       class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:text-primary"
-                      :title="stepsPlaying ? 'Pause' : 'Play'"
+                      :title="stepsPlaying ? __('Pause') : __('Play')"
                       @click="stepsPlaying ? pauseSelectedFormulaSteps() : playSelectedFormulaSteps()"
                     >
                       <Pause v-if="stepsPlaying" :size="14" />
@@ -1269,7 +1270,7 @@ function selectCategory(id: string) {
                     <button
                       type="button"
                       class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card text-muted-foreground transition hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:text-primary"
-                      title="Replay"
+                      :title="__('Replay')"
                       @click="replaySelectedFormulaSteps"
                     >
                       <RotateCcw :size="14" />
