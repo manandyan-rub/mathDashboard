@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\MathUserLevelProgress;
 use App\Models\MathUserProfile;
 use App\Models\MathUserXpEvent;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class XpAnalyticsController extends Controller
 {
@@ -28,31 +30,33 @@ class XpAnalyticsController extends Controller
             ]
         );
 
-        $from = now()->subDays(13)->startOfDay();
+        [$from, $to] = $this->resolveDateRange($request);
+
         $periodEvents = MathUserXpEvent::query()
             ->where('user_id', $user->id)
-            ->where('earned_at', '>=', $from)
+            ->whereBetween('earned_at', [$from, $to])
             ->orderBy('earned_at')
             ->get();
 
         $dailyEvents = $periodEvents
             ->groupBy(fn (MathUserXpEvent $event) => $event->earned_at?->toDateString());
 
-        $daily = collect(range(13, 0))->map(function (int $daysAgo) use ($dailyEvents) {
-            $date = now()->subDays($daysAgo);
-            $key = $date->toDateString();
-            $events = $dailyEvents->get($key, collect());
+        $daily = collect(CarbonPeriod::create($from->copy()->startOfDay(), $to->copy()->startOfDay()))
+            ->map(function (Carbon $date) use ($dailyEvents) {
+                $key = $date->toDateString();
+                $events = $dailyEvents->get($key, collect());
 
-            return [
-                'date' => $key,
-                'label' => $date->format('M j'),
-                'xp' => (int) $events->sum('amount'),
-                'claims' => $events->count(),
-            ];
-        })->values();
+                return [
+                    'date' => $key,
+                    'label' => $date->format('M j'),
+                    'xp' => (int) $events->sum('amount'),
+                    'claims' => $events->count(),
+                ];
+            })->values();
 
         $sources = MathUserXpEvent::query()
             ->where('user_id', $user->id)
+            ->whereBetween('earned_at', [$from, $to])
             ->selectRaw('source, source_label, SUM(amount) as xp, COUNT(*) as claims')
             ->groupBy('source', 'source_label')
             ->orderByDesc('xp')
@@ -67,6 +71,7 @@ class XpAnalyticsController extends Controller
 
         $recent = MathUserXpEvent::query()
             ->where('user_id', $user->id)
+            ->whereBetween('earned_at', [$from, $to])
             ->orderByDesc('earned_at')
             ->limit(8)
             ->get()
@@ -81,6 +86,7 @@ class XpAnalyticsController extends Controller
 
         $popularModes = MathUserXpEvent::query()
             ->where('source', 'game')
+            ->whereBetween('earned_at', [$from, $to])
             ->get()
             ->groupBy(fn (MathUserXpEvent $event) => (string) data_get($event->metadata, 'mode', 'unknown'))
             ->map(fn ($events, string $mode) => [
@@ -106,6 +112,7 @@ class XpAnalyticsController extends Controller
 
         $completedLevelDistribution = MathUserLevelProgress::query()
             ->where('completed', true)
+            ->whereBetween('last_attempted_at', [$from, $to])
             ->with(['level.translations'])
             ->get()
             ->groupBy('level_id')
@@ -133,7 +140,11 @@ class XpAnalyticsController extends Controller
             'summary' => [
                 'period_xp' => (int) $daily->sum('xp'),
                 'period_claims' => (int) $daily->sum('claims'),
-                'best_day_xp' => (int) $daily->max('xp'),
+                'best_day_xp' => (int) ($daily->max('xp') ?? 0),
+            ],
+            'period' => [
+                'start' => $from->toDateString(),
+                'end' => $to->toDateString(),
             ],
             'daily' => $daily,
             'sources' => $sources,
@@ -145,13 +156,46 @@ class XpAnalyticsController extends Controller
         ]);
     }
 
+    /**
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    private function resolveDateRange(Request $request): array
+    {
+        $validated = $request->validate([
+            'start' => ['nullable', 'date'],
+            'end' => ['nullable', 'date'],
+        ]);
+
+        $start = $validated['start'] ?? null;
+        $end = $validated['end'] ?? null;
+
+        if (!$start && !$end) {
+            return [
+                now()->subDays(13)->startOfDay(),
+                now()->endOfDay(),
+            ];
+        }
+
+        $from = Carbon::parse($start ?? $end)->startOfDay();
+        $to = Carbon::parse($end ?? $start)->endOfDay();
+
+        if ($from->gt($to)) {
+            return [
+                $to->copy()->startOfDay(),
+                $from->copy()->endOfDay(),
+            ];
+        }
+
+        return [$from, $to];
+    }
+
     private function activityHeatmap($events): array
     {
         $hours = [
-            '12a', '1a', '2a', '3a', '4a', '5a', '6a',
-            '7a', '8a', '9a', '10a', '11a',
-            '12p', '1p', '2p', '3p', '4p', '5p',
-            '6p', '7p', '8p', '9p', '10p', '11p',
+            '12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM',
+            '7 AM', '8 AM', '9 AM', '10 AM', '11 AM',
+            '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM',
+            '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM',
         ];
         $days = [
             'Saturday', 'Friday', 'Thursday',

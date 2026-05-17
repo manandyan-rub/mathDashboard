@@ -940,11 +940,11 @@ function selectCategory(id: string) {
             <button
               v-for="cat in allCategories"
               :key="cat.id"
-              class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors text-left"
+              class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg border text-sm transition-colors text-left"
               :class="
                 activeId === cat.id
-                  ? `${categoryColor(cat.color).bg} ${categoryColor(cat.color).text} ring-1 ring-inset ring-current/20 font-semibold`
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? `${categoryColor(cat.color).bg} ${categoryColor(cat.color).text} ${categoryColor(cat.color).border} font-semibold shadow-sm`
+                  : 'border-transparent text-muted-foreground hover:border-border hover:text-foreground hover:bg-muted'
               "
               @click="selectCategory(cat.id)"
             >

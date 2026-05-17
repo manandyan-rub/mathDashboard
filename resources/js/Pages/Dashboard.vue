@@ -3,6 +3,7 @@ import BarChart from "@/charts/BarChart.vue";
 import DonutChart from "@/charts/DonutChart.vue";
 import HeatmapChart from "@/charts/HeatmapChart.vue";
 import LineChart from "@/charts/LineChart.vue";
+import FormCalendarRange from "@/Forms/FormCalendarRange.vue";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import { Head } from "@inertiajs/vue3";
 import {
@@ -50,6 +51,7 @@ const pageDescription = computed(() =>
 const {
   loading,
   error,
+  dateRange,
   activityHeatmap,
   activityHeatmapHasData,
   dailyLabels,
@@ -101,14 +103,25 @@ onMounted(loadAnalytics);
           </p>
         </div>
 
-        <button
-          type="button"
-          class="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-card px-3 text-sm font-semibold text-card-foreground transition hover:border-ring hover:bg-accent hover:text-accent-foreground"
-          @click="loadAnalytics"
-        >
-          <History :size="16" />
-          Refresh
-        </button>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-end">
+          <FormCalendarRange
+            v-model="dateRange"
+            placeholder="Filter chart range"
+            :number-of-months="2"
+            class="sm:w-[310px]"
+            trigger-class="h-10 bg-card text-card-foreground shadow-sm"
+            @change="loadAnalytics"
+          />
+
+          <button
+            type="button"
+            class="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-card px-3 text-sm font-semibold text-card-foreground transition hover:border-ring hover:bg-accent hover:text-accent-foreground"
+            @click="loadAnalytics"
+          >
+            <History :size="16" />
+            Refresh
+          </button>
+        </div>
       </div>
     </section>
 
@@ -151,21 +164,21 @@ onMounted(loadAnalytics);
 
         <div class="rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
           <div class="flex items-center justify-between">
-            <p class="text-sm font-medium text-muted-foreground">14-day XP</p>
+            <p class="text-sm font-medium text-muted-foreground">Period XP</p>
             <BarChart3 :size="18" class="text-primary" />
           </div>
           <p class="mt-3 text-3xl font-bold text-card-foreground">
             {{ formatNumber(periodXp) }}
           </p>
           <p class="mt-1 text-xs text-muted-foreground">
-            XP claimed in last 14 days
+            XP claimed in the selected period
           </p>
         </div>
 
         <div class="rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm">
           <div class="flex items-center justify-between">
             <p class="text-sm font-medium text-muted-foreground">
-              14-day claims
+              Period claims
             </p>
             <Clock3 :size="18" class="text-primary" />
           </div>
@@ -271,7 +284,7 @@ onMounted(loadAnalytics);
       <section class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
         <LineChart
           title="Daily XP claimed"
-          description="Your XP history from the last two weeks"
+          description="Your XP history for the selected period"
           :labels="dailyLabels"
           :values="dailyXpValues"
           :secondary-values="dailyClaimValues"

@@ -68,6 +68,17 @@ const displayValue = computed(() => {
   return `... - ${end}`;
 });
 
+const triggerClasses = computed(() =>
+  cn(
+    "w-full justify-start text-left font-normal",
+    "border border-border bg-background",
+    !hasValue.value && "text-muted-foreground",
+    props.triggerClass,
+  ),
+);
+
+const calendarClasses = computed(() => cn("rounded-md", props.calendarClass));
+
 function datePartToString(value: unknown): string {
   if (!value) {
     return "";
@@ -111,14 +122,7 @@ function clearValue(): void {
             type="button"
             variant="outline"
             :disabled="disabled"
-            :class="
-              cn(
-                "w-full justify-start text-left font-normal",
-                "border border-border bg-background",
-                !hasValue && "text-muted-foreground",
-                triggerClass,
-              )
-            "
+            :class="triggerClasses"
           >
             <Calendar class="mr-2 h-4 w-4" />
             <span class="truncate">{{ displayValue }}</span>
@@ -130,7 +134,7 @@ function clearValue(): void {
             v-bind="$attrs"
             :model-value="modelValue"
             :number-of-months="numberOfMonths"
-            :class="cn('rounded-md', calendarClass)"
+            :class="calendarClasses"
             @update:model-value="onRangeChange"
           />
         </PopoverContent>

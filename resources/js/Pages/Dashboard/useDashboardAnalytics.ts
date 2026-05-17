@@ -1,5 +1,6 @@
 import axios from "axios";
 import { computed, ref } from "vue";
+import type { DateRange } from "reka-ui";
 import type {
   ActivityHeatmap,
   FunnelStep,
@@ -13,6 +14,7 @@ export function useDashboardAnalytics() {
   const loading = ref(true);
   const error = ref<string | null>(null);
   const analytics = ref<XpAnalytics | null>(null);
+  const dateRange = ref<DateRange | null>(null);
 
   const dailyPoints = computed(() => analytics.value?.daily ?? []);
   const sourcePoints = computed(() => analytics.value?.sources ?? []);
@@ -35,6 +37,27 @@ export function useDashboardAnalytics() {
       },
   );
   const recentEvents = computed(() => analytics.value?.recent ?? []);
+  const loadedPeriod = computed(() => analytics.value?.period ?? null);
+  const rangeStart = computed(() => datePartToString(dateRange.value?.start));
+  const rangeEnd = computed(() => datePartToString(dateRange.value?.end));
+  const dateRangeLabel = computed(() => {
+    const start = loadedPeriod.value?.start ?? rangeStart.value;
+    const end = loadedPeriod.value?.end ?? rangeEnd.value;
+
+    if (!start && !end) {
+      return "last 14 days";
+    }
+
+    if (start && end) {
+      return start === end ? start : `${start} - ${end}`;
+    }
+
+    if (start) {
+      return `${start} - now`;
+    }
+
+    return `up to ${end}`;
+  });
   const dailyLabels = computed(() =>
     dailyPoints.value.map((point) => point.label),
   );
@@ -201,7 +224,7 @@ export function useDashboardAnalytics() {
     {
       title: "Momentum",
       value: `${weeklyGrowthPercent.value >= 0 ? "+" : ""}${weeklyGrowthPercent.value}%`,
-      description: "Week-over-week XP growth based on last 14 days.",
+      description: "Week-over-week XP growth in the selected period.",
     },
     {
       title: "Retention",
@@ -247,8 +270,13 @@ export function useDashboardAnalytics() {
     error.value = null;
 
     try {
+      const params = {
+        start: rangeStart.value || undefined,
+        end: rangeEnd.value || undefined,
+      };
       const response = await axios.get<XpAnalytics>(
         "/api/dashboard/xp-analytics",
+        { params },
       );
       analytics.value = response.data;
     } catch {
@@ -261,6 +289,8 @@ export function useDashboardAnalytics() {
   return {
     loading,
     error,
+    dateRange,
+    dateRangeLabel,
     activityHeatmap,
     activityHeatmapHasData,
     dailyLabels,
@@ -294,6 +324,22 @@ export function useDashboardAnalytics() {
     formatEventTime,
     eventDetail,
   };
+}
+
+function datePartToString(value: unknown): string {
+  if (!value) {
+    return "";
+  }
+
+  if (typeof value === "string") {
+    return value.slice(0, 10);
+  }
+
+  if (typeof value === "object" && value !== null && "toString" in value) {
+    return String(value).slice(0, 10);
+  }
+
+  return String(value).slice(0, 10);
 }
 
 function formatNumber(value: number): string {

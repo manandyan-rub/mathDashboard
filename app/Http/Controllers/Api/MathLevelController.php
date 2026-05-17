@@ -15,6 +15,7 @@ use App\Models\MathPath;
 use App\Models\MathUserLevelProgress;
 use App\Models\MathUserProfile;
 use App\Models\MathUserXpEvent;
+use App\Models\User;
 use App\Services\MathLevelGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -118,7 +119,10 @@ class MathLevelController extends Controller
 
         $limit = max(10, min(200, (int) $request->integer('limit', 50)));
 
-        $profiles = MathUserProfile::with('user:id,name,email')
+        $profiles = MathUserProfile::with('user:id,name,email,role')
+            ->whereHas('user', function ($query) {
+                $query->where('role', User::ROLE_STUDENT);
+            })
             ->orderByDesc('total_xp')
             ->orderByDesc('total_stars')
             ->limit($limit)
@@ -144,36 +148,42 @@ class MathLevelController extends Controller
             ];
         });
 
-        $currentProfile = MathUserProfile::firstOrCreate(
-            ['user_id' => $user->id],
-            ['total_xp' => 0, 'current_rank' => 'Beginner', 'streak_days' => 0, 'completed_levels' => 0, 'total_stars' => 0]
-        );
+        $currentEntry = null;
+        if ($user->role === User::ROLE_STUDENT) {
+            $currentProfile = MathUserProfile::firstOrCreate(
+                ['user_id' => $user->id],
+                ['total_xp' => 0, 'current_rank' => 'Beginner', 'streak_days' => 0, 'completed_levels' => 0, 'total_stars' => 0]
+            );
 
-        $currentRank = (int) MathUserProfile::query()
-                ->where(function ($q) use ($currentProfile) {
-                    $q->where('total_xp', '>', (int) $currentProfile->total_xp)
-                        ->orWhere(function ($q2) use ($currentProfile) {
-                            $q2->where('total_xp', '=', (int) $currentProfile->total_xp)
-                                ->where('total_stars', '>', (int) $currentProfile->total_stars);
-                        });
-                })
-                ->count() + 1;
+            $currentRank = (int) MathUserProfile::query()
+                    ->whereHas('user', function ($query) {
+                        $query->where('role', User::ROLE_STUDENT);
+                    })
+                    ->where(function ($q) use ($currentProfile) {
+                        $q->where('total_xp', '>', (int) $currentProfile->total_xp)
+                            ->orWhere(function ($q2) use ($currentProfile) {
+                                $q2->where('total_xp', '=', (int) $currentProfile->total_xp)
+                                    ->where('total_stars', '>', (int) $currentProfile->total_stars);
+                            });
+                    })
+                    ->count() + 1;
 
-        $currentEntry = $leaderboard->firstWhere('user_id', $user->id);
-        if (!$currentEntry) {
-            $name = trim((string) $user->name);
-            $email = trim((string) $user->email);
-            $handleBase = $name !== '' ? $name : ($email !== '' ? strstr($email, '@', true) ?: $email : 'User');
-            $currentEntry = [
-                'user_id' => $user->id,
-                'rank' => $currentRank,
-                'name' => $handleBase !== '' ? $handleBase : ('User #' . $user->id),
-                'handle' => '@' . strtolower(preg_replace('/[^a-z0-9_]+/i', '', $handleBase) ?: ('user' . $user->id)),
-                'avatar' => mb_strtoupper(mb_substr($handleBase, 0, 1) ?: 'U'),
-                'level' => max(1, (int) floor(((int) $currentProfile->total_xp) / 150) + 1),
-                'xp' => (int) $currentProfile->total_xp,
-                'trend' => $this->trendForUser((int) $user->id),
-            ];
+            $currentEntry = $leaderboard->firstWhere('user_id', $user->id);
+            if (!$currentEntry) {
+                $name = trim((string) $user->name);
+                $email = trim((string) $user->email);
+                $handleBase = $name !== '' ? $name : ($email !== '' ? strstr($email, '@', true) ?: $email : 'User');
+                $currentEntry = [
+                    'user_id' => $user->id,
+                    'rank' => $currentRank,
+                    'name' => $handleBase !== '' ? $handleBase : ('User #' . $user->id),
+                    'handle' => '@' . strtolower(preg_replace('/[^a-z0-9_]+/i', '', $handleBase) ?: ('user' . $user->id)),
+                    'avatar' => mb_strtoupper(mb_substr($handleBase, 0, 1) ?: 'U'),
+                    'level' => max(1, (int) floor(((int) $currentProfile->total_xp) / 150) + 1),
+                    'xp' => (int) $currentProfile->total_xp,
+                    'trend' => $this->trendForUser((int) $user->id),
+                ];
+            }
         }
 
         return response()->json([

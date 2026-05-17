@@ -61,6 +61,10 @@ export type XpAnalytics = {
     period_claims: number;
     best_day_xp: number;
   };
+  period: {
+    start: string;
+    end: string;
+  };
   daily: DailyXpPoint[];
   sources: XpSource[];
   popular_modes: ModePopularity[];

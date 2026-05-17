@@ -47,17 +47,22 @@ const languages = [
 
 const props = withDefaults(
   defineProps<{
+    contentHeight?: "auto" | "full";
     contentWidth?: "little" | "big";
   }>(),
   {
+    contentHeight: "auto",
     contentWidth: "little",
   },
 );
 
 const contentShellClass = computed(() =>
-  props.contentWidth === "big"
-    ? "admin-content-shell--big"
-    : "admin-content-shell--little",
+  [
+    props.contentWidth === "big"
+      ? "admin-content-shell--big"
+      : "admin-content-shell--little",
+    props.contentHeight === "full" ? "admin-content-shell--full-height" : "",
+  ],
 );
 
 function changeLanguage(event: Event) {
@@ -272,6 +277,10 @@ function changeLanguage(event: Event) {
 
 .admin-content-shell--big {
   max-width: 1548px;
+}
+
+.admin-content-shell--full-height {
+  height: 100%;
 }
 
 @media (max-width: 80rem) {

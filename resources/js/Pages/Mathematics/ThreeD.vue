@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, type Component } from "vue";
 import { TresCanvas } from "@tresjs/core";
 import { OrbitControls } from "@tresjs/cientos";
 import * as THREE from "three";
@@ -8,12 +8,13 @@ import { useTheme } from "@/composables/useTheme";
 import { cmsTranslate as __ } from "@/lib/i18n";
 import { themeColor } from "@/lib/themeColors";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Box,
+  Calculator,
+  Circle,
+  Layers,
+  Sparkles,
+  Triangle,
+} from "lucide-vue-next";
 
 import CubeCalculator from "./Partials/CubeCalculator.vue";
 import SphereCalculator from "./Partials/SphereCalculator.vue";
@@ -22,6 +23,7 @@ import CylinderCalculator from "./Partials/CylinderCalculator.vue";
 import StairCalculator from "./Partials/StairCalculator.vue";
 
 type NullableNumber = number | null;
+type ShapeKey = "cuboid" | "sphere" | "cone" | "cylinder" | "stairs";
 
 type Dimensions = {
   length: NullableNumber;
@@ -37,8 +39,58 @@ type StairInput = {
   depth: NullableNumber;
 };
 
-const shape = ref("cuboid");
+type ShapeOption = {
+  value: ShapeKey;
+  label: string;
+  metric: string;
+  icon: Component;
+  color: string;
+};
+
+const shape = ref<ShapeKey>("cuboid");
 const { theme } = useTheme();
+const shapeOptions: ShapeOption[] = [
+  {
+    value: "cuboid",
+    label: "Cuboid",
+    metric: "l × w × h",
+    icon: Box,
+    color: "var(--chart-4)",
+  },
+  {
+    value: "sphere",
+    label: "Sphere",
+    metric: "r, d, V, S",
+    icon: Circle,
+    color: "var(--chart-2)",
+  },
+  {
+    value: "cone",
+    label: "Cone",
+    metric: "r, h, l",
+    icon: Triangle,
+    color: "var(--chart-3)",
+  },
+  {
+    value: "cylinder",
+    label: "Cylinder",
+    metric: "r, h, D",
+    icon: Circle,
+    color: "var(--chart-5)",
+  },
+  {
+    value: "stairs",
+    label: "Stairs",
+    metric: "rise + run",
+    icon: Layers,
+    color: "var(--primary)",
+  },
+];
+
+const activeShape = computed(
+  () =>
+    shapeOptions.find((item) => item.value === shape.value) ?? shapeOptions[0],
+);
 
 const formDimensions = ref<Dimensions>({ length: 4, width: 3, height: 2 });
 const submittedDimensions = ref<Dimensions>({ length: 4, width: 3, height: 2 });
@@ -171,132 +223,451 @@ const sceneColors = computed(() => {
 </script>
 
 <template>
-  <AdminFormLayout :title="__('3D Geometry')">
-    <div class="space-y-6">
-      <div class="max-w-xs">
-        <Select v-model="shape">
-          <SelectTrigger class="w-full">
-            <SelectValue :placeholder="__('Select shape')" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="cuboid">{{ __("Cuboid") }}</SelectItem>
-            <SelectItem value="sphere">{{ __("Sphere") }}</SelectItem>
-            <SelectItem value="cone">{{ __("Cone") }}</SelectItem>
-            <SelectItem value="cylinder">{{ __("Cylinder") }}</SelectItem>
-            <SelectItem value="stairs">{{ __("Stairs") }}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+  <AdminFormLayout :title="__('3D Geometry')" content-width="big">
+    <div class="geometry-engine space-y-6">
+      <section class="geometry-hero">
+        <div class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div class="min-w-0">
+            <div class="geometry-badge">
+              <Triangle :size="14" />
+              {{ __("3D Geometry Engine") }}
+            </div>
+            <h2 class="mt-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              {{ __("3D Geometry") }}
+            </h2>
+            <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <span class="geometry-pill">
+                <Sparkles :size="14" />
+                {{ __(activeShape.label) }}
+              </span>
+              <span class="font-mono">{{ activeShape.metric }}</span>
+            </div>
+          </div>
 
-      <div class="h-120 overflow-hidden rounded-xl border bg-background">
-        <TresCanvas :clear-color="sceneColors.background">
-          <TresPerspectiveCamera :position="[8, 6, 10]" :look-at="[0, 0, 0]" />
-          <OrbitControls />
-          <TresAmbientLight :intensity="1.5" />
-          <TresDirectionalLight :position="[3, 5, 3]" :intensity="1.5" />
-          <TresGridHelper :args="[20, 20]" />
-
-          <TresMesh
-            v-if="shape === 'cuboid'"
-            :position="[0, renderBox.height / 2, 0]"
-          >
-            <TresBoxGeometry
-              :args="[renderBox.length, renderBox.height, renderBox.width]"
-            />
-            <TresMeshStandardMaterial :color="sceneColors.cuboid" />
-          </TresMesh>
-
-          <TresMesh
-            v-else-if="shape === 'sphere'"
-            :position="[0, renderSphereRadius, 0]"
-          >
-            <TresSphereGeometry :args="[renderSphereRadius, 32, 32]" />
-            <TresMeshStandardMaterial :color="sceneColors.sphere" />
-          </TresMesh>
-
-          <template v-else-if="shape === 'stairs'">
-            <TresMesh
-              v-for="step in steps"
-              :key="step.id"
-              :position="[0, step.y, 0]"
-              :rotation="[-Math.PI / 2, 0, 0]"
+          <div class="grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-5 xl:w-auto xl:min-w-[42rem]">
+            <button
+              v-for="item in shapeOptions"
+              :key="item.value"
+              type="button"
+              class="geometry-shape-button"
+              :class="{ 'is-active': shape === item.value }"
+              :style="{ '--shape-accent': item.color }"
+              :aria-pressed="shape === item.value"
+              @click="shape = item.value"
             >
-              <TresExtrudeGeometry
-                :args="[
-                  step.shape,
-                  {
-                    depth: step.depth,
-                    bevelEnabled: false,
-                  },
-                ]"
-              />
-              <TresMeshStandardMaterial :color="sceneColors.stairs" />
-            </TresMesh>
-          </template>
+              <component :is="item.icon" :size="18" />
+              <span>{{ __(item.label) }}</span>
+            </button>
+          </div>
+        </div>
+      </section>
 
-          <TresMesh
-            v-else-if="shape === 'cone'"
-            :position="[0, renderConeHeight / 2, 0]"
-          >
-            <TresConeGeometry
-              :args="[renderConeRadius, renderConeHeight, 32]"
-            />
-            <TresMeshStandardMaterial :color="sceneColors.cone" />
-          </TresMesh>
+      <section class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div class="geometry-preview-shell">
+          <div class="geometry-preview-header">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                {{ __("Geometry Preview") }}
+              </p>
+              <h3 class="mt-1 text-xl font-bold text-foreground">
+                {{ __(activeShape.label) }}
+              </h3>
+            </div>
+            <div
+              class="geometry-preview-icon"
+              :style="{ '--shape-accent': activeShape.color }"
+            >
+              <component :is="activeShape.icon" :size="22" />
+            </div>
+          </div>
 
-          <TresMesh
-            v-else-if="shape === 'cylinder'"
-            :position="[0, renderCylinderHeight / 2, 0]"
-          >
-            <TresCylinderGeometry
-              :args="[
-                renderCylinderRadius,
-                renderCylinderRadius,
-                renderCylinderHeight,
-                32,
-              ]"
-            />
-            <TresMeshStandardMaterial :color="sceneColors.cylinder" />
-          </TresMesh>
-        </TresCanvas>
-      </div>
+          <div class="geometry-canvas-shell">
+            <div class="geometry-canvas-glow" />
+            <TresCanvas :clear-color="sceneColors.background">
+              <TresPerspectiveCamera :position="[8, 6, 10]" :look-at="[0, 0, 0]" />
+              <OrbitControls />
+              <TresAmbientLight :intensity="1.5" />
+              <TresDirectionalLight :position="[3, 5, 3]" :intensity="1.5" />
+              <TresGridHelper :args="[20, 20]" />
 
-      <CubeCalculator
-        v-if="shape === 'cuboid'"
-        :dimensions="formDimensions"
-        @update:dimensions="formDimensions = $event"
-        @submit="handleCuboidSubmit"
-      />
+              <TresMesh
+                v-if="shape === 'cuboid'"
+                :position="[0, renderBox.height / 2, 0]"
+              >
+                <TresBoxGeometry
+                  :args="[renderBox.length, renderBox.height, renderBox.width]"
+                />
+                <TresMeshStandardMaterial :color="sceneColors.cuboid" />
+              </TresMesh>
 
-      <SphereCalculator
-        v-else-if="shape === 'sphere'"
-        @update:radius="sphereRadius = $event"
-      />
+              <TresMesh
+                v-else-if="shape === 'sphere'"
+                :position="[0, renderSphereRadius, 0]"
+              >
+                <TresSphereGeometry :args="[renderSphereRadius, 32, 32]" />
+                <TresMeshStandardMaterial :color="sceneColors.sphere" />
+              </TresMesh>
 
-      <ConeCalculator
-        v-else-if="shape === 'cone'"
-        @update:cone="
-          (v) => {
-            coneRadius = v.radius;
-            coneHeight = v.height;
-          }
-        "
-      />
+              <template v-else-if="shape === 'stairs'">
+                <TresMesh
+                  v-for="step in steps"
+                  :key="step.id"
+                  :position="[0, step.y, 0]"
+                  :rotation="[-Math.PI / 2, 0, 0]"
+                >
+                  <TresExtrudeGeometry
+                    :args="[
+                      step.shape,
+                      {
+                        depth: step.depth,
+                        bevelEnabled: false,
+                      },
+                    ]"
+                  />
+                  <TresMeshStandardMaterial :color="sceneColors.stairs" />
+                </TresMesh>
+              </template>
 
-      <CylinderCalculator
-        v-else-if="shape === 'cylinder'"
-        @update:cylinder="
-          (v) => {
-            cylinderRadius = v.radius;
-            cylinderHeight = v.height;
-          }
-        "
-      />
+              <TresMesh
+                v-else-if="shape === 'cone'"
+                :position="[0, renderConeHeight / 2, 0]"
+              >
+                <TresConeGeometry
+                  :args="[renderConeRadius, renderConeHeight, 32]"
+                />
+                <TresMeshStandardMaterial :color="sceneColors.cone" />
+              </TresMesh>
 
-      <StairCalculator
-        v-else-if="shape === 'stairs'"
-        @update:stair="handleStairUpdate"
-      />
+              <TresMesh
+                v-else-if="shape === 'cylinder'"
+                :position="[0, renderCylinderHeight / 2, 0]"
+              >
+                <TresCylinderGeometry
+                  :args="[
+                    renderCylinderRadius,
+                    renderCylinderRadius,
+                    renderCylinderHeight,
+                    32,
+                  ]"
+                />
+                <TresMeshStandardMaterial :color="sceneColors.cylinder" />
+              </TresMesh>
+            </TresCanvas>
+          </div>
+        </div>
+
+        <aside class="geometry-side-panel">
+          <div class="flex items-center gap-3">
+            <div
+              class="geometry-side-icon"
+              :style="{ '--shape-accent': activeShape.color }"
+            >
+              <Calculator :size="20" />
+            </div>
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                {{ __("Active Calculator") }}
+              </p>
+              <h3 class="text-lg font-bold text-foreground">
+                {{ __(activeShape.label) }}
+              </h3>
+            </div>
+          </div>
+
+          <div class="mt-6 space-y-3">
+            <div
+              v-for="item in shapeOptions"
+              :key="`summary-${item.value}`"
+              class="geometry-summary-row"
+              :class="{ 'is-active': shape === item.value }"
+              :style="{ '--shape-accent': item.color }"
+            >
+              <span>{{ __(item.label) }}</span>
+              <span class="font-mono text-xs">{{ item.metric }}</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="geometry-calculator-panel">
+        <CubeCalculator
+          v-if="shape === 'cuboid'"
+          :dimensions="formDimensions"
+          @update:dimensions="formDimensions = $event"
+          @submit="handleCuboidSubmit"
+        />
+
+        <SphereCalculator
+          v-else-if="shape === 'sphere'"
+          @update:radius="sphereRadius = $event"
+        />
+
+        <ConeCalculator
+          v-else-if="shape === 'cone'"
+          @update:cone="
+            (v) => {
+              coneRadius = v.radius;
+              coneHeight = v.height;
+            }
+          "
+        />
+
+        <CylinderCalculator
+          v-else-if="shape === 'cylinder'"
+          @update:cylinder="
+            (v) => {
+              cylinderRadius = v.radius;
+              cylinderHeight = v.height;
+            }
+          "
+        />
+
+        <StairCalculator
+          v-else-if="shape === 'stairs'"
+          @update:stair="handleStairUpdate"
+        />
+      </section>
     </div>
   </AdminFormLayout>
 </template>
+
+<style scoped>
+.geometry-engine {
+  --geometry-soft-shadow: 0 24px 80px color-mix(in srgb, var(--ring) 14%, transparent);
+}
+
+.geometry-hero,
+.geometry-preview-shell,
+.geometry-side-panel,
+.geometry-calculator-panel {
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--chart-5) 10%, transparent),
+      transparent 28rem
+    ),
+    color-mix(in srgb, var(--card) 92%, transparent);
+  box-shadow: var(--geometry-soft-shadow);
+}
+
+.geometry-hero,
+.geometry-preview-shell,
+.geometry-side-panel {
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+}
+
+.geometry-calculator-panel {
+  border-radius: 1.25rem;
+  padding: 1rem;
+}
+
+.geometry-badge,
+.geometry-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--chart-5) 28%, transparent);
+  background: color-mix(in srgb, var(--chart-5) 10%, transparent);
+  color: var(--chart-5);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.geometry-badge {
+  padding: 0.35rem 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.geometry-pill {
+  padding: 0.45rem 0.8rem;
+}
+
+.geometry-shape-button {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.geometry-shape-button:hover,
+.geometry-shape-button.is-active {
+  border-color: color-mix(in srgb, var(--shape-accent) 55%, var(--border));
+  background: color-mix(in srgb, var(--shape-accent) 12%, var(--card));
+  color: var(--foreground);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--shape-accent) 16%, transparent);
+  transform: translateY(-1px);
+}
+
+.geometry-shape-button svg,
+.geometry-preview-icon svg,
+.geometry-side-icon svg {
+  color: var(--shape-accent);
+}
+
+.geometry-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+}
+
+.geometry-preview-icon,
+.geometry-side-icon {
+  display: flex;
+  height: 3rem;
+  width: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--shape-accent) 30%, var(--border));
+  background: color-mix(in srgb, var(--shape-accent) 12%, transparent);
+}
+
+.geometry-canvas-shell {
+  position: relative;
+  height: clamp(26rem, 46vw, 34rem);
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  background: color-mix(in srgb, var(--background) 92%, black 8%);
+}
+
+.geometry-canvas-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: auto 15% 2rem;
+  z-index: 1;
+  height: 5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--chart-5) 14%, transparent);
+  filter: blur(32px);
+}
+
+.geometry-side-panel {
+  align-self: stretch;
+}
+
+.geometry-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  background: color-mix(in srgb, var(--muted) 42%, transparent);
+  padding: 0.85rem 1rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.geometry-summary-row.is-active {
+  border-color: color-mix(in srgb, var(--shape-accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--shape-accent) 10%, var(--card));
+  color: var(--foreground);
+}
+
+.geometry-engine :deep([data-slot="card"]) {
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--border) 82%, transparent);
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--chart-5) 8%, transparent),
+      transparent 14rem
+    ),
+    color-mix(in srgb, var(--card) 88%, transparent);
+  box-shadow: 0 18px 46px color-mix(in srgb, var(--ring) 9%, transparent);
+}
+
+.geometry-engine :deep([data-slot="card-header"]) {
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  background: color-mix(in srgb, var(--muted) 35%, transparent);
+  padding-bottom: 1rem;
+}
+
+.geometry-engine :deep([data-slot="card-title"]) {
+  color: var(--foreground);
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.geometry-engine :deep(label) {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.geometry-engine :deep([data-slot="input-group"]) {
+  min-height: 3rem;
+  border-color: color-mix(in srgb, var(--border) 84%, transparent);
+  background: color-mix(in srgb, var(--background) 70%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+
+.geometry-engine :deep([data-slot="input-group"]:focus-within) {
+  border-color: color-mix(in srgb, var(--chart-5) 65%, var(--border));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--chart-5) 14%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+
+.geometry-engine :deep(input) {
+  font-family: var(--font-mono);
+  color: var(--foreground);
+}
+
+.geometry-engine :deep([data-slot="button"]) {
+  min-height: 2.75rem;
+  border-radius: 0.75rem;
+  font-weight: 800;
+}
+
+.geometry-engine :deep([data-slot="button"]:not([data-variant="outline"])) {
+  border: 1px solid color-mix(in srgb, var(--chart-5) 35%, transparent);
+  background: linear-gradient(135deg, var(--primary), var(--chart-5));
+  color: var(--primary-foreground);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--chart-5) 20%, transparent);
+}
+
+.geometry-engine :deep([data-slot="button"][data-variant="outline"]) {
+  border-color: color-mix(in srgb, var(--border) 88%, transparent);
+  background: color-mix(in srgb, var(--muted) 45%, transparent);
+  color: var(--foreground);
+}
+
+.geometry-engine :deep([role="alert"]) {
+  border-radius: 1rem;
+}
+
+@media (max-width: 48rem) {
+  .geometry-hero,
+  .geometry-preview-shell,
+  .geometry-side-panel,
+  .geometry-calculator-panel {
+    padding: 1rem;
+  }
+
+  .geometry-canvas-shell {
+    height: 24rem;
+  }
+}
+</style>

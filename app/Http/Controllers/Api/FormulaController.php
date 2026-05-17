@@ -229,11 +229,11 @@ class FormulaController extends Controller
 
         return [
             'id' => $formula->id,
-            'name' => $translation?->name ?? '',
+            'name' => $this->restoreMojibake($translation?->name ?? ''),
             'category' => $formula->category,
             'formula' => $formula->formula,
-            'description' => $translation?->description,
-            'example' => $formula->example,
+            'description' => $this->restoreMojibake($translation?->description),
+            'example' => $this->restoreMojibake($formula->example),
             'locale' => $translation?->locale,
         ];
     }
@@ -245,14 +245,32 @@ class FormulaController extends Controller
     {
         return [
             'id' => $group->slug,
-            'label' => $group->label,
+            'label' => $this->restoreMojibake($group->label) ?? '',
             'color' => $group->color,
             'sections' => [
                 [
                     'id' => $group->section_id,
-                    'title' => $group->section_title,
+                    'title' => $this->restoreMojibake($group->section_title) ?? '',
                 ],
             ],
         ];
+    }
+
+    private function restoreMojibake(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+
+        if (preg_match('/\p{Armenian}/u', $value) || !preg_match('/\p{Cyrillic}/u', $value)) {
+            return $value;
+        }
+
+        $candidate = @mb_convert_encoding($value, 'Windows-1251', 'UTF-8');
+        if (!is_string($candidate) || $candidate === '' || !mb_check_encoding($candidate, 'UTF-8')) {
+            return $value;
+        }
+
+        return preg_match('/\p{Armenian}/u', $candidate) ? $candidate : $value;
     }
 }
