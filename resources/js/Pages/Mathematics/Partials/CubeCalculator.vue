@@ -44,6 +44,7 @@ const emit = defineEmits<{
 
 const note = ref("");
 const result = ref<PartialResult | null>(null);
+const inputsHidden = ref(false);
 
 const draftDimensions = reactive<Dimensions>({
   length: props.dimensions.length,
@@ -398,6 +399,7 @@ function handleCalculate() {
   note.value = "";
   const { l, w, h } = runSolver();
   result.value = buildPartialResult(l, w, h);
+  inputsHidden.value = true;
 
   const allSolved = l !== null && w !== null && h !== null;
   if (!allSolved) {
@@ -424,6 +426,7 @@ function clearAll() {
       null;
   result.value = null;
   note.value = "";
+  inputsHidden.value = false;
   emit("update:dimensions", { length: null, width: null, height: null });
   emit("submit", { length: null, width: null, height: null });
 }
@@ -443,7 +446,9 @@ watch(
   <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-end gap-2">
       <Button variant="outline" @click="clearAll">{{ __("Clear all") }}</Button>
-      <Button @click="handleCalculate">{{ __("Calculate") }}</Button>
+      <Button v-if="!inputsHidden" @click="handleCalculate">{{
+        __("Calculate")
+      }}</Button>
     </div>
 
     <Alert
@@ -453,7 +458,7 @@ watch(
       <AlertDescription>⚠️ {{ note }}</AlertDescription>
     </Alert>
 
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div v-if="!inputsHidden" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader class="pb-3"
           ><CardTitle class="text-sm">{{ __("Dimensions (l, w, h)") }}</CardTitle></CardHeader

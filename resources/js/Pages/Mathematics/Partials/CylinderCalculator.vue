@@ -29,6 +29,7 @@ const emit = defineEmits<{
 
 const note = ref("");
 const result = ref<CylinderResult | null>(null);
+const inputsHidden = ref(false);
 
 const draft = reactive({
   radius: null as NullableNumber,
@@ -149,6 +150,7 @@ function handleCalculate() {
   note.value = "";
   const { r, h } = runSolver();
   result.value = buildResult(r, h);
+  inputsHidden.value = true;
 
   const allSolved = r !== null && h !== null;
   if (!allSolved) {
@@ -171,13 +173,16 @@ function clearGiven() {
     given.totalSurface =
     given.baseCircumference =
       null;
+  result.value = null;
   note.value = "";
+  inputsHidden.value = false;
 }
 
 function clearAll() {
   draft.radius = draft.height = null;
   result.value = null;
   note.value = "";
+  inputsHidden.value = false;
   emit("update:cylinder", { radius: null, height: null });
   clearGiven();
 }
@@ -190,7 +195,7 @@ function clearAll() {
         >Մաքրել տրված տվյալները</Button
       >
       <Button variant="outline" @click="clearAll">Մաքրել բոլորը</Button>
-      <Button @click="handleCalculate">Հաշվել</Button>
+      <Button v-if="!inputsHidden" @click="handleCalculate">Հաշվել</Button>
     </div>
 
     <Alert
@@ -200,7 +205,7 @@ function clearAll() {
       <AlertDescription>⚠️ {{ note }}</AlertDescription>
     </Alert>
 
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div v-if="!inputsHidden" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader class="pb-3"
           ><CardTitle class="text-sm">Չափեր</CardTitle></CardHeader

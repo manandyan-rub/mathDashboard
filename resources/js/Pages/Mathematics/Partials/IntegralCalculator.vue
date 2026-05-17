@@ -2,8 +2,6 @@
 import { MathfieldElement } from "mathlive";
 import axios from "axios";
 import { nextTick, onBeforeUnmount, onMounted, onUpdated, ref } from "vue";
-import { useTheme } from "@/composables/useTheme";
-import { themeColor } from "@/lib/themeColors";
 
 const appOrigin =
   typeof window !== "undefined"
@@ -31,7 +29,6 @@ const steps = ref<StepItem[]>([]);
 const stepsNote = ref("");
 const loading = ref(false);
 const error = ref("");
-const { isDark, toggleTheme } = useTheme();
 const mathfieldRef = ref<MathfieldLike | null>(null);
 
 const normalizeSteps = (raw: unknown): StepItem[] => {
@@ -94,13 +91,14 @@ function injectMathField(container: HTMLElement, value: string) {
   const existing = container.querySelector("math-field");
   if (existing) {
     setMathFieldValue(existing as MathfieldLike, value);
-    (existing as HTMLElement).style.color = themeColor("--foreground");
+    (existing as HTMLElement).style.color = "var(--foreground)";
     return;
   }
   const mf = document.createElement("math-field") as MathfieldLike;
   mf.readOnly = true;
   mf.setAttribute("read-only", "");
-  mf.style.cssText = `background:transparent;border:none;pointer-events:none;display:block;width:100%;color:${themeColor("--foreground")};`;
+  mf.style.cssText =
+    "background:transparent;border:none;pointer-events:none;display:block;width:100%;color:var(--foreground);";
   container.appendChild(mf);
   requestAnimationFrame(() => setMathFieldValue(mf, value));
 }
@@ -122,12 +120,6 @@ function renderAll() {
 }
 
 onUpdated(() => renderAll());
-
-const handleThemeToggle = async () => {
-  toggleTheme();
-  await nextTick();
-  renderAll();
-};
 
 async function calculate() {
   loading.value = true;
@@ -158,20 +150,14 @@ async function calculate() {
 
 <template>
   <div
-    class="mx-auto max-w-3xl rounded-2xl border p-6 transition-colors duration-300"
-    :class="
-      isDark
-        ? 'border-border bg-card text-primary-foreground'
-        : 'border-border bg-card text-foreground'
-    "
+    class="mx-auto max-w-3xl rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-sm transition-colors duration-300"
   >
     <div class="mb-4">
       <h1 class="text-2xl font-bold">Ինտեգրալ հաշվիչ</h1>
     </div>
 
     <label
-      class="mb-2 block text-sm"
-      :class="isDark ? 'text-muted-foreground' : 'text-muted-foreground'"
+      class="mb-2 block text-sm text-muted-foreground"
     >
       Մուտքագրեք ինտեգրալ
     </label>
@@ -180,12 +166,7 @@ async function calculate() {
       <math-field
         id="integral-input"
         ref="mathfieldRef"
-        class="block min-h-[64px] w-full rounded-xl border px-4 py-3 text-lg transition-colors"
-        :class="
-          isDark
-            ? 'border-border bg-background'
-            : 'border-border bg-muted'
-        "
+        class="block min-h-[64px] w-full rounded-xl border border-border bg-muted/70 px-4 py-3 text-lg transition-colors dark:bg-background"
       >
         \int x^2 \sin(x)\,dx
       </math-field>
@@ -208,8 +189,7 @@ async function calculate() {
 
     <div v-if="steps.length > 0" class="mt-6 space-y-3">
       <div
-        class="text-sm font-semibold uppercase tracking-widest"
-        :class="isDark ? 'text-muted-foreground' : 'text-muted-foreground'"
+        class="text-sm font-semibold uppercase tracking-widest text-muted-foreground"
       >
         Լուծման քայլեր
       </div>
@@ -217,12 +197,7 @@ async function calculate() {
       <div
         v-for="(step, i) in steps"
         :key="i"
-        class="rounded-xl border p-4 transition-colors"
-        :class="
-          isDark
-            ? 'border-border bg-card/60'
-            : 'border-border bg-muted'
-        "
+        class="rounded-xl border border-border bg-muted/50 p-4 transition-colors dark:bg-background/40"
       >
         <div class="flex items-start gap-3">
           <span
@@ -234,8 +209,7 @@ async function calculate() {
           <div class="min-w-0 flex-1 space-y-1">
             <div
               v-if="step.explanation"
-              class="text-sm"
-              :class="isDark ? 'text-muted-foreground' : 'text-muted-foreground'"
+              class="text-sm text-muted-foreground"
             >
               {{ step.explanation }}
             </div>
@@ -248,12 +222,7 @@ async function calculate() {
             />
             <pre
               v-else
-              class="overflow-x-auto rounded-lg px-3 py-2 font-mono text-sm"
-              :class="
-                isDark
-                  ? 'bg-card text-foreground'
-                  : 'bg-muted text-muted-foreground'
-              "
+              class="overflow-x-auto rounded-lg border border-border bg-card px-3 py-2 font-mono text-sm text-foreground"
               >{{ step.latex }}</pre
             >
           </div>
@@ -263,23 +232,17 @@ async function calculate() {
 
     <div
       v-else-if="result && stepsNote"
-      class="mt-4 rounded-xl border border-chart-3/30 bg-chart-3/10 p-3 text-sm text-chart-3"
+      class="mt-4 rounded-xl border border-border bg-muted/50 p-3 text-sm text-muted-foreground"
     >
       {{ stepsNote }}
     </div>
 
     <div
       v-if="result"
-      class="mt-4 rounded-xl border p-4 transition-colors"
-      :class="
-        isDark
-          ? 'border-chart-2/30 bg-chart-2/10'
-          : 'border-chart-2/40 bg-chart-2'
-      "
+      class="mt-4 rounded-xl border border-border bg-muted/45 p-4 transition-colors dark:bg-background/40"
     >
       <div
-        class="mb-2 text-sm font-semibold uppercase tracking-widest"
-        :class="isDark ? 'text-chart-2' : 'text-chart-2'"
+        class="mb-2 text-sm font-semibold uppercase tracking-widest text-muted-foreground"
       >
         Արդյունք
       </div>
@@ -287,16 +250,11 @@ async function calculate() {
       <div
         v-if="looksLikeLatex(result)"
         data-result-container
-        class="min-h-[2rem] overflow-x-auto"
+        class="min-h-[2rem] overflow-x-auto rounded-lg border border-border bg-card px-3 py-3"
       />
       <pre
         v-else
-        class="overflow-x-auto rounded-lg px-3 py-2 font-mono text-sm"
-        :class="
-          isDark
-            ? 'bg-card/60 text-foreground'
-            : 'bg-chart-2/60 text-muted-foreground'
-        "
+        class="overflow-x-auto rounded-lg border border-border bg-card px-3 py-2 font-mono text-sm text-foreground"
         >{{ result }}</pre
       >
     </div>
@@ -306,6 +264,7 @@ async function calculate() {
 <style scoped>
 math-field {
   width: 100%;
+  color: var(--foreground);
   --caret-color: var(--foreground);
   --primary: var(--ring);
   --selection-background-color: color-mix(in srgb, var(--ring) 25%, transparent);

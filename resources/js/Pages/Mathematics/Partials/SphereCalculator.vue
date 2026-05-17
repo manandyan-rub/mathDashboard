@@ -33,6 +33,7 @@ const emit = defineEmits<{
 const note = ref("");
 const result = ref<SphereResult | null>(null);
 const solveSteps = ref<SolveStep[]>([]);
+const inputsHidden = ref(false);
 
 const draftRadius = ref<NullableNumber>(null);
 
@@ -141,6 +142,7 @@ function handleCalculate() {
   const { r, steps } = runSolver();
   result.value = buildResult(r);
   solveSteps.value = steps;
+  inputsHidden.value = true;
 
   if (r === null) {
     note.value = "r անհայտ մնաց — ցուցադրված են հաշվելի բոլոր տվյալները:";
@@ -156,7 +158,10 @@ function clearGiven() {
     given.surfaceArea =
     given.circumference =
       null;
+  result.value = null;
+  solveSteps.value = [];
   note.value = "";
+  inputsHidden.value = false;
 }
 
 function clearAll() {
@@ -164,6 +169,7 @@ function clearAll() {
   result.value = null;
   solveSteps.value = [];
   note.value = "";
+  inputsHidden.value = false;
   emit("update:radius", null);
   clearGiven();
 }
@@ -176,7 +182,7 @@ function clearAll() {
         >Մաքրել տրված տվյալները</Button
       >
       <Button variant="outline" @click="clearAll">Մաքրել բոլորը</Button>
-      <Button @click="handleCalculate">Հաշվել</Button>
+      <Button v-if="!inputsHidden" @click="handleCalculate">Հաշվել</Button>
     </div>
 
     <Alert
@@ -186,7 +192,7 @@ function clearAll() {
       <AlertDescription>⚠️ {{ note }}</AlertDescription>
     </Alert>
 
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div v-if="!inputsHidden" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader class="pb-3"
           ><CardTitle class="text-sm">Չափ</CardTitle></CardHeader

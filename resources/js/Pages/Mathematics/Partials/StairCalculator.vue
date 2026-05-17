@@ -30,6 +30,8 @@ const form = ref<StairInput>({
 });
 
 const errors = ref<Partial<Record<keyof StairInput, string>>>({});
+const hasCalculated = ref(false);
+const inputsHidden = ref(false);
 
 const normalized = computed(() => ({
   steps: Math.max(2, Math.round(Number(form.value.steps ?? 8))),
@@ -64,8 +66,24 @@ function validate(): boolean {
 
 function submit() {
   if (validate()) {
+    hasCalculated.value = true;
+    inputsHidden.value = true;
     emit("update:stair", { ...normalized.value });
   }
+}
+
+function clearAll() {
+  form.value = {
+    steps: null,
+    stepWidth: null,
+    rise: null,
+    run: null,
+    depth: null,
+  };
+  errors.value = {};
+  hasCalculated.value = false;
+  inputsHidden.value = false;
+  emit("update:stair", { ...normalized.value });
 }
 
 const totalHeight = computed(() =>
@@ -126,7 +144,13 @@ watch(
 
 <template>
   <div class="space-y-6">
-    <Card>
+    <div v-if="inputsHidden" class="flex justify-end">
+      <Button variant="outline" @click="clearAll">
+        {{ __("Clear all") }}
+      </Button>
+    </div>
+
+    <Card v-if="!inputsHidden">
       <CardHeader>
         <CardTitle>{{ __("Stair inputs") }}</CardTitle>
       </CardHeader>
@@ -210,7 +234,7 @@ watch(
       </CardContent>
     </Card>
 
-    <Alert :variant="isSafeRise ? 'default' : 'destructive'">
+    <Alert v-if="hasCalculated" :variant="isSafeRise ? 'default' : 'destructive'">
       <AlertDescription>
         <span v-if="isSafeRise">
           {{ __("Rise is within recommended range (0.14-0.21 m).") }}
@@ -221,7 +245,7 @@ watch(
       </AlertDescription>
     </Alert>
 
-    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div v-if="hasCalculated" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <Card
         v-for="item in [
           { label: __('Total height (m)'), value: totalHeight },
@@ -242,9 +266,9 @@ watch(
       </Card>
     </div>
 
-    <Separator />
+    <Separator v-if="hasCalculated" />
 
-    <Card>
+    <Card v-if="hasCalculated">
       <CardHeader>
         <CardTitle class="text-sm">{{ __("Per step") }}</CardTitle>
       </CardHeader>
