@@ -9,29 +9,15 @@ use App\Models\FormulaStep;
 use App\Services\FormulaStepAiService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class FormulaController extends Controller
 {
-    private const FORMULA_GROUP_COLORS = [
-        'blue',
-        'violet',
-        'emerald',
-        'cyan',
-        'amber',
-        'rose',
-        'indigo',
-        'teal',
-    ];
-
     public function index(): JsonResponse
     {
         $locales = $this->preferredLocales();
 
         $formulas = Formula::query()
-            ->with(['translations' => function ($query) use ($locales) {
-                $query->whereIn('locale', $locales);
-            }])
+            ->with('translations')
             ->orderBy('id')
             ->get();
 
@@ -52,74 +38,10 @@ class FormulaController extends Controller
         );
     }
 
-    public function storeGroup(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'label' => ['required', 'string', 'max:120'],
-            'section_title' => ['nullable', 'string', 'max:120'],
-            'color' => ['nullable', 'string', 'in:'.implode(',', self::FORMULA_GROUP_COLORS)],
-        ]);
-
-        $baseSlug = Str::slug($validated['label']) ?: 'formula-group';
-        $slug = $baseSlug;
-        $suffix = 2;
-
-        while (FormulaGroup::query()->where('slug', $slug)->exists()) {
-            $slug = "{$baseSlug}-{$suffix}";
-            $suffix++;
-        }
-
-        $group = FormulaGroup::query()->create([
-            'slug' => $slug,
-            'label' => $validated['label'],
-            'section_id' => 'general',
-            'section_title' => ($validated['section_title'] ?? null) ?: 'General',
-            'color' => $validated['color'] ?? 'indigo',
-            'sort_order' => ((int) FormulaGroup::query()->max('sort_order')) + 10,
-        ]);
-
-        return response()->json($this->transformGroup($group), 201);
-    }
-
-    public function store(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'category' => ['required', 'string', 'max:160', 'regex:/^[A-Za-z0-9_-]+:[A-Za-z0-9_-]+$/'],
-            'name' => ['required', 'string', 'max:255'],
-            'formula' => ['required', 'string'],
-            'description' => ['nullable', 'string'],
-            'example' => ['nullable', 'string'],
-            'locale' => ['nullable', 'string', 'max:12'],
-        ]);
-
-        $formula = Formula::query()->create([
-            'category' => $validated['category'],
-            'formula' => $validated['formula'],
-            'example' => $validated['example'] ?? null,
-        ]);
-
-        $locale = strtolower($validated['locale'] ?? app()->getLocale());
-
-        $formula->translations()->create([
-            'locale' => $locale,
-            'name' => $validated['name'],
-            'description' => $validated['description'] ?? null,
-        ]);
-
-        $locales = array_values(array_unique([...$this->preferredLocales(), $locale]));
-        $formula->load(['translations' => function ($query) use ($locales) {
-            $query->whereIn('locale', $locales);
-        }]);
-
-        return response()->json($this->transformFormula($formula, $locales), 201);
-    }
-
     public function show(Formula $formula): JsonResponse
     {
         $locales = $this->preferredLocales();
-        $formula->load(['translations' => function ($query) use ($locales) {
-            $query->whereIn('locale', $locales);
-        }]);
+        $formula->load('translations');
 
         return response()->json(
             $this->transformFormula($formula, $locales)
@@ -168,44 +90,19 @@ class FormulaController extends Controller
         ]);
     }
 
-    public function regenerateSteps(Formula $formula, Request $request, FormulaStepAiService $aiService): JsonResponse
-    {
-        $locale = (string) $request->input('locale', app()->getLocale());
-
-        try {
-            $generated = $aiService->generateForFormula($formula, $locale);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'formula_id' => $formula->id,
-                'has_steps' => false,
-                'steps' => [],
-                'message' => __('Failed to regenerate formula steps. Please try again.'),
-                'details' => $e->getMessage(),
-            ], 502);
-        }
-
-        FormulaStep::updateOrCreate(
-            ['formula_id' => $formula->id],
-            ['steps_json' => $generated]
-        );
-
-        return response()->json([
-            'formula_id' => $formula->id,
-            'has_steps' => !empty($generated),
-            'steps' => $generated,
-            'source' => $aiService->lastSource(),
-        ]);
-    }
-
     /**
      * @return array<int, string>
      */
     private function preferredLocales(): array
     {
         $locales = [
+            strtolower((string) request()->header('X-Locale', '')),
             app()->getLocale(),
             config('app.fallback_locale', 'en'),
             'en',
+            'hy',
+            'ru',
+            'fr',
         ];
 
         return array_values(array_unique(array_filter($locales)));
@@ -226,6 +123,14 @@ class FormulaController extends Controller
         }
 
         $translation ??= $formula->translations->first();
+        $translations = $formula->translations
+            ->mapWithKeys(fn ($item) => [
+                $item->locale => [
+                    'name' => $this->restoreMojibake($item->name),
+                    'description' => $this->restoreMojibake($item->description),
+                ],
+            ])
+            ->all();
 
         return [
             'id' => $formula->id,
@@ -235,6 +140,7 @@ class FormulaController extends Controller
             'description' => $this->restoreMojibake($translation?->description),
             'example' => $this->restoreMojibake($formula->example),
             'locale' => $translation?->locale,
+            'translations' => $translations,
         ];
     }
 

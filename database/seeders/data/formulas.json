@@ -1,1976 +1,6488 @@
 [
   {
-    "name": "Գումարի տեղափոխական հատկություն",
     "category": "arithmetic:basic-ops",
     "formula": "a + b = b + a",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Commutative property of addition",
+        "description": null
+      },
+      "hy": {
+        "name": "Գումարի տեղափոխական հատկություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Коммутативное свойство сложения",
+        "description": null
+      },
+      "fr": {
+        "name": "Propriété commutative d'addition",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արտադրյալի տեղափոխական հատկություն",
     "category": "arithmetic:basic-ops",
     "formula": "a \\cdot b = b \\cdot a",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Commutative property of multiplication",
+        "description": null
+      },
+      "hy": {
+        "name": "Արտադրյալի տեղափոխական հատկություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Коммутативное свойство умножения",
+        "description": null
+      },
+      "fr": {
+        "name": "Propriété commutative de la multiplication",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գումարի զուգորդական հատկություն",
     "category": "arithmetic:basic-ops",
     "formula": "(a+b)+c = a+(b+c)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Associative property of addition",
+        "description": null
+      },
+      "hy": {
+        "name": "Գումարի զուգորդական հատկություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Ассоциативное свойство сложения",
+        "description": null
+      },
+      "fr": {
+        "name": "Propriété associative d'addition",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արտադրյալի զուգորդական հատկություն",
     "category": "arithmetic:basic-ops",
     "formula": "(a \\cdot b) \\cdot c = a \\cdot (b \\cdot c)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Associative property of multiplication",
+        "description": null
+      },
+      "hy": {
+        "name": "Արտադրյալի զուգորդական հատկություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Ассоциативное свойство умножения",
+        "description": null
+      },
+      "fr": {
+        "name": "Propriété associative de multiplication",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բաշխական հատկություն",
     "category": "arithmetic:basic-ops",
     "formula": "a(b+c) = ab + ac",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Distributive property",
+        "description": null
+      },
+      "hy": {
+        "name": "Բաշխական հատկություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Распределительная собственность",
+        "description": null
+      },
+      "fr": {
+        "name": "Propriété distributive",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բաժանում կոտորակի տեսքով",
     "category": "arithmetic:basic-ops",
     "formula": "a \\div b = \\frac{a}{b}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Division as a fraction",
+        "description": null
+      },
+      "hy": {
+        "name": "Բաժանում կոտորակի տեսքով",
+        "description": null
+      },
+      "ru": {
+        "name": "Деление как дробь",
+        "description": null
+      },
+      "fr": {
+        "name": "Division en fraction",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտորակների գումարում (նույն հայտարարով)",
     "category": "arithmetic:fractions",
     "formula": "\\frac{a}{c} + \\frac{b}{c} = \\frac{a+b}{c}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Adding fractions with the same denominator",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտորակների գումարում (նույն հայտարարով)",
+        "description": null
+      },
+      "ru": {
+        "name": "Сложение дробей с одинаковым знаменателем",
+        "description": null
+      },
+      "fr": {
+        "name": "Additionner des fractions avec le même dénominateur",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտորակների գումարում (տարբեր հայտարարով)",
     "category": "arithmetic:fractions",
     "formula": "\\frac{a}{b} + \\frac{c}{d} = \\frac{ad+bc}{bd}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Adding fractions with different denominators",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտորակների գումարում (տարբեր հայտարարով)",
+        "description": null
+      },
+      "ru": {
+        "name": "Сложение дробей с разными знаменателями",
+        "description": null
+      },
+      "fr": {
+        "name": "Additionner des fractions avec différents dénominateurs",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտորակների հանում",
     "category": "arithmetic:fractions",
     "formula": "\\frac{a}{b} - \\frac{c}{d} = \\frac{ad-bc}{bd}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Subtracting fractions",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտորակների հանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Вычитание дробей",
+        "description": null
+      },
+      "fr": {
+        "name": "Soustraire des fractions",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտորակների բազմապատկում",
     "category": "arithmetic:fractions",
     "formula": "\\frac{a}{b} \\cdot \\frac{c}{d} = \\frac{ac}{bd}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Multiplying fractions",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտորակների բազմապատկում",
+        "description": null
+      },
+      "ru": {
+        "name": "Умножение дробей",
+        "description": null
+      },
+      "fr": {
+        "name": "Multiplier des fractions",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտորակների բաժանում",
     "category": "arithmetic:fractions",
     "formula": "\\frac{a}{b} \\div \\frac{c}{d} = \\frac{a}{b} \\cdot \\frac{d}{c} = \\frac{ad}{bc}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Dividing fractions",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտորակների բաժանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Деление дробей",
+        "description": null
+      },
+      "fr": {
+        "name": "Diviser des fractions",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտորակի կրճատում",
     "category": "arithmetic:fractions",
     "formula": "\\frac{ac}{bc} = \\frac{a}{b}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Reducing a fraction",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտորակի կրճատում",
+        "description": null
+      },
+      "ru": {
+        "name": "Уменьшение дроби",
+        "description": null
+      },
+      "fr": {
+        "name": "Réduire une fraction",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Խառն թիվ",
     "category": "arithmetic:fractions",
     "formula": "a\\frac{b}{c} = \\frac{ac+b}{c}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Mixed number",
+        "description": null
+      },
+      "hy": {
+        "name": "Խառն թիվ",
+        "description": null
+      },
+      "ru": {
+        "name": "Смешанное число",
+        "description": null
+      },
+      "fr": {
+        "name": "Numéro mixte",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տոկոսի հաշվում",
     "category": "arithmetic:percentages",
     "formula": "P\\% \\cdot X = \\frac{P}{100} \\cdot X",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Finding a percentage",
+        "description": null
+      },
+      "hy": {
+        "name": "Տոկոսի հաշվում",
+        "description": null
+      },
+      "ru": {
+        "name": "Нахождение процента",
+        "description": null
+      },
+      "fr": {
+        "name": "Trouver un pourcentage",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տոկոսային փոփոխություն",
     "category": "arithmetic:percentages",
     "formula": "\\Delta\\% = \\frac{\\text{նոր} - \\text{հին}}{\\text{հին}} \\times 100",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Percentage change",
+        "description": null
+      },
+      "hy": {
+        "name": "Տոկոսային փոփոխություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Процентное изменение",
+        "description": null
+      },
+      "fr": {
+        "name": "Changement en pourcentage",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պարզ տոկոս",
     "category": "arithmetic:percentages",
     "formula": "I = \\frac{P \\cdot r \\cdot t}{100}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Simple interest",
+        "description": null
+      },
+      "hy": {
+        "name": "Պարզ տոկոս",
+        "description": null
+      },
+      "ru": {
+        "name": "Простые проценты",
+        "description": null
+      },
+      "fr": {
+        "name": "Intérêt simple",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բարդ տոկոս",
     "category": "arithmetic:percentages",
     "formula": "A = P\\left(1 + \\frac{r}{n}\\right)^{nt}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Compound interest",
+        "description": null
+      },
+      "hy": {
+        "name": "Բարդ տոկոս",
+        "description": null
+      },
+      "ru": {
+        "name": "Сложные проценты",
+        "description": null
+      },
+      "fr": {
+        "name": "Intérêts composés",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Զեղչ",
     "category": "arithmetic:percentages",
     "formula": "\\text{Զեղչ} = P \\times \\frac{d}{100}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Discount",
+        "description": null
+      },
+      "hy": {
+        "name": "Զեղչ",
+        "description": null
+      },
+      "ru": {
+        "name": "Скидка",
+        "description": null
+      },
+      "fr": {
+        "name": "Remise",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Նույն հիմքով աստիճանների բազմապատկում",
     "category": "arithmetic:powers-roots",
     "formula": "a^m \\cdot a^n = a^{m+n}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Multiplying powers with the same base",
+        "description": null
+      },
+      "hy": {
+        "name": "Նույն հիմքով աստիճանների բազմապատկում",
+        "description": null
+      },
+      "ru": {
+        "name": "Умножение степеней с одинаковым основанием",
+        "description": null
+      },
+      "fr": {
+        "name": "Multiplier les puissances avec la même base",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Նույն հիմքով աստիճանների բաժանում",
     "category": "arithmetic:powers-roots",
     "formula": "\\frac{a^m}{a^n} = a^{m-n}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Dividing powers with the same base",
+        "description": null
+      },
+      "hy": {
+        "name": "Նույն հիմքով աստիճանների բաժանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Разделение властей с одинаковым основанием",
+        "description": null
+      },
+      "fr": {
+        "name": "Diviser les pouvoirs avec la même base",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Աստիճանի աստիճան",
     "category": "arithmetic:powers-roots",
     "formula": "(a^m)^n = a^{mn}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Power of a power",
+        "description": null
+      },
+      "hy": {
+        "name": "Աստիճանի աստիճան",
+        "description": null
+      },
+      "ru": {
+        "name": "Сила силы",
+        "description": null
+      },
+      "fr": {
+        "name": "Pouvoir d'un pouvoir",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արտադրյալի աստիճան",
     "category": "arithmetic:powers-roots",
     "formula": "(ab)^n = a^n b^n",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Power of a product",
+        "description": null
+      },
+      "hy": {
+        "name": "Արտադրյալի աստիճան",
+        "description": null
+      },
+      "ru": {
+        "name": "Мощность продукта",
+        "description": null
+      },
+      "fr": {
+        "name": "Puissance d'un produit",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Զրոյական աստիճան",
     "category": "arithmetic:powers-roots",
     "formula": "a^0 = 1 \\quad (a \\neq 0)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Zero exponent",
+        "description": null
+      },
+      "hy": {
+        "name": "Զրոյական աստիճան",
+        "description": null
+      },
+      "ru": {
+        "name": "Нулевой показатель",
+        "description": null
+      },
+      "fr": {
+        "name": "Exposant zéro",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բացասական աստիճան",
     "category": "arithmetic:powers-roots",
     "formula": "a^{-n} = \\frac{1}{a^n}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Negative exponent",
+        "description": null
+      },
+      "hy": {
+        "name": "Բացասական աստիճան",
+        "description": null
+      },
+      "ru": {
+        "name": "Отрицательный показатель",
+        "description": null
+      },
+      "fr": {
+        "name": "Exposant négatif",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտորակային աստիճան",
     "category": "arithmetic:powers-roots",
     "formula": "a^{m/n} = \\sqrt[n]{a^m}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Fractional exponent",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտորակային աստիճան",
+        "description": null
+      },
+      "ru": {
+        "name": "Дробный показатель",
+        "description": null
+      },
+      "fr": {
+        "name": "Exposant fractionnaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արմատների բազմապատկում",
     "category": "arithmetic:powers-roots",
     "formula": "\\sqrt{a} \\cdot \\sqrt{b} = \\sqrt{ab}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Multiplying radicals",
+        "description": null
+      },
+      "hy": {
+        "name": "Արմատների բազմապատկում",
+        "description": null
+      },
+      "ru": {
+        "name": "Умножение радикалов",
+        "description": null
+      },
+      "fr": {
+        "name": "Multiplication des radicaux",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արմատների բաժանում",
     "category": "arithmetic:powers-roots",
     "formula": "\\frac{\\sqrt{a}}{\\sqrt{b}} = \\sqrt{\\frac{a}{b}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Dividing radicals",
+        "description": null
+      },
+      "hy": {
+        "name": "Արմատների բաժանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Разделительные радикалы",
+        "description": null
+      },
+      "fr": {
+        "name": "Diviser les radicaux",
+        "description": null
+      }
+    }
   },
   {
-    "name": "n-րդ աստիճանի արմատ",
     "category": "arithmetic:powers-roots",
     "formula": "\\sqrt[n]{a^m} = a^{m/n}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "nth root",
+        "description": null
+      },
+      "hy": {
+        "name": "n-րդ աստիճանի արմատ",
+        "description": null
+      },
+      "ru": {
+        "name": "n-ный корень",
+        "description": null
+      },
+      "fr": {
+        "name": "nième racine",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ամենամեծ ընդհանուր բաժանարարի և ամենափոքր ընդհանուր բազմապատիկի կապ",
     "category": "arithmetic:divisibility",
     "formula": "\\gcd(a,b) \\cdot \\text{lcm}(a,b) = a \\cdot b",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Relationship between GCD and LCM",
+        "description": null
+      },
+      "hy": {
+        "name": "Ամենամեծ ընդհանուր բաժանարարի և ամենափոքր ընդհանուր բազմապատիկի կապ",
+        "description": null
+      },
+      "ru": {
+        "name": "Связь между GCD и LCM",
+        "description": null
+      },
+      "fr": {
+        "name": "Relation entre GCD et LCM",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Էվկլիդեսի ալգորիթմ",
     "category": "arithmetic:divisibility",
     "formula": "\\gcd(a,b) = \\gcd(b,\\ a \\bmod b)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Euclidean algorithm",
+        "description": null
+      },
+      "hy": {
+        "name": "Էվկլիդեսի ալգորիթմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Евклидов алгоритм",
+        "description": null
+      },
+      "fr": {
+        "name": "Algorithme euclidien",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բաժանում մնացորդով",
     "category": "arithmetic:divisibility",
     "formula": "a = q \\cdot b + r,\\quad 0 \\leq r < b",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Division with remainder",
+        "description": null
+      },
+      "hy": {
+        "name": "Բաժանում մնացորդով",
+        "description": null
+      },
+      "ru": {
+        "name": "Деление с остатком",
+        "description": null
+      },
+      "fr": {
+        "name": "Division avec reste",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գումարի քառակուսի",
     "category": "algebra:identities",
     "formula": "(a+b)^2 = a^2 + 2ab + b^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Square of a sum",
+        "description": null
+      },
+      "hy": {
+        "name": "Գումարի քառակուսի",
+        "description": null
+      },
+      "ru": {
+        "name": "Квадрат суммы",
+        "description": null
+      },
+      "fr": {
+        "name": "Carré d'une somme",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տարբերության քառակուսի",
     "category": "algebra:identities",
     "formula": "(a-b)^2 = a^2 - 2ab + b^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Square of a difference",
+        "description": null
+      },
+      "hy": {
+        "name": "Տարբերության քառակուսի",
+        "description": null
+      },
+      "ru": {
+        "name": "Квадрат разницы",
+        "description": null
+      },
+      "fr": {
+        "name": "Carré d'une différence",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քառակուսիների տարբերություն",
     "category": "algebra:identities",
     "formula": "a^2 - b^2 = (a+b)(a-b)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Difference of squares",
+        "description": null
+      },
+      "hy": {
+        "name": "Քառակուսիների տարբերություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Разница квадратов",
+        "description": null
+      },
+      "fr": {
+        "name": "Différence de carrés",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գումարի խորանարդ",
     "category": "algebra:identities",
     "formula": "(a+b)^3 = a^3 + 3a^2b + 3ab^2 + b^3",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Cube of a sum",
+        "description": null
+      },
+      "hy": {
+        "name": "Գումարի խորանարդ",
+        "description": null
+      },
+      "ru": {
+        "name": "Куб суммы",
+        "description": null
+      },
+      "fr": {
+        "name": "Cube d'une somme",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տարբերության խորանարդ",
     "category": "algebra:identities",
     "formula": "(a-b)^3 = a^3 - 3a^2b + 3ab^2 - b^3",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Cube of a difference",
+        "description": null
+      },
+      "hy": {
+        "name": "Տարբերության խորանարդ",
+        "description": null
+      },
+      "ru": {
+        "name": "Куб разницы",
+        "description": null
+      },
+      "fr": {
+        "name": "Cube d'une différence",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Խորանարդների գումար",
     "category": "algebra:identities",
     "formula": "a^3 + b^3 = (a+b)(a^2 - ab + b^2)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum of cubes",
+        "description": null
+      },
+      "hy": {
+        "name": "Խորանարդների գումար",
+        "description": null
+      },
+      "ru": {
+        "name": "Сумма кубов",
+        "description": null
+      },
+      "fr": {
+        "name": "Somme des cubes",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Խորանարդների տարբերություն",
     "category": "algebra:identities",
     "formula": "a^3 - b^3 = (a-b)(a^2 + ab + b^2)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Difference of cubes",
+        "description": null
+      },
+      "hy": {
+        "name": "Խորանարդների տարբերություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Разница кубиков",
+        "description": null
+      },
+      "fr": {
+        "name": "Différence de cubes",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Եռանդամի քառակուսի",
     "category": "algebra:identities",
     "formula": "(a+b+c)^2 = a^2+b^2+c^2+2ab+2bc+2ca",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Square of a trinomial",
+        "description": null
+      },
+      "hy": {
+        "name": "Եռանդամի քառակուսի",
+        "description": null
+      },
+      "ru": {
+        "name": "Квадрат трехчлена",
+        "description": null
+      },
+      "fr": {
+        "name": "Carré d'un trinôme",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գծային հավասարում",
     "category": "algebra:equations",
     "formula": "ax + b = 0 \\implies x = -\\frac{b}{a}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Linear equation",
+        "description": null
+      },
+      "hy": {
+        "name": "Գծային հավասարում",
+        "description": null
+      },
+      "ru": {
+        "name": "Линейное уравнение",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation linéaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քառակուսային հավասարում",
     "category": "algebra:equations",
     "formula": "ax^2 + bx + c = 0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Quadratic equation",
+        "description": null
+      },
+      "hy": {
+        "name": "Քառակուսային հավասարում",
+        "description": null
+      },
+      "ru": {
+        "name": "Квадратное уравнение",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation quadratique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քառակուսային հավասարման բանաձև",
     "category": "algebra:equations",
     "formula": "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Quadratic formula",
+        "description": null
+      },
+      "hy": {
+        "name": "Քառակուսային հավասարման բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Квадратичная формула",
+        "description": null
+      },
+      "fr": {
+        "name": "Formule quadratique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Դիսկրիմինանտ",
     "category": "algebra:equations",
     "formula": "D = b^2 - 4ac",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Discriminant",
+        "description": null
+      },
+      "hy": {
+        "name": "Դիսկրիմինանտ",
+        "description": null
+      },
+      "ru": {
+        "name": "Дискриминант",
+        "description": null
+      },
+      "fr": {
+        "name": "Discriminant",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Վիետայի բանաձևեր",
     "category": "algebra:equations",
     "formula": "x_1 + x_2 = -\\frac{b}{a},\\quad x_1 x_2 = \\frac{c}{a}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Vieta formulas",
+        "description": null
+      },
+      "hy": {
+        "name": "Վիետայի բանաձևեր",
+        "description": null
+      },
+      "ru": {
+        "name": "Формулы Виета",
+        "description": null
+      },
+      "fr": {
+        "name": "Formules Vieta",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կրճատված խորանարդ հավասարում",
     "category": "algebra:equations",
     "formula": "x^3 + px + q = 0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Depressed cubic equation",
+        "description": null
+      },
+      "hy": {
+        "name": "Կրճատված խորանարդ հավասարում",
+        "description": null
+      },
+      "ru": {
+        "name": "Депрессивное кубическое уравнение",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation cubique déprimée",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անհավասարության երկու կողմերին նույն թիվ գումարելու հատկություն",
     "category": "algebra:inequalities",
     "formula": "a > b \\implies a+c > b+c",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Adding the same number to both sides of an inequality",
+        "description": null
+      },
+      "hy": {
+        "name": "Անհավասարության երկու կողմերին նույն թիվ գումարելու հատկություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Прибавление одного и того же числа к обеим частям неравенства",
+        "description": null
+      },
+      "fr": {
+        "name": "Ajouter le même nombre aux deux côtés d'une inégalité",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անհավասարության երկու կողմերը դրական թվով բազմապատկելու հատկություն",
     "category": "algebra:inequalities",
     "formula": "a > b,\\ c > 0 \\implies ac > bc",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Multiplying both sides of an inequality by a positive number",
+        "description": null
+      },
+      "hy": {
+        "name": "Անհավասարության երկու կողմերը դրական թվով բազմապատկելու հատկություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Умножение обеих частей неравенства на положительное число",
+        "description": null
+      },
+      "fr": {
+        "name": "Multiplier les deux côtés d'une inégalité par un nombre positif",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անհավասարության երկու կողմերը բացասական թվով բազմապատկելու հատկություն",
     "category": "algebra:inequalities",
     "formula": "a > b,\\ c < 0 \\implies ac < bc",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Multiplying both sides of an inequality by a negative number",
+        "description": null
+      },
+      "hy": {
+        "name": "Անհավասարության երկու կողմերը բացասական թվով բազմապատկելու հատկություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Умножение обеих частей неравенства на отрицательное число",
+        "description": null
+      },
+      "fr": {
+        "name": "Multiplier les deux côtés d'une inégalité par un nombre négatif",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բացարձակ արժեքով անհավասարություն |x| < a",
     "category": "algebra:inequalities",
     "formula": "|x| < a \\iff -a < x < a",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Absolute value inequality |x| < a",
+        "description": null
+      },
+      "hy": {
+        "name": "Բացարձակ արժեքով անհավասարություն |x| < a",
+        "description": null
+      },
+      "ru": {
+        "name": "Абсолютное неравенство |x| <а",
+        "description": null
+      },
+      "fr": {
+        "name": "Inégalité en valeur absolue |x| < un",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բացարձակ արժեքով անհավասարություն |x| > a",
     "category": "algebra:inequalities",
     "formula": "|x| > a \\iff x < -a \\text{ կամ } x > a",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Absolute value inequality |x| > a",
+        "description": null
+      },
+      "hy": {
+        "name": "Բացարձակ արժեքով անհավասարություն |x| > a",
+        "description": null
+      },
+      "ru": {
+        "name": "Абсолютное неравенство |x| > а",
+        "description": null
+      },
+      "fr": {
+        "name": "Inégalité en valeur absolue |x| > un",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Թվաբանական և երկրաչափական միջինների անհավասարություն",
     "category": "algebra:inequalities",
     "formula": "\\frac{a+b}{2} \\geq \\sqrt{ab} \\quad (a,b \\geq 0)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Arithmetic-geometric mean inequality",
+        "description": null
+      },
+      "hy": {
+        "name": "Թվաբանական և երկրաչափական միջինների անհավասարություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Среднее арифметико-геометрическое неравенство",
+        "description": null
+      },
+      "fr": {
+        "name": "Inégalité moyenne arithmétique-géométrique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոշի-Շվարցի անհավասարություն",
     "category": "algebra:inequalities",
     "formula": "\\left(\\sum_{i=1}^n a_i b_i\\right)^2 \\leq \\left(\\sum a_i^2\\right)\\left(\\sum b_i^2\\right)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Cauchy-Schwarz inequality",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոշի-Շվարցի անհավասարություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Неравенство Коши-Шварца",
+        "description": null
+      },
+      "fr": {
+        "name": "Inégalité de Cauchy-Schwarz",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Թվաբանական պրոգրեսիայի n-րդ անդամ",
     "category": "algebra:sequences",
     "formula": "a_n = a_1 + (n-1)d",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "nth term of an arithmetic progression",
+        "description": null
+      },
+      "hy": {
+        "name": "Թվաբանական պրոգրեսիայի n-րդ անդամ",
+        "description": null
+      },
+      "ru": {
+        "name": "n-й член арифметической прогрессии",
+        "description": null
+      },
+      "fr": {
+        "name": "nième terme d'une progression arithmétique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Թվաբանական պրոգրեսիայի գումար",
     "category": "algebra:sequences",
     "formula": "S_n = \\frac{n}{2}(a_1 + a_n) = \\frac{n}{2}(2a_1 + (n-1)d)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum of an arithmetic progression",
+        "description": null
+      },
+      "hy": {
+        "name": "Թվաբանական պրոգրեսիայի գումար",
+        "description": null
+      },
+      "ru": {
+        "name": "Сумма арифметической прогрессии",
+        "description": null
+      },
+      "fr": {
+        "name": "Somme d'une progression arithmétique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Երկրաչափական պրոգրեսիայի n-րդ անդամ",
     "category": "algebra:sequences",
     "formula": "b_n = b_1 \\cdot q^{n-1}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "nth term of a geometric progression",
+        "description": null
+      },
+      "hy": {
+        "name": "Երկրաչափական պրոգրեսիայի n-րդ անդամ",
+        "description": null
+      },
+      "ru": {
+        "name": "n-й член геометрической прогрессии",
+        "description": null
+      },
+      "fr": {
+        "name": "nième terme d'une progression géométrique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Երկրաչափական պրոգրեսիայի գումար (q≠1)",
     "category": "algebra:sequences",
     "formula": "S_n = b_1 \\cdot \\frac{q^n - 1}{q - 1}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum of a geometric progression (q not equal to 1)",
+        "description": null
+      },
+      "hy": {
+        "name": "Երկրաչափական պրոգրեսիայի գումար (q≠1)",
+        "description": null
+      },
+      "ru": {
+        "name": "Сумма геометрической прогрессии (q не равно 1)",
+        "description": null
+      },
+      "fr": {
+        "name": "Somme d'une progression géométrique (q différent de 1)",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անվերջ երկրաչափական պրոգրեսիայի գումար (|q|<1)",
     "category": "algebra:sequences",
     "formula": "S_\\infty = \\frac{b_1}{1-q}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum of an infinite geometric progression (absolute value of q less than 1)",
+        "description": null
+      },
+      "hy": {
+        "name": "Անվերջ երկրաչափական պրոգրեսիայի գումար (|q|<1)",
+        "description": null
+      },
+      "ru": {
+        "name": "Сумма бесконечной геометрической прогрессии (абсолютное значение q меньше 1)",
+        "description": null
+      },
+      "fr": {
+        "name": "Somme d'une progression géométrique infinie (valeur absolue de q inférieure à 1)",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Առաջին n բնական թվերի գումար",
     "category": "algebra:sequences",
     "formula": "\\sum_{k=1}^{n} k = \\frac{n(n+1)}{2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum of the first n natural numbers",
+        "description": null
+      },
+      "hy": {
+        "name": "Առաջին n բնական թվերի գումար",
+        "description": null
+      },
+      "ru": {
+        "name": "Сумма первых n натуральных чисел",
+        "description": null
+      },
+      "fr": {
+        "name": "Somme des n premiers nombres naturels",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Առաջին n բնական թվերի քառակուսիների գումար",
     "category": "algebra:sequences",
     "formula": "\\sum_{k=1}^{n} k^2 = \\frac{n(n+1)(2n+1)}{6}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum of squares of the first n natural numbers",
+        "description": null
+      },
+      "hy": {
+        "name": "Առաջին n բնական թվերի քառակուսիների գումար",
+        "description": null
+      },
+      "ru": {
+        "name": "Сумма квадратов первых n натуральных чисел",
+        "description": null
+      },
+      "fr": {
+        "name": "Somme des carrés des n premiers nombres naturels",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Առաջին n բնական թվերի խորանարդների գումար",
     "category": "algebra:sequences",
     "formula": "\\sum_{k=1}^{n} k^3 = \\left(\\frac{n(n+1)}{2}\\right)^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum of cubes of the first n natural numbers",
+        "description": null
+      },
+      "hy": {
+        "name": "Առաջին n բնական թվերի խորանարդների գումար",
+        "description": null
+      },
+      "ru": {
+        "name": "Сумма кубов первых n натуральных чисел",
+        "description": null
+      },
+      "fr": {
+        "name": "Somme des cubes des n premiers nombres naturels",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Լոգարիթմի սահմանում",
     "category": "algebra:logarithms",
     "formula": "\\log_a b = c \\iff a^c = b",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Definition of a logarithm",
+        "description": null
+      },
+      "hy": {
+        "name": "Լոգարիթմի սահմանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Определение логарифма",
+        "description": null
+      },
+      "fr": {
+        "name": "Définition d'un logarithme",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արտադրյալի լոգարիթմ",
     "category": "algebra:logarithms",
     "formula": "\\log_a(xy) = \\log_a x + \\log_a y",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Logarithm of a product",
+        "description": null
+      },
+      "hy": {
+        "name": "Արտադրյալի լոգարիթմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Логарифм продукта",
+        "description": null
+      },
+      "fr": {
+        "name": "Logarithme d'un produit",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քանորդի լոգարիթմ",
     "category": "algebra:logarithms",
     "formula": "\\log_a\\frac{x}{y} = \\log_a x - \\log_a y",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Logarithm of a quotient",
+        "description": null
+      },
+      "hy": {
+        "name": "Քանորդի լոգարիթմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Логарифм частного",
+        "description": null
+      },
+      "fr": {
+        "name": "Logarithme d'un quotient",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Աստիճանի լոգարիթմ",
     "category": "algebra:logarithms",
     "formula": "\\log_a x^n = n\\log_a x",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Logarithm of a power",
+        "description": null
+      },
+      "hy": {
+        "name": "Աստիճանի լոգարիթմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Логарифм степени",
+        "description": null
+      },
+      "fr": {
+        "name": "Logarithme d'une puissance",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Լոգարիթմի հիմքի փոփոխության բանաձև",
     "category": "algebra:logarithms",
     "formula": "\\log_a b = \\frac{\\ln b}{\\ln a} = \\frac{\\log b}{\\log a}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Change of base formula for logarithms",
+        "description": null
+      },
+      "hy": {
+        "name": "Լոգարիթմի հիմքի փոփոխության բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Изменение базовой формулы для логарифмов",
+        "description": null
+      },
+      "fr": {
+        "name": "Changement de formule de base pour les logarithmes",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մեկի լոգարիթմ",
     "category": "algebra:logarithms",
     "formula": "\\log_a 1 = 0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Logarithm of one",
+        "description": null
+      },
+      "hy": {
+        "name": "Մեկի լոգարիթմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Логарифм единицы",
+        "description": null
+      },
+      "fr": {
+        "name": "Logarithme de un",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հիմքի լոգարիթմ",
     "category": "algebra:logarithms",
     "formula": "\\log_a a = 1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Logarithm of the base",
+        "description": null
+      },
+      "hy": {
+        "name": "Հիմքի լոգարիթմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Логарифм по основанию",
+        "description": null
+      },
+      "fr": {
+        "name": "Logarithme de la base",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հակադարձ հիմքերով լոգարիթմների կապ",
     "category": "algebra:logarithms",
     "formula": "\\log_a b = \\frac{1}{\\log_b a}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Relationship between logarithms with reciprocal bases",
+        "description": null
+      },
+      "hy": {
+        "name": "Հակադարձ հիմքերով լոգարիթմների կապ",
+        "description": null
+      },
+      "ru": {
+        "name": "Связь между логарифмами с обратными основаниями",
+        "description": null
+      },
+      "fr": {
+        "name": "Relation entre logarithmes à bases réciproques",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բնական լոգարիթմի հիմնական հատկություններ",
     "category": "algebra:logarithms",
     "formula": "\\ln e = 1,\\quad \\ln 1 = 0,\\quad e^{\\ln x} = x",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Basic properties of the natural logarithm",
+        "description": null
+      },
+      "hy": {
+        "name": "Բնական լոգարիթմի հիմնական հատկություններ",
+        "description": null
+      },
+      "ru": {
+        "name": "Основные свойства натурального логарифма",
+        "description": null
+      },
+      "fr": {
+        "name": "Propriétés de base du logarithme népérien",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Նյուտոնի բինոմի թեորեմ",
     "category": "algebra:binomial",
     "formula": "(a+b)^n = \\sum_{k=0}^{n} \\binom{n}{k} a^{n-k} b^k",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Binomial theorem",
+        "description": null
+      },
+      "hy": {
+        "name": "Նյուտոնի բինոմի թեորեմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Биномиальная теорема",
+        "description": null
+      },
+      "fr": {
+        "name": "Théorème binomial",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բինոմային գործակից",
     "category": "algebra:binomial",
     "formula": "\\binom{n}{k} = \\frac{n!}{k!(n-k)!}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Binomial coefficient",
+        "description": null
+      },
+      "hy": {
+        "name": "Բինոմային գործակից",
+        "description": null
+      },
+      "ru": {
+        "name": "Биномиальный коэффициент",
+        "description": null
+      },
+      "fr": {
+        "name": "Coefficient binomial",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պասկալի կանոն",
     "category": "algebra:binomial",
     "formula": "\\binom{n}{k} = \\binom{n-1}{k-1} + \\binom{n-1}{k}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Pascal identity",
+        "description": null
+      },
+      "hy": {
+        "name": "Պասկալի կանոն",
+        "description": null
+      },
+      "ru": {
+        "name": "Паскаль идентичность",
+        "description": null
+      },
+      "fr": {
+        "name": "Identité pascale",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ֆակտորիալ",
     "category": "algebra:binomial",
     "formula": "n! = n \\cdot (n-1) \\cdot \\ldots \\cdot 2 \\cdot 1,\\quad 0!=1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Factorial",
+        "description": null
+      },
+      "hy": {
+        "name": "Ֆակտորիալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Факториал",
+        "description": null
+      },
+      "fr": {
+        "name": "Factorielle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Եռանկյան մակերեսը ըստ հիմքի և բարձրության",
     "category": "geometry2d:triangle",
     "formula": "A = \\frac{1}{2}bh",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a triangle from base and height",
+        "description": null
+      },
+      "hy": {
+        "name": "Եռանկյան մակերեսը ըստ հիմքի և բարձրության",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь треугольника по основанию и высоте",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un triangle à partir de la base et de la hauteur",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Եռանկյան մակերեսը Հերոնի բանաձևով",
     "category": "geometry2d:triangle",
     "formula": "A = \\sqrt{s(s-a)(s-b)(s-c)},\\quad s=\\frac{a+b+c}{2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a triangle by Heron formula",
+        "description": null
+      },
+      "hy": {
+        "name": "Եռանկյան մակերեսը Հերոնի բանաձևով",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь треугольника по формуле Герона",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un triangle par la formule de Heron",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Եռանկյան մակերեսը երկու կողմերով և սինուսով",
     "category": "geometry2d:triangle",
     "formula": "A = \\frac{1}{2}ab\\sin C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a triangle from two sides and the sine of the included angle",
+        "description": null
+      },
+      "hy": {
+        "name": "Եռանկյան մակերեսը երկու կողմերով և սինուսով",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь треугольника с двух сторон и синус прилежащего угла",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un triangle de deux côtés et sinus de l'angle inclus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պյութագորասի թեորեմ",
     "category": "geometry2d:triangle",
     "formula": "a^2 + b^2 = c^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Pythagorean theorem",
+        "description": null
+      },
+      "hy": {
+        "name": "Պյութագորասի թեորեմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Теорема Пифагора",
+        "description": null
+      },
+      "fr": {
+        "name": "Théorème de Pythagore",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սինուսների թեորեմ",
     "category": "geometry2d:triangle",
     "formula": "\\frac{a}{\\sin A} = \\frac{b}{\\sin B} = \\frac{c}{\\sin C} = 2R",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Law of sines",
+        "description": null
+      },
+      "hy": {
+        "name": "Սինուսների թեորեմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Закон синусов",
+        "description": null
+      },
+      "fr": {
+        "name": "Loi des sinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոսինուսների թեորեմ",
     "category": "geometry2d:triangle",
     "formula": "c^2 = a^2 + b^2 - 2ab\\cos C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Law of cosines",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոսինուսների թեորեմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Закон косинусов",
+        "description": null
+      },
+      "fr": {
+        "name": "Loi des cosinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Եռանկյան պարագիծ",
     "category": "geometry2d:triangle",
     "formula": "P = a + b + c",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Perimeter of a triangle",
+        "description": null
+      },
+      "hy": {
+        "name": "Եռանկյան պարագիծ",
+        "description": null
+      },
+      "ru": {
+        "name": "Периметр треугольника",
+        "description": null
+      },
+      "fr": {
+        "name": "Périmètre d'un triangle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Եռանկյան անկյունների գումար",
     "category": "geometry2d:triangle",
     "formula": "A + B + C = 180^\\circ",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum of angles in a triangle",
+        "description": null
+      },
+      "hy": {
+        "name": "Եռանկյան անկյունների գումար",
+        "description": null
+      },
+      "ru": {
+        "name": "Сумма углов в треугольнике",
+        "description": null
+      },
+      "fr": {
+        "name": "Somme des angles dans un triangle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Եռանկյան միջնագծի երկարություն",
     "category": "geometry2d:triangle",
     "formula": "m_a = \\frac{1}{2}\\sqrt{2b^2+2c^2-a^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Length of a triangle median",
+        "description": null
+      },
+      "hy": {
+        "name": "Եռանկյան միջնագծի երկարություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Длина медианы треугольника",
+        "description": null
+      },
+      "fr": {
+        "name": "Longueur d'un triangle médian",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արտագծած շրջանի շառավիղ",
     "category": "geometry2d:triangle",
     "formula": "R = \\frac{abc}{4A}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Circumradius of a triangle",
+        "description": null
+      },
+      "hy": {
+        "name": "Արտագծած շրջանի շառավիղ",
+        "description": null
+      },
+      "ru": {
+        "name": "Окружность треугольника",
+        "description": null
+      },
+      "fr": {
+        "name": "Circonstance d'un triangle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ներգծած շրջանի շառավիղ",
     "category": "geometry2d:triangle",
     "formula": "r = \\frac{A}{s}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Inradius of a triangle",
+        "description": null
+      },
+      "hy": {
+        "name": "Ներգծած շրջանի շառավիղ",
+        "description": null
+      },
+      "ru": {
+        "name": "Внутренний радиус треугольника",
+        "description": null
+      },
+      "fr": {
+        "name": "Inrayon d'un triangle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Շրջանի մակերես",
     "category": "geometry2d:circle",
     "formula": "A = \\pi r^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a circle",
+        "description": null
+      },
+      "hy": {
+        "name": "Շրջանի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь круга",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un cercle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Շրջանագիծ",
     "category": "geometry2d:circle",
     "formula": "C = 2\\pi r = \\pi d",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Circumference of a circle",
+        "description": null
+      },
+      "hy": {
+        "name": "Շրջանագիծ",
+        "description": null
+      },
+      "ru": {
+        "name": "Окружность круга",
+        "description": null
+      },
+      "fr": {
+        "name": "Circonférence d'un cercle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Աղեղի երկարություն",
     "category": "geometry2d:circle",
     "formula": "L = r\\theta = \\frac{\\pi r \\theta^\\circ}{180}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Arc length",
+        "description": null
+      },
+      "hy": {
+        "name": "Աղեղի երկարություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Длина дуги",
+        "description": null
+      },
+      "fr": {
+        "name": "Longueur de l'arc",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սեկտորի մակերես",
     "category": "geometry2d:circle",
     "formula": "A = \\frac{1}{2}r^2\\theta = \\frac{\\pi r^2 \\theta^\\circ}{360}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a sector",
+        "description": null
+      },
+      "hy": {
+        "name": "Սեկտորի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь сектора",
+        "description": null
+      },
+      "fr": {
+        "name": "Superficie d'un secteur",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Շրջանային հատվածի մակերես",
     "category": "geometry2d:circle",
     "formula": "A = \\frac{r^2}{2}(\\theta - \\sin\\theta)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a circular segment",
+        "description": null
+      },
+      "hy": {
+        "name": "Շրջանային հատվածի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь кругового сегмента",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un segment circulaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Լարի երկարություն",
     "category": "geometry2d:circle",
     "formula": "\\ell = 2r\\sin\\frac{\\theta}{2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Chord length",
+        "description": null
+      },
+      "hy": {
+        "name": "Լարի երկարություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Длина хорды",
+        "description": null
+      },
+      "fr": {
+        "name": "Longueur de la corde",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Օղակի մակերես",
     "category": "geometry2d:circle",
     "formula": "A = \\pi(R^2 - r^2)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of an annulus",
+        "description": null
+      },
+      "hy": {
+        "name": "Օղակի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь кольцевого пространства",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un anneau",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղանկյան մակերես",
     "category": "geometry2d:quadrilaterals",
     "formula": "A = lw",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a rectangle",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղանկյան մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь прямоугольника",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un rectangle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղանկյան պարագիծ",
     "category": "geometry2d:quadrilaterals",
     "formula": "P = 2(l+w)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Perimeter of a rectangle",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղանկյան պարագիծ",
+        "description": null
+      },
+      "ru": {
+        "name": "Периметр прямоугольника",
+        "description": null
+      },
+      "fr": {
+        "name": "Périmètre d'un rectangle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղանկյան անկյունագիծ",
     "category": "geometry2d:quadrilaterals",
     "formula": "d = \\sqrt{l^2+w^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Diagonal of a rectangle",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղանկյան անկյունագիծ",
+        "description": null
+      },
+      "ru": {
+        "name": "Диагональ прямоугольника",
+        "description": null
+      },
+      "fr": {
+        "name": "Diagonale d'un rectangle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քառակուսու մակերես",
     "category": "geometry2d:quadrilaterals",
     "formula": "A = a^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a square",
+        "description": null
+      },
+      "hy": {
+        "name": "Քառակուսու մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь квадрата",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un carré",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քառակուսու անկյունագիծ",
     "category": "geometry2d:quadrilaterals",
     "formula": "d = a\\sqrt{2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Diagonal of a square",
+        "description": null
+      },
+      "hy": {
+        "name": "Քառակուսու անկյունագիծ",
+        "description": null
+      },
+      "ru": {
+        "name": "Диагональ квадрата",
+        "description": null
+      },
+      "fr": {
+        "name": "Diagonale d'un carré",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սեղանաձևի մակերես",
     "category": "geometry2d:quadrilaterals",
     "formula": "A = \\frac{(a+b)h}{2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a trapezoid",
+        "description": null
+      },
+      "hy": {
+        "name": "Սեղանաձևի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь трапеции",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un trapèze",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ռոմբի մակերես",
     "category": "geometry2d:quadrilaterals",
     "formula": "A = \\frac{d_1 d_2}{2} = ab\\sin\\theta",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a rhombus",
+        "description": null
+      },
+      "hy": {
+        "name": "Ռոմբի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь ромба",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un losange",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Զուգահեռագծի մակերես",
     "category": "geometry2d:quadrilaterals",
     "formula": "A = bh = ab\\sin\\theta",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a parallelogram",
+        "description": null
+      },
+      "hy": {
+        "name": "Զուգահեռագծի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь параллелограмма",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un parallélogramme",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Դելտոիդի մակերես",
     "category": "geometry2d:quadrilaterals",
     "formula": "A = \\frac{d_1 d_2}{2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a kite",
+        "description": null
+      },
+      "hy": {
+        "name": "Դելտոիդի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь воздушного змея",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un cerf-volant",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ճիշտ բազմանկյան մակերես",
     "category": "geometry2d:polygon",
     "formula": "A = \\frac{na^2}{4}\\cot\\frac{\\pi}{n}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of a regular polygon",
+        "description": null
+      },
+      "hy": {
+        "name": "Ճիշտ բազմանկյան մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь правильного многоугольника",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'un polygone régulier",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ճիշտ բազմանկյան պարագիծ",
     "category": "geometry2d:polygon",
     "formula": "P = na",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Perimeter of a regular polygon",
+        "description": null
+      },
+      "hy": {
+        "name": "Ճիշտ բազմանկյան պարագիծ",
+        "description": null
+      },
+      "ru": {
+        "name": "Периметр правильного многоугольника",
+        "description": null
+      },
+      "fr": {
+        "name": "Périmètre d'un polygone régulier",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ներքին անկյան չափը",
     "category": "geometry2d:polygon",
     "formula": "\\theta = \\frac{(n-2)\\cdot 180^\\circ}{n}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Measure of an interior angle",
+        "description": null
+      },
+      "hy": {
+        "name": "Ներքին անկյան չափը",
+        "description": null
+      },
+      "ru": {
+        "name": "Мера внутреннего угла",
+        "description": null
+      },
+      "fr": {
+        "name": "Mesure d'un angle intérieur",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ներքին անկյունների գումար",
     "category": "geometry2d:polygon",
     "formula": "\\Sigma = (n-2) \\cdot 180^\\circ",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum of interior angles",
+        "description": null
+      },
+      "hy": {
+        "name": "Ներքին անկյունների գումար",
+        "description": null
+      },
+      "ru": {
+        "name": "Сумма внутренних углов",
+        "description": null
+      },
+      "fr": {
+        "name": "Somme des angles intérieurs",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անկյունագծերի քանակ",
     "category": "geometry2d:polygon",
     "formula": "D = \\frac{n(n-3)}{2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Number of diagonals",
+        "description": null
+      },
+      "hy": {
+        "name": "Անկյունագծերի քանակ",
+        "description": null
+      },
+      "ru": {
+        "name": "Количество диагоналей",
+        "description": null
+      },
+      "fr": {
+        "name": "Nombre de diagonales",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Էլիպսի մակերես",
     "category": "geometry2d:polygon",
     "formula": "A = \\pi ab",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area of an ellipse",
+        "description": null
+      },
+      "hy": {
+        "name": "Էլիպսի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь эллипса",
+        "description": null
+      },
+      "fr": {
+        "name": "Aire d'une ellipse",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Էլիպսի պարագծի մոտավոր բանաձև",
     "category": "geometry2d:polygon",
     "formula": "C \\approx \\pi\\left[3(a+b)-\\sqrt{(3a+b)(a+3b)}\\right]",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Approximate circumference of an ellipse",
+        "description": null
+      },
+      "hy": {
+        "name": "Էլիպսի պարագծի մոտավոր բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Примерная длина эллипса",
+        "description": null
+      },
+      "fr": {
+        "name": "Circonférence approximative d'une ellipse",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Երկու կետերի հեռավորություն",
     "category": "geometry2d:coordinate",
     "formula": "d = \\sqrt{(x_2-x_1)^2 + (y_2-y_1)^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Distance between two points",
+        "description": null
+      },
+      "hy": {
+        "name": "Երկու կետերի հեռավորություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Расстояние между двумя точками",
+        "description": null
+      },
+      "fr": {
+        "name": "Distance entre deux points",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հատվածի միջնակետի կոորդինատներ",
     "category": "geometry2d:coordinate",
     "formula": "M = \\left(\\frac{x_1+x_2}{2}, \\frac{y_1+y_2}{2}\\right)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Coordinates of the midpoint of a segment",
+        "description": null
+      },
+      "hy": {
+        "name": "Հատվածի միջնակետի կոորդինատներ",
+        "description": null
+      },
+      "ru": {
+        "name": "Координаты середины отрезка",
+        "description": null
+      },
+      "fr": {
+        "name": "Coordonnées du milieu d'un segment",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղի թեքության գործակից",
     "category": "geometry2d:coordinate",
     "formula": "m = \\frac{y_2-y_1}{x_2-x_1}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Slope of a line",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղի թեքության գործակից",
+        "description": null
+      },
+      "ru": {
+        "name": "Наклон линии",
+        "description": null
+      },
+      "fr": {
+        "name": "Pente d'une ligne",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղի հավասարումը ըստ թեքության",
     "category": "geometry2d:coordinate",
     "formula": "y = mx + b",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Slope-intercept equation of a line",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղի հավասարումը ըստ թեքության",
+        "description": null
+      },
+      "ru": {
+        "name": "Уравнение наклона-пересечения линии",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation à l'origine de la pente d'une droite",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղի ընդհանուր հավասարում",
     "category": "geometry2d:coordinate",
     "formula": "Ax + By + C = 0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "General equation of a line",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղի ընդհանուր հավասարում",
+        "description": null
+      },
+      "ru": {
+        "name": "Общее уравнение линии",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation générale d'une droite",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղի հավասարումը երկու կետերով",
     "category": "geometry2d:coordinate",
     "formula": "\\frac{y-y_1}{y_2-y_1} = \\frac{x-x_1}{x_2-x_1}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Equation of a line through two points",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղի հավասարումը երկու կետերով",
+        "description": null
+      },
+      "ru": {
+        "name": "Уравнение прямой, проходящей через две точки",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation d'une droite passant par deux points",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Շրջանի հավասարում",
     "category": "geometry2d:coordinate",
     "formula": "(x-h)^2 + (y-k)^2 = r^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Equation of a circle",
+        "description": null
+      },
+      "hy": {
+        "name": "Շրջանի հավասարում",
+        "description": null
+      },
+      "ru": {
+        "name": "Уравнение круга",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation d'un cercle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պարաբոլայի հավասարում",
     "category": "geometry2d:coordinate",
     "formula": "y = ax^2 + bx + c,\\quad x = \\frac{-b}{2a}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Equation of a parabola",
+        "description": null
+      },
+      "hy": {
+        "name": "Պարաբոլայի հավասարում",
+        "description": null
+      },
+      "ru": {
+        "name": "Уравнение параболы",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation d'une parabole",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կետից ուղղի հեռավորություն",
     "category": "geometry2d:coordinate",
     "formula": "d = \\frac{|Ax_0 + By_0 + C|}{\\sqrt{A^2+B^2}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Distance from a point to a line",
+        "description": null
+      },
+      "hy": {
+        "name": "Կետից ուղղի հեռավորություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Расстояние от точки до линии",
+        "description": null
+      },
+      "fr": {
+        "name": "Distance d'un point à une ligne",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Խորանարդի ծավալ",
     "category": "geometry3d:prisms",
     "formula": "V = a^3",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a cube",
+        "description": null
+      },
+      "hy": {
+        "name": "Խորանարդի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем куба",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'un cube",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Խորանարդի ամբողջ մակերես",
     "category": "geometry3d:prisms",
     "formula": "S = 6a^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Total surface area of a cube",
+        "description": null
+      },
+      "hy": {
+        "name": "Խորանարդի ամբողջ մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Общая площадь поверхности куба",
+        "description": null
+      },
+      "fr": {
+        "name": "Surface totale d'un cube",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Խորանարդի տարածական անկյունագիծ",
     "category": "geometry3d:prisms",
     "formula": "d = a\\sqrt{3}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Space diagonal of a cube",
+        "description": null
+      },
+      "hy": {
+        "name": "Խորանարդի տարածական անկյունագիծ",
+        "description": null
+      },
+      "ru": {
+        "name": "Пространственная диагональ куба",
+        "description": null
+      },
+      "fr": {
+        "name": "Diagonale spatiale d'un cube",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղանկյուն զուգահեռանիստի ծավալ",
     "category": "geometry3d:prisms",
     "formula": "V = lwh",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a rectangular prism",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղանկյուն զուգահեռանիստի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем прямоугольной призмы",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'un prisme rectangulaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղանկյուն զուգահեռանիստի ամբողջ մակերես",
     "category": "geometry3d:prisms",
     "formula": "S = 2(lw + lh + wh)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Total surface area of a rectangular prism",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղանկյուն զուգահեռանիստի ամբողջ մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Полная площадь поверхности прямоугольной призмы",
+        "description": null
+      },
+      "fr": {
+        "name": "Surface totale d'un prisme rectangulaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ուղղանկյուն զուգահեռանիստի անկյունագիծ",
     "category": "geometry3d:prisms",
     "formula": "d = \\sqrt{l^2+w^2+h^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Diagonal of a rectangular prism",
+        "description": null
+      },
+      "hy": {
+        "name": "Ուղղանկյուն զուգահեռանիստի անկյունագիծ",
+        "description": null
+      },
+      "ru": {
+        "name": "Диагональ прямоугольной призмы",
+        "description": null
+      },
+      "fr": {
+        "name": "Diagonale d'un prisme rectangulaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պրիզմայի ծավալ",
     "category": "geometry3d:prisms",
     "formula": "V = A_{\\text{base}} \\cdot h",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a prism",
+        "description": null
+      },
+      "hy": {
+        "name": "Պրիզմայի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем призмы",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'un prisme",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պրիզմայի ամբողջ մակերես",
     "category": "geometry3d:prisms",
     "formula": "S = 2A_{\\text{base}} + P_{\\text{base}} \\cdot h",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Total surface area of a prism",
+        "description": null
+      },
+      "hy": {
+        "name": "Պրիզմայի ամբողջ մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Общая площадь поверхности призмы",
+        "description": null
+      },
+      "fr": {
+        "name": "Surface totale d'un prisme",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գլանի ծավալ",
     "category": "geometry3d:cylinders-cones",
     "formula": "V = \\pi r^2 h",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a cylinder",
+        "description": null
+      },
+      "hy": {
+        "name": "Գլանի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем цилиндра",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'un cylindre",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գլանի կողային մակերես",
     "category": "geometry3d:cylinders-cones",
     "formula": "S_\\text{lat} = 2\\pi r h",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Lateral surface area of a cylinder",
+        "description": null
+      },
+      "hy": {
+        "name": "Գլանի կողային մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь боковой поверхности цилиндра",
+        "description": null
+      },
+      "fr": {
+        "name": "Surface latérale d'un cylindre",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գլանի ամբողջ մակերես",
     "category": "geometry3d:cylinders-cones",
     "formula": "S = 2\\pi r(r+h)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Total surface area of a cylinder",
+        "description": null
+      },
+      "hy": {
+        "name": "Գլանի ամբողջ մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Общая площадь поверхности цилиндра",
+        "description": null
+      },
+      "fr": {
+        "name": "Surface totale d'un cylindre",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոնի ծավալ",
     "category": "geometry3d:cylinders-cones",
     "formula": "V = \\frac{1}{3}\\pi r^2 h",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a cone",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոնի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем конуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'un cône",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոնի թեք կողի երկարություն",
     "category": "geometry3d:cylinders-cones",
     "formula": "l = \\sqrt{r^2+h^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Slant height of a cone",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոնի թեք կողի երկարություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Наклонная высота конуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Hauteur inclinée d'un cône",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոնի կողային մակերես",
     "category": "geometry3d:cylinders-cones",
     "formula": "S_\\text{lat} = \\pi r l",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Lateral surface area of a cone",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոնի կողային մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь боковой поверхности конуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Surface latérale d'un cône",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոնի ամբողջ մակերես",
     "category": "geometry3d:cylinders-cones",
     "formula": "S = \\pi r(r+l)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Total surface area of a cone",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոնի ամբողջ մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Общая площадь поверхности конуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Surface totale d'un cône",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոնի կտրված մասի ծավալ",
     "category": "geometry3d:cylinders-cones",
     "formula": "V = \\frac{\\pi h}{3}(r_1^2 + r_1 r_2 + r_2^2)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a frustum of a cone",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոնի կտրված մասի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем усеченного конуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'un tronc de cône",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գնդի ծավալ",
     "category": "geometry3d:sphere",
     "formula": "V = \\frac{4}{3}\\pi r^3",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a sphere",
+        "description": null
+      },
+      "hy": {
+        "name": "Գնդի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем сферы",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'une sphère",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գնդի մակերես",
     "category": "geometry3d:sphere",
     "formula": "S = 4\\pi r^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Surface area of a sphere",
+        "description": null
+      },
+      "hy": {
+        "name": "Գնդի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь поверхности сферы",
+        "description": null
+      },
+      "fr": {
+        "name": "Superficie d'une sphère",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կիսագնդի ծավալ",
     "category": "geometry3d:sphere",
     "formula": "V = \\frac{2}{3}\\pi r^3",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a hemisphere",
+        "description": null
+      },
+      "hy": {
+        "name": "Կիսագնդի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем полушария",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'un hémisphère",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կիսագնդի ամբողջ մակերես",
     "category": "geometry3d:sphere",
     "formula": "S = 3\\pi r^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Total surface area of a hemisphere",
+        "description": null
+      },
+      "hy": {
+        "name": "Կիսագնդի ամբողջ մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Общая площадь поверхности полушария",
+        "description": null
+      },
+      "fr": {
+        "name": "Superficie totale d'un hémisphère",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գնդային գլխարկի ծավալ",
     "category": "geometry3d:sphere",
     "formula": "V = \\frac{\\pi h^2}{3}(3r-h)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a spherical cap",
+        "description": null
+      },
+      "hy": {
+        "name": "Գնդային գլխարկի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем шаровой шапки",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'une calotte sphérique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տորի ծավալ",
     "category": "geometry3d:sphere",
     "formula": "V = 2\\pi^2 r^2 R",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a torus",
+        "description": null
+      },
+      "hy": {
+        "name": "Տորի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем тора",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'un tore",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տորի մակերես",
     "category": "geometry3d:sphere",
     "formula": "S = 4\\pi^2 rR",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Surface area of a torus",
+        "description": null
+      },
+      "hy": {
+        "name": "Տորի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь поверхности тора",
+        "description": null
+      },
+      "fr": {
+        "name": "Surface d'un tore",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բուրգի ծավալ",
     "category": "geometry3d:pyramids",
     "formula": "V = \\frac{1}{3}A_{\\text{base}} \\cdot h",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a pyramid",
+        "description": null
+      },
+      "hy": {
+        "name": "Բուրգի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем пирамиды",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'une pyramide",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քառակուսի հիմքով բուրգի ծավալ",
     "category": "geometry3d:pyramids",
     "formula": "V = \\frac{1}{3}a^2 h",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a square pyramid",
+        "description": null
+      },
+      "hy": {
+        "name": "Քառակուսի հիմքով բուրգի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем квадратной пирамиды",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'une pyramide carrée",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բուրգի ամբողջ մակերես",
     "category": "geometry3d:pyramids",
     "formula": "S = A_{\\text{base}} + \\frac{1}{2}P_{\\text{base}} \\cdot l",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Total surface area of a pyramid",
+        "description": null
+      },
+      "hy": {
+        "name": "Բուրգի ամբողջ մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Общая площадь поверхности пирамиды",
+        "description": null
+      },
+      "fr": {
+        "name": "Surface totale d'une pyramide",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կանոնավոր տետրաեդրի ծավալ",
     "category": "geometry3d:pyramids",
     "formula": "V = \\frac{a^3}{6\\sqrt{2}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume of a regular tetrahedron",
+        "description": null
+      },
+      "hy": {
+        "name": "Կանոնավոր տետրաեդրի ծավալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем правильного тетраэдра",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume d'un tétraèdre régulier",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կանոնավոր տետրաեդրի մակերես",
     "category": "geometry3d:pyramids",
     "formula": "S = a^2\\sqrt{3}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Surface area of a regular tetrahedron",
+        "description": null
+      },
+      "hy": {
+        "name": "Կանոնավոր տետրաեդրի մակերես",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь поверхности правильного тетраэдра",
+        "description": null
+      },
+      "fr": {
+        "name": "Superficie d'un tétraèdre régulier",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սինուսի սահմանում",
     "category": "trigonometry:trig-defs",
     "formula": "\\sin\\theta = \\frac{\\text{հակադիր էջ}}{\\text{ներքնաձիգ}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Definition of sine",
+        "description": null
+      },
+      "hy": {
+        "name": "Սինուսի սահմանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Определение синуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Définition du sinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոսինուսի սահմանում",
     "category": "trigonometry:trig-defs",
     "formula": "\\cos\\theta = \\frac{\\text{կից էջ}}{\\text{ներքնաձիգ}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Definition of cosine",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոսինուսի սահմանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Определение косинуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Définition du cosinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տանգենսի սահմանում",
     "category": "trigonometry:trig-defs",
     "formula": "\\tan\\theta = \\frac{\\sin\\theta}{\\cos\\theta} = \\frac{\\text{հակադիր էջ}}{\\text{կից էջ}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Definition of tangent",
+        "description": null
+      },
+      "hy": {
+        "name": "Տանգենսի սահմանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Определение касательной",
+        "description": null
+      },
+      "fr": {
+        "name": "Définition de tangente",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտանգենսի սահմանում",
     "category": "trigonometry:trig-defs",
     "formula": "\\cot\\theta = \\frac{\\cos\\theta}{\\sin\\theta} = \\frac{\\text{կից էջ}}{\\text{հակադիր էջ}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Definition of cotangent",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտանգենսի սահմանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Определение котангенса",
+        "description": null
+      },
+      "fr": {
+        "name": "Définition de cotangente",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սեկանսի սահմանում",
     "category": "trigonometry:trig-defs",
     "formula": "\\sec\\theta = \\frac{1}{\\cos\\theta}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Definition of secant",
+        "description": null
+      },
+      "hy": {
+        "name": "Սեկանսի սահմանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Определение секущего",
+        "description": null
+      },
+      "fr": {
+        "name": "Définition de sécante",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոսեկանսի սահմանում",
     "category": "trigonometry:trig-defs",
     "formula": "\\csc\\theta = \\frac{1}{\\sin\\theta}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Definition of cosecant",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոսեկանսի սահմանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Определение косеканса",
+        "description": null
+      },
+      "fr": {
+        "name": "Définition de cosécant",
+        "description": null
+      }
+    }
   },
   {
-    "name": "0° անկյան արժեքներ",
     "category": "trigonometry:trig-values",
     "formula": "\\sin 0^\\circ=0,\\ \\cos 0^\\circ=1,\\ \\tan 0^\\circ=0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Trigonometric values for a 0 degree angle",
+        "description": null
+      },
+      "hy": {
+        "name": "0° անկյան արժեքներ",
+        "description": null
+      },
+      "ru": {
+        "name": "Тригонометрические значения для угла 0 градусов",
+        "description": null
+      },
+      "fr": {
+        "name": "Valeurs trigonométriques pour un angle de 0 degré",
+        "description": null
+      }
+    }
   },
   {
-    "name": "30° անկյան արժեքներ",
     "category": "trigonometry:trig-values",
     "formula": "\\sin 30^\\circ=\\tfrac{1}{2},\\ \\cos 30^\\circ=\\tfrac{\\sqrt{3}}{2},\\ \\tan 30^\\circ=\\tfrac{1}{\\sqrt{3}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Trigonometric values for a 30 degree angle",
+        "description": null
+      },
+      "hy": {
+        "name": "30° անկյան արժեքներ",
+        "description": null
+      },
+      "ru": {
+        "name": "Тригонометрические значения для угла 30 градусов.",
+        "description": null
+      },
+      "fr": {
+        "name": "Valeurs trigonométriques pour un angle de 30 degrés",
+        "description": null
+      }
+    }
   },
   {
-    "name": "45° անկյան արժեքներ",
     "category": "trigonometry:trig-values",
     "formula": "\\sin 45^\\circ=\\tfrac{\\sqrt{2}}{2},\\ \\cos 45^\\circ=\\tfrac{\\sqrt{2}}{2},\\ \\tan 45^\\circ=1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Trigonometric values for a 45 degree angle",
+        "description": null
+      },
+      "hy": {
+        "name": "45° անկյան արժեքներ",
+        "description": null
+      },
+      "ru": {
+        "name": "Тригонометрические значения для угла 45 градусов.",
+        "description": null
+      },
+      "fr": {
+        "name": "Valeurs trigonométriques pour un angle de 45 degrés",
+        "description": null
+      }
+    }
   },
   {
-    "name": "60° անկյան արժեքներ",
     "category": "trigonometry:trig-values",
     "formula": "\\sin 60^\\circ=\\tfrac{\\sqrt{3}}{2},\\ \\cos 60^\\circ=\\tfrac{1}{2},\\ \\tan 60^\\circ=\\sqrt{3}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Trigonometric values for a 60 degree angle",
+        "description": null
+      },
+      "hy": {
+        "name": "60° անկյան արժեքներ",
+        "description": null
+      },
+      "ru": {
+        "name": "Тригонометрические значения для угла 60 градусов.",
+        "description": null
+      },
+      "fr": {
+        "name": "Valeurs trigonométriques pour un angle de 60 degrés",
+        "description": null
+      }
+    }
   },
   {
-    "name": "90° անկյան արժեքներ",
     "category": "trigonometry:trig-values",
     "formula": "\\sin 90^\\circ=1,\\ \\cos 90^\\circ=0,\\ \\tan 90^\\circ=\\text{սահմանված չէ}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Trigonometric values for a 90 degree angle",
+        "description": null
+      },
+      "hy": {
+        "name": "90° անկյան արժեքներ",
+        "description": null
+      },
+      "ru": {
+        "name": "Тригонометрические значения для угла 90 градусов.",
+        "description": null
+      },
+      "fr": {
+        "name": "Valeurs trigonométriques pour un angle de 90 degrés",
+        "description": null
+      }
+    }
   },
   {
-    "name": "180° անկյան արժեքներ",
     "category": "trigonometry:trig-values",
     "formula": "\\sin 180^\\circ=0,\\ \\cos 180^\\circ=-1,\\ \\tan 180^\\circ=0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Trigonometric values for a 180 degree angle",
+        "description": null
+      },
+      "hy": {
+        "name": "180° անկյան արժեքներ",
+        "description": null
+      },
+      "ru": {
+        "name": "Тригонометрические значения для угла 180 градусов.",
+        "description": null
+      },
+      "fr": {
+        "name": "Valeurs trigonométriques pour un angle de 180 degrés",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հիմնական տրիգոնոմետրիկ նույնություն",
     "category": "trigonometry:trig-identities",
     "formula": "\\sin^2\\theta + \\cos^2\\theta = 1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Fundamental trigonometric identity",
+        "description": null
+      },
+      "hy": {
+        "name": "Հիմնական տրիգոնոմետրիկ նույնություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Фундаментальное тригонометрическое тождество",
+        "description": null
+      },
+      "fr": {
+        "name": "Identité trigonométrique fondamentale",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տանգենսի հիմնական նույնություն",
     "category": "trigonometry:trig-identities",
     "formula": "1 + \\tan^2\\theta = \\sec^2\\theta",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Fundamental tangent identity",
+        "description": null
+      },
+      "hy": {
+        "name": "Տանգենսի հիմնական նույնություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Фундаментальная тождественность касательной",
+        "description": null
+      },
+      "fr": {
+        "name": "Identité tangente fondamentale",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտանգենսի հիմնական նույնություն",
     "category": "trigonometry:trig-identities",
     "formula": "1 + \\cot^2\\theta = \\csc^2\\theta",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Fundamental cotangent identity",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտանգենսի հիմնական նույնություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Фундаментальное тождество котангенса",
+        "description": null
+      },
+      "fr": {
+        "name": "Identité cotangente fondamentale",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անկյունների գումարի և տարբերության սինուս",
     "category": "trigonometry:trig-identities",
     "formula": "\\sin(A\\pm B) = \\sin A\\cos B \\pm \\cos A\\sin B",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sine of a sum or difference of angles",
+        "description": null
+      },
+      "hy": {
+        "name": "Անկյունների գումարի և տարբերության սինուս",
+        "description": null
+      },
+      "ru": {
+        "name": "Синус суммы или разности углов",
+        "description": null
+      },
+      "fr": {
+        "name": "Sinus d'une somme ou d'une différence d'angles",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անկյունների գումարի և տարբերության կոսինուս",
     "category": "trigonometry:trig-identities",
     "formula": "\\cos(A\\pm B) = \\cos A\\cos B \\mp \\sin A\\sin B",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Cosine of a sum or difference of angles",
+        "description": null
+      },
+      "hy": {
+        "name": "Անկյունների գումարի և տարբերության կոսինուս",
+        "description": null
+      },
+      "ru": {
+        "name": "Косинус суммы или разности углов",
+        "description": null
+      },
+      "fr": {
+        "name": "Cosinus d'une somme ou d'une différence d'angles",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անկյունների գումարի և տարբերության տանգենս",
     "category": "trigonometry:trig-identities",
     "formula": "\\tan(A\\pm B) = \\frac{\\tan A \\pm \\tan B}{1 \\mp \\tan A\\tan B}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Tangent of a sum or difference of angles",
+        "description": null
+      },
+      "hy": {
+        "name": "Անկյունների գումարի և տարբերության տանգենս",
+        "description": null
+      },
+      "ru": {
+        "name": "Тангенс суммы или разности углов",
+        "description": null
+      },
+      "fr": {
+        "name": "Tangente d'une somme ou d'une différence d'angles",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կրկնակի անկյան սինուս",
     "category": "trigonometry:trig-identities",
     "formula": "\\sin(2A) = 2\\sin A\\cos A",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sine of a double angle",
+        "description": null
+      },
+      "hy": {
+        "name": "Կրկնակի անկյան սինուս",
+        "description": null
+      },
+      "ru": {
+        "name": "Синус двойного угла",
+        "description": null
+      },
+      "fr": {
+        "name": "Sinus d'un double angle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կրկնակի անկյան կոսինուս",
     "category": "trigonometry:trig-identities",
     "formula": "\\cos(2A) = \\cos^2 A - \\sin^2 A = 1-2\\sin^2 A = 2\\cos^2 A - 1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Cosine of a double angle",
+        "description": null
+      },
+      "hy": {
+        "name": "Կրկնակի անկյան կոսինուս",
+        "description": null
+      },
+      "ru": {
+        "name": "Косинус двойного угла",
+        "description": null
+      },
+      "fr": {
+        "name": "Cosinus d'un angle double",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կրկնակի անկյան տանգենս",
     "category": "trigonometry:trig-identities",
     "formula": "\\tan(2A) = \\frac{2\\tan A}{1-\\tan^2 A}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Tangent of a double angle",
+        "description": null
+      },
+      "hy": {
+        "name": "Կրկնակի անկյան տանգենս",
+        "description": null
+      },
+      "ru": {
+        "name": "Тангенс двойного угла",
+        "description": null
+      },
+      "fr": {
+        "name": "Tangente d'un double angle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կես անկյան սինուս",
     "category": "trigonometry:trig-identities",
     "formula": "\\sin\\frac{A}{2} = \\pm\\sqrt{\\frac{1-\\cos A}{2}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sine of a half angle",
+        "description": null
+      },
+      "hy": {
+        "name": "Կես անկյան սինուս",
+        "description": null
+      },
+      "ru": {
+        "name": "Синус половинного угла",
+        "description": null
+      },
+      "fr": {
+        "name": "Sinus d'un demi-angle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կես անկյան կոսինուս",
     "category": "trigonometry:trig-identities",
     "formula": "\\cos\\frac{A}{2} = \\pm\\sqrt{\\frac{1+\\cos A}{2}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Cosine of a half angle",
+        "description": null
+      },
+      "hy": {
+        "name": "Կես անկյան կոսինուս",
+        "description": null
+      },
+      "ru": {
+        "name": "Косинус половины угла",
+        "description": null
+      },
+      "fr": {
+        "name": "Cosinus d'un demi-angle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արտադրյալից գումարի անցում",
     "category": "trigonometry:trig-identities",
     "formula": "2\\sin A\\cos B = \\sin(A+B)+\\sin(A-B)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Product-to-sum identity",
+        "description": null
+      },
+      "hy": {
+        "name": "Արտադրյալից գումարի անցում",
+        "description": null
+      },
+      "ru": {
+        "name": "Идентичность произведения к сумме",
+        "description": null
+      },
+      "fr": {
+        "name": "Identité produit-somme",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գումարից արտադրյալի անցում",
     "category": "trigonometry:trig-identities",
     "formula": "\\sin A + \\sin B = 2\\sin\\frac{A+B}{2}\\cos\\frac{A-B}{2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sum-to-product identity",
+        "description": null
+      },
+      "hy": {
+        "name": "Գումարից արտադրյալի անցում",
+        "description": null
+      },
+      "ru": {
+        "name": "Идентичность суммы к произведению",
+        "description": null
+      },
+      "fr": {
+        "name": "Identité somme-produit",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արկսինուսի արժեքների տիրույթ",
     "category": "trigonometry:inverse-trig",
     "formula": "\\arcsin: [-1,1] \\to [-\\tfrac{\\pi}{2},\\tfrac{\\pi}{2}]",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Range of arcsine",
+        "description": null
+      },
+      "hy": {
+        "name": "Արկսինուսի արժեքների տիրույթ",
+        "description": null
+      },
+      "ru": {
+        "name": "Диапазон арксинуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Plage d'arc sinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արկկոսինուսի արժեքների տիրույթ",
     "category": "trigonometry:inverse-trig",
     "formula": "\\arccos: [-1,1] \\to [0,\\pi]",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Range of arccosine",
+        "description": null
+      },
+      "hy": {
+        "name": "Արկկոսինուսի արժեքների տիրույթ",
+        "description": null
+      },
+      "ru": {
+        "name": "Диапазон арккосинуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Plage d'arccosinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արկտանգենսի արժեքների տիրույթ",
     "category": "trigonometry:inverse-trig",
     "formula": "\\arctan: \\mathbb{R} \\to (-\\tfrac{\\pi}{2},\\tfrac{\\pi}{2})",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Range of arctangent",
+        "description": null
+      },
+      "hy": {
+        "name": "Արկտանգենսի արժեքների տիրույթ",
+        "description": null
+      },
+      "ru": {
+        "name": "Диапазон арктангенса",
+        "description": null
+      },
+      "fr": {
+        "name": "Plage d'arctangente",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արկսինուսի և արկկոսինուսի կապ",
     "category": "trigonometry:inverse-trig",
     "formula": "\\arcsin x + \\arccos x = \\frac{\\pi}{2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Relationship between arcsine and arccosine",
+        "description": null
+      },
+      "hy": {
+        "name": "Արկսինուսի և արկկոսինուսի կապ",
+        "description": null
+      },
+      "ru": {
+        "name": "Связь между арксинусом и арккосинусом",
+        "description": null
+      },
+      "fr": {
+        "name": "Relation entre l'arc sinus et l'arc cosinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արկտանգենսի կենտություն",
     "category": "trigonometry:inverse-trig",
     "formula": "\\arctan(-x) = -\\arctan(x)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Oddness of arctangent",
+        "description": null
+      },
+      "hy": {
+        "name": "Արկտանգենսի կենտություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Нечетность арктангенса",
+        "description": null
+      },
+      "fr": {
+        "name": "Étrangeté de l'arctangente",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Առաջին նշանավոր սահման",
     "category": "calculus:limits",
     "formula": "\\lim_{x\\to 0}\\frac{\\sin x}{x} = 1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "First remarkable limit",
+        "description": null
+      },
+      "hy": {
+        "name": "Առաջին նշանավոր սահման",
+        "description": null
+      },
+      "ru": {
+        "name": "Первый замечательный предел",
+        "description": null
+      },
+      "fr": {
+        "name": "Première limite remarquable",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Երկրորդ նշանավոր սահման",
     "category": "calculus:limits",
     "formula": "\\lim_{x\\to\\infty}\\left(1+\\frac{1}{x}\\right)^x = e",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Second remarkable limit",
+        "description": null
+      },
+      "hy": {
+        "name": "Երկրորդ նշանավոր սահման",
+        "description": null
+      },
+      "ru": {
+        "name": "Второй замечательный предел",
+        "description": null
+      },
+      "fr": {
+        "name": "Deuxième limite remarquable",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Էքսպոնենտի սահմանի բանաձև",
     "category": "calculus:limits",
     "formula": "\\lim_{x\\to 0}\\frac{e^x-1}{x} = 1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Limit formula for the exponential function",
+        "description": null
+      },
+      "hy": {
+        "name": "Էքսպոնենտի սահմանի բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Предельная формула для показательной функции",
+        "description": null
+      },
+      "fr": {
+        "name": "Formule limite pour la fonction exponentielle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Լոգարիթմի սահմանի բանաձև",
     "category": "calculus:limits",
     "formula": "\\lim_{x\\to 0}\\frac{\\ln(1+x)}{x} = 1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Limit formula for the logarithm",
+        "description": null
+      },
+      "hy": {
+        "name": "Լոգարիթմի սահմանի բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Предельная формула для логарифма",
+        "description": null
+      },
+      "fr": {
+        "name": "Formule limite pour le logarithme",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անսահմանության վրա 1/x-ի սահման",
     "category": "calculus:limits",
     "formula": "\\lim_{x\\to\\infty}\\frac{1}{x} = 0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Limit of 1/x at infinity",
+        "description": null
+      },
+      "hy": {
+        "name": "Անսահմանության վրա 1/x-ի սահման",
+        "description": null
+      },
+      "ru": {
+        "name": "Предел 1/x на бесконечности",
+        "description": null
+      },
+      "fr": {
+        "name": "Limite de 1/x à l'infini",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Լոպիտալի կանոն",
     "category": "calculus:limits",
     "formula": "\\lim_{x\\to a}\\frac{f(x)}{g(x)} = \\lim_{x\\to a}\\frac{f'(x)}{g'(x)}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "L'Hopital rule",
+        "description": null
+      },
+      "hy": {
+        "name": "Լոպիտալի կանոն",
+        "description": null
+      },
+      "ru": {
+        "name": "Правило Лопиталя",
+        "description": null
+      },
+      "fr": {
+        "name": "Règle de l'Hôpital",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սեղմման թեորեմ",
     "category": "calculus:limits",
     "formula": "f\\leq g\\leq h,\\ \\lim f=\\lim h=L \\implies \\lim g=L",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Squeeze theorem",
+        "description": null
+      },
+      "hy": {
+        "name": "Սեղմման թեորեմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Теорема о сжатии",
+        "description": null
+      },
+      "fr": {
+        "name": "Théorème de compression",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ածանցյալի սահմանում",
     "category": "calculus:derivatives",
     "formula": "f'(x) = \\lim_{h\\to 0}\\frac{f(x+h)-f(x)}{h}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Definition of the derivative",
+        "description": null
+      },
+      "hy": {
+        "name": "Ածանցյալի սահմանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Определение производной",
+        "description": null
+      },
+      "fr": {
+        "name": "Définition de la dérivée",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հաստատի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(c)' = 0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of a constant",
+        "description": null
+      },
+      "hy": {
+        "name": "Հաստատի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная константы",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée d'une constante",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Աստիճանային ֆունկցիայի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(x^n)' = nx^{n-1}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of a power function",
+        "description": null
+      },
+      "hy": {
+        "name": "Աստիճանային ֆունկցիայի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная степенной функции",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée d'une fonction puissance",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Էքսպոնենցիալ ֆունկցիայի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(e^x)' = e^x",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of the exponential function",
+        "description": null
+      },
+      "hy": {
+        "name": "Էքսպոնենցիալ ֆունկցիայի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная показательной функции",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée de la fonction exponentielle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ցուցիչային ֆունկցիայի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(a^x)' = a^x \\ln a",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of an exponential function with base a",
+        "description": null
+      },
+      "hy": {
+        "name": "Ցուցիչային ֆունկցիայի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная показательной функции с основанием a",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée d'une fonction exponentielle de base a",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բնական լոգարիթմի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(\\ln x)' = \\frac{1}{x}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of the natural logarithm",
+        "description": null
+      },
+      "hy": {
+        "name": "Բնական լոգարիթմի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная натурального логарифма",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée du logarithme népérien",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սինուսի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(\\sin x)' = \\cos x",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of sine",
+        "description": null
+      },
+      "hy": {
+        "name": "Սինուսի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная синуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée du sinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոսինուսի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(\\cos x)' = -\\sin x",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of cosine",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոսինուսի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная косинуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée du cosinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տանգենսի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(\\tan x)' = \\sec^2 x",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of tangent",
+        "description": null
+      },
+      "hy": {
+        "name": "Տանգենսի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная тангенса",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée de la tangente",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոտանգենսի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(\\cot x)' = -\\csc^2 x",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of cotangent",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոտանգենսի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная котангенса",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée de cotangente",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արկսինուսի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(\\arcsin x)' = \\frac{1}{\\sqrt{1-x^2}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of arcsine",
+        "description": null
+      },
+      "hy": {
+        "name": "Արկսինուսի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная арксинуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée de l'arc sinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արկտանգենսի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(\\arctan x)' = \\frac{1}{1+x^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of arctangent",
+        "description": null
+      },
+      "hy": {
+        "name": "Արկտանգենսի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная арктангенса",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée de l'arctangente",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Գումարի և տարբերության ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(f \\pm g)' = f' \\pm g'",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of a sum or difference",
+        "description": null
+      },
+      "hy": {
+        "name": "Գումարի և տարբերության ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная суммы или разности",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée d'une somme ou d'une différence",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արտադրյալի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "(fg)' = f'g + fg'",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Product rule for derivatives",
+        "description": null
+      },
+      "hy": {
+        "name": "Արտադրյալի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Правило продукта для деривативов",
+        "description": null
+      },
+      "fr": {
+        "name": "Règle de produit pour les produits dérivés",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քանորդի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "\\left(\\frac{f}{g}\\right)' = \\frac{f'g - fg'}{g^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Quotient rule for derivatives",
+        "description": null
+      },
+      "hy": {
+        "name": "Քանորդի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Правило частностей для производных",
+        "description": null
+      },
+      "fr": {
+        "name": "Règle de quotient pour les dérivés",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Շղթայական կանոն",
     "category": "calculus:derivatives",
     "formula": "(f(g(x)))' = f'(g(x)) \\cdot g'(x)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Chain rule",
+        "description": null
+      },
+      "hy": {
+        "name": "Շղթայական կանոն",
+        "description": null
+      },
+      "ru": {
+        "name": "Правило цепочки",
+        "description": null
+      },
+      "fr": {
+        "name": "Règle de chaîne",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անուղղակի տրված ֆունկցիայի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "\\frac{dy}{dx} = -\\frac{F_x}{F_y}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of an implicitly defined function",
+        "description": null
+      },
+      "hy": {
+        "name": "Անուղղակի տրված ֆունկցիայի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная неявно определенной функции",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée d'une fonction implicitement définie",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պարամետրական տրված ֆունկցիայի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "\\frac{dy}{dx} = \\frac{dy/dt}{dx/dt}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Derivative of a parametrically defined function",
+        "description": null
+      },
+      "hy": {
+        "name": "Պարամետրական տրված ֆունկցիայի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Производная параметрически определенной функции",
+        "description": null
+      },
+      "fr": {
+        "name": "Dérivée d'une fonction définie paramétriquement",
+        "description": null
+      }
+    }
   },
   {
-    "name": "n-րդ կարգի ածանցյալը",
     "category": "calculus:derivatives",
     "formula": "\\frac{d^n}{dx^n}(x^n) = n!",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "nth derivative",
+        "description": null
+      },
+      "hy": {
+        "name": "n-րդ կարգի ածանցյալը",
+        "description": null
+      },
+      "ru": {
+        "name": "n-я производная",
+        "description": null
+      },
+      "fr": {
+        "name": "nième dérivée",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Աստիճանային ֆունկցիայի ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int x^n\\,dx = \\frac{x^{n+1}}{n+1}+C \\quad (n\\neq-1)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of a power function",
+        "description": null
+      },
+      "hy": {
+        "name": "Աստիճանային ֆունկցիայի ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл степенной функции",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale d'une fonction puissance",
+        "description": null
+      }
+    }
   },
   {
-    "name": "1/x ֆունկցիայի ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int \\frac{1}{x}\\,dx = \\ln|x|+C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of the function 1/x",
+        "description": null
+      },
+      "hy": {
+        "name": "1/x ֆունկցիայի ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл от функции 1/x",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale de la fonction 1/x",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Էքսպոնենցիալ ֆունկցիայի ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int e^x\\,dx = e^x+C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of the exponential function",
+        "description": null
+      },
+      "hy": {
+        "name": "Էքսպոնենցիալ ֆունկցիայի ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл показательной функции",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale de la fonction exponentielle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ցուցիչային ֆունկցիայի ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int a^x\\,dx = \\frac{a^x}{\\ln a}+C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of an exponential function with base a",
+        "description": null
+      },
+      "hy": {
+        "name": "Ցուցիչային ֆունկցիայի ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл показательной функции с основанием a",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale d'une fonction exponentielle de base a",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սինուսի ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int \\sin x\\,dx = -\\cos x+C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of sine",
+        "description": null
+      },
+      "hy": {
+        "name": "Սինուսի ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл синуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale du sinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոսինուսի ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int \\cos x\\,dx = \\sin x+C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of cosine",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոսինուսի ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл косинуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale du cosinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սեկանս քառակուսու ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int \\sec^2 x\\,dx = \\tan x+C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of secant squared",
+        "description": null
+      },
+      "hy": {
+        "name": "Սեկանս քառակուսու ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл от секущего в квадрате",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale de sécante au carré",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոսեկանս քառակուսու ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int \\csc^2 x\\,dx = -\\cot x+C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of cosecant squared",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոսեկանս քառակուսու ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл от косеканса в квадрате",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale de cosécante au carré",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բնական լոգարիթմի ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int \\ln x\\,dx = x\\ln x - x+C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of the natural logarithm",
+        "description": null
+      },
+      "hy": {
+        "name": "Բնական լոգարիթմի ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл от натурального логарифма",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale du logarithme népérien",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քառակուսի արմատի ինտեգրալը",
     "category": "calculus:integrals",
     "formula": "\\int \\sqrt{x}\\,dx = \\frac{2}{3}x^{3/2}+C",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integral of the square root function",
+        "description": null
+      },
+      "hy": {
+        "name": "Քառակուսի արմատի ինտեգրալը",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграл от функции квадратного корня",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégrale de la fonction racine carrée",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մասերով ինտեգրում",
     "category": "calculus:integrals",
     "formula": "\\int u\\,dv = uv - \\int v\\,du",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Integration by parts",
+        "description": null
+      },
+      "hy": {
+        "name": "Մասերով ինտեգրում",
+        "description": null
+      },
+      "ru": {
+        "name": "Интеграция по частям",
+        "description": null
+      },
+      "fr": {
+        "name": "Intégration par parties",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Փոխարինման եղանակ",
     "category": "calculus:integrals",
     "formula": "\\int f(g(x))g'(x)\\,dx = \\int f(u)\\,du",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Substitution method",
+        "description": null
+      },
+      "hy": {
+        "name": "Փոխարինման եղանակ",
+        "description": null
+      },
+      "ru": {
+        "name": "Метод замены",
+        "description": null
+      },
+      "fr": {
+        "name": "Méthode de substitution",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Նյուտոն-Լայբնիցի բանաձև",
     "category": "calculus:integrals",
     "formula": "\\int_a^b f(x)\\,dx = F(b)-F(a)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Newton-Leibniz formula",
+        "description": null
+      },
+      "hy": {
+        "name": "Նյուտոն-Լայբնիցի բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Формула Ньютона-Лейбница",
+        "description": null
+      },
+      "fr": {
+        "name": "Formule de Newton-Leibniz",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մակերեսի հաշվում ինտեգրալով",
     "category": "calculus:integrals",
     "formula": "A = \\int_a^b |f(x)-g(x)|\\,dx",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Area by integration",
+        "description": null
+      },
+      "hy": {
+        "name": "Մակերեսի հաշվում ինտեգրալով",
+        "description": null
+      },
+      "ru": {
+        "name": "Площадь по интеграции",
+        "description": null
+      },
+      "fr": {
+        "name": "Superficie par intégration",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ծավալի հաշվում սկավառակների մեթոդով",
     "category": "calculus:integrals",
     "formula": "V = \\pi\\int_a^b [f(x)]^2\\,dx",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume by the disk method",
+        "description": null
+      },
+      "hy": {
+        "name": "Ծավալի հաշվում սկավառակների մեթոդով",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем дисковым методом",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume par la méthode du disque",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ծավալի հաշվում գլանային շերտերի մեթոդով",
     "category": "calculus:integrals",
     "formula": "V = 2\\pi\\int_a^b x\\cdot f(x)\\,dx",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Volume by the cylindrical shells method",
+        "description": null
+      },
+      "hy": {
+        "name": "Ծավալի հաշվում գլանային շերտերի մեթոդով",
+        "description": null
+      },
+      "ru": {
+        "name": "Объем методом цилиндрических оболочек",
+        "description": null
+      },
+      "fr": {
+        "name": "Volume par la méthode des coques cylindriques",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Աղեղի երկարություն ինտեգրալով",
     "category": "calculus:integrals",
     "formula": "L = \\int_a^b \\sqrt{1+[f'(x)]^2}\\,dx",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Arc length by integration",
+        "description": null
+      },
+      "hy": {
+        "name": "Աղեղի երկարություն ինտեգրալով",
+        "description": null
+      },
+      "ru": {
+        "name": "Длина дуги путем интегрирования",
+        "description": null
+      },
+      "fr": {
+        "name": "Longueur d'arc par intégration",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Թեյլորի շարք",
     "category": "calculus:series",
     "formula": "f(x) = \\sum_{n=0}^\\infty \\frac{f^{(n)}(a)}{n!}(x-a)^n",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Taylor series",
+        "description": null
+      },
+      "hy": {
+        "name": "Թեյլորի շարք",
+        "description": null
+      },
+      "ru": {
+        "name": "Серия Тейлора",
+        "description": null
+      },
+      "fr": {
+        "name": "série Taylor",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մաքլորենի շարք e^x-ի համար",
     "category": "calculus:series",
     "formula": "e^x = \\sum_{n=0}^\\infty \\frac{x^n}{n!} = 1+x+\\frac{x^2}{2!}+\\cdots",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Maclaurin series for e to the x",
+        "description": null
+      },
+      "hy": {
+        "name": "Մաքլորենի շարք e^x-ի համար",
+        "description": null
+      },
+      "ru": {
+        "name": "Серия Маклорена от е до х",
+        "description": null
+      },
+      "fr": {
+        "name": "Série Maclaurin pour e au x",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մաքլորենի շարք sin x-ի համար",
     "category": "calculus:series",
     "formula": "\\sin x = x - \\frac{x^3}{3!} + \\frac{x^5}{5!} - \\cdots",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Maclaurin series for sine",
+        "description": null
+      },
+      "hy": {
+        "name": "Մաքլորենի շարք sin x-ի համար",
+        "description": null
+      },
+      "ru": {
+        "name": "Ряд Маклорена для синуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Série Maclaurin pour sinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մաքլորենի շարք cos x-ի համար",
     "category": "calculus:series",
     "formula": "\\cos x = 1 - \\frac{x^2}{2!} + \\frac{x^4}{4!} - \\cdots",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Maclaurin series for cosine",
+        "description": null
+      },
+      "hy": {
+        "name": "Մաքլորենի շարք cos x-ի համար",
+        "description": null
+      },
+      "ru": {
+        "name": "Ряд Маклорена для косинуса",
+        "description": null
+      },
+      "fr": {
+        "name": "Série de Maclaurin pour le cosinus",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մաքլորենի շարք ln(1+x)-ի համար",
     "category": "calculus:series",
     "formula": "\\ln(1+x) = x - \\frac{x^2}{2} + \\frac{x^3}{3} - \\cdots \\quad |x|<1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Maclaurin series for ln(1+x)",
+        "description": null
+      },
+      "hy": {
+        "name": "Մաքլորենի շարք ln(1+x)-ի համար",
+        "description": null
+      },
+      "ru": {
+        "name": "Ряд Маклорена для ln(1+x)",
+        "description": null
+      },
+      "fr": {
+        "name": "Série de Maclaurin pour ln(1+x)",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անվերջ երկրաչափական շարք",
     "category": "calculus:series",
     "formula": "\\sum_{n=0}^\\infty ar^n = \\frac{a}{1-r} \\quad |r|<1",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Infinite geometric series",
+        "description": null
+      },
+      "hy": {
+        "name": "Անվերջ երկրաչափական շարք",
+        "description": null
+      },
+      "ru": {
+        "name": "Бесконечный геометрический ряд",
+        "description": null
+      },
+      "fr": {
+        "name": "Série géométrique infinie",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հարաբերության հայտանիշ",
     "category": "calculus:series",
     "formula": "L = \\lim_{n\\to\\infty}\\left|\\frac{a_{n+1}}{a_n}\\right|:\\ L<1 \\Rightarrow \\text{շարքը զուգամետ է}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Ratio test",
+        "description": null
+      },
+      "hy": {
+        "name": "Հարաբերության հայտանիշ",
+        "description": null
+      },
+      "ru": {
+        "name": "Тест на соотношение",
+        "description": null
+      },
+      "fr": {
+        "name": "Test de rapport",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Փոփոխականների բաժանման մեթոդ",
     "category": "calculus:differential-eqs",
     "formula": "\\frac{dy}{dx} = g(x)h(y) \\implies \\int\\frac{dy}{h(y)} = \\int g(x)\\,dx",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Separation of variables method",
+        "description": null
+      },
+      "hy": {
+        "name": "Փոփոխականների բաժանման մեթոդ",
+        "description": null
+      },
+      "ru": {
+        "name": "Метод разделения переменных",
+        "description": null
+      },
+      "fr": {
+        "name": "Méthode de séparation des variables",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Առաջին կարգի գծային դիֆերենցիալ հավասարում",
     "category": "calculus:differential-eqs",
     "formula": "y' + P(x)y = Q(x),\\quad \\mu=e^{\\int P\\,dx}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "First-order linear differential equation",
+        "description": null
+      },
+      "hy": {
+        "name": "Առաջին կարգի գծային դիֆերենցիալ հավասարում",
+        "description": null
+      },
+      "ru": {
+        "name": "Линейное дифференциальное уравнение первого порядка",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation différentielle linéaire du premier ordre",
+        "description": null
+      }
+    }
   },
   {
-    "name": "y' = ky հավասարման լուծում",
     "category": "calculus:differential-eqs",
     "formula": "y' = ky \\implies y = Ce^{kx}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Solution of the equation y prime equals k y",
+        "description": null
+      },
+      "hy": {
+        "name": "y' = ky հավասարման լուծում",
+        "description": null
+      },
+      "ru": {
+        "name": "Решение уравнения y prime равно k y",
+        "description": null
+      },
+      "fr": {
+        "name": "Solution de l'équation y premier est égal à k y",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Երկրորդ կարգի պարզ դիֆերենցիալ հավասարում",
     "category": "calculus:differential-eqs",
     "formula": "y''+y=0 \\implies y = A\\sin x + B\\cos x",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Simple second-order differential equation",
+        "description": null
+      },
+      "hy": {
+        "name": "Երկրորդ կարգի պարզ դիֆերենցիալ հավասարում",
+        "description": null
+      },
+      "ru": {
+        "name": "Простое дифференциальное уравнение второго порядка",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation différentielle simple du second ordre",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բնութագրական հավասարում",
     "category": "calculus:differential-eqs",
     "formula": "ay''+by'+cy=0 \\implies ar^2+br+c=0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Characteristic equation",
+        "description": null
+      },
+      "hy": {
+        "name": "Բնութագրական հավասարում",
+        "description": null
+      },
+      "ru": {
+        "name": "Характеристическое уравнение",
+        "description": null
+      },
+      "fr": {
+        "name": "Équation caractéristique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Վեկտորի երկարություն",
     "category": "linearAlgebra:vectors",
     "formula": "\\|\\mathbf{v}\\| = \\sqrt{v_1^2+v_2^2+v_3^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Length of a vector",
+        "description": null
+      },
+      "hy": {
+        "name": "Վեկտորի երկարություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Длина вектора",
+        "description": null
+      },
+      "fr": {
+        "name": "Longueur d'un vecteur",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Միավոր վեկտոր",
     "category": "linearAlgebra:vectors",
     "formula": "\\hat{v} = \\frac{\\mathbf{v}}{\\|\\mathbf{v}\\|}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Unit vector",
+        "description": null
+      },
+      "hy": {
+        "name": "Միավոր վեկտոր",
+        "description": null
+      },
+      "ru": {
+        "name": "Единичный вектор",
+        "description": null
+      },
+      "fr": {
+        "name": "Vecteur unitaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սկալյար արտադրյալ",
     "category": "linearAlgebra:vectors",
     "formula": "\\mathbf{a}\\cdot\\mathbf{b} = a_1 b_1+a_2 b_2+a_3 b_3 = \\|a\\|\\|b\\|\\cos\\theta",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Dot product",
+        "description": null
+      },
+      "hy": {
+        "name": "Սկալյար արտադրյալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Скалярное произведение",
+        "description": null
+      },
+      "fr": {
+        "name": "Produit scalaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Վեկտորական արտադրյալ",
     "category": "linearAlgebra:vectors",
     "formula": "\\mathbf{a}\\times\\mathbf{b} = \\begin{vmatrix}\\mathbf{i}&\\mathbf{j}&\\mathbf{k}\\\\a_1&a_2&a_3\\\\b_1&b_2&b_3\\end{vmatrix}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Cross product",
+        "description": null
+      },
+      "hy": {
+        "name": "Վեկտորական արտադրյալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Перекрестное произведение",
+        "description": null
+      },
+      "fr": {
+        "name": "Produit croisé",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Վեկտորական արտադրյալի երկարություն",
     "category": "linearAlgebra:vectors",
     "formula": "\\|\\mathbf{a}\\times\\mathbf{b}\\| = \\|a\\|\\|b\\|\\sin\\theta",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Magnitude of the cross product",
+        "description": null
+      },
+      "hy": {
+        "name": "Վեկտորական արտադրյալի երկարություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Величина векторного произведения",
+        "description": null
+      },
+      "fr": {
+        "name": "Ampleur du produit vectoriel",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Երկու վեկտորների միջև անկյուն",
     "category": "linearAlgebra:vectors",
     "formula": "\\cos\\theta = \\frac{\\mathbf{a}\\cdot\\mathbf{b}}{\\|a\\|\\|b\\|}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Angle between two vectors",
+        "description": null
+      },
+      "hy": {
+        "name": "Երկու վեկտորների միջև անկյուն",
+        "description": null
+      },
+      "ru": {
+        "name": "Угол между двумя векторами",
+        "description": null
+      },
+      "fr": {
+        "name": "Angle entre deux vecteurs",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Վեկտորի պրոյեկցիա",
     "category": "linearAlgebra:vectors",
     "formula": "\\text{proj}_{\\mathbf{b}}\\mathbf{a} = \\frac{\\mathbf{a}\\cdot\\mathbf{b}}{\\|b\\|^2}\\mathbf{b}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Projection of a vector",
+        "description": null
+      },
+      "hy": {
+        "name": "Վեկտորի պրոյեկցիա",
+        "description": null
+      },
+      "ru": {
+        "name": "Проекция вектора",
+        "description": null
+      },
+      "fr": {
+        "name": "Projection d'un vecteur",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Եռակի սկալյար արտադրյալ",
     "category": "linearAlgebra:vectors",
     "formula": "[\\mathbf{a},\\mathbf{b},\\mathbf{c}] = \\mathbf{a}\\cdot(\\mathbf{b}\\times\\mathbf{c})",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Scalar triple product",
+        "description": null
+      },
+      "hy": {
+        "name": "Եռակի սկալյար արտադրյալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Скалярное тройное произведение",
+        "description": null
+      },
+      "fr": {
+        "name": "Produit triple scalaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մատրիցների գումար",
     "category": "linearAlgebra:matrices",
     "formula": "(A+B)_{ij} = A_{ij}+B_{ij}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Matrix addition",
+        "description": null
+      },
+      "hy": {
+        "name": "Մատրիցների գումար",
+        "description": null
+      },
+      "ru": {
+        "name": "Сложение матрицы",
+        "description": null
+      },
+      "fr": {
+        "name": "Ajout de matrice",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մատրիցների արտադրյալ",
     "category": "linearAlgebra:matrices",
     "formula": "(AB)_{ij} = \\sum_k A_{ik}B_{kj}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Matrix product",
+        "description": null
+      },
+      "hy": {
+        "name": "Մատրիցների արտադրյալ",
+        "description": null
+      },
+      "ru": {
+        "name": "Матричный продукт",
+        "description": null
+      },
+      "fr": {
+        "name": "Produit matriciel",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տրանսպոնացված մատրից",
     "category": "linearAlgebra:matrices",
     "formula": "(A^T)_{ij} = A_{ji}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Transpose of a matrix",
+        "description": null
+      },
+      "hy": {
+        "name": "Տրանսպոնացված մատրից",
+        "description": null
+      },
+      "ru": {
+        "name": "Транспонирование матрицы",
+        "description": null
+      },
+      "fr": {
+        "name": "Transposition d'une matrice",
+        "description": null
+      }
+    }
   },
   {
-    "name": "2×2 մատրիցի որոշիչ",
     "category": "linearAlgebra:matrices",
     "formula": "\\det\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix} = ad-bc",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Determinant of a 2 by 2 matrix",
+        "description": null
+      },
+      "hy": {
+        "name": "2×2 մատրիցի որոշիչ",
+        "description": null
+      },
+      "ru": {
+        "name": "Определитель матрицы 2 на 2",
+        "description": null
+      },
+      "fr": {
+        "name": "Déterminant d'une matrice 2 par 2",
+        "description": null
+      }
+    }
   },
   {
-    "name": "3×3 մատրիցի որոշիչ",
     "category": "linearAlgebra:matrices",
     "formula": "\\det A = a_{11}(a_{22}a_{33}-a_{23}a_{32}) - a_{12}(\\ldots)+a_{13}(\\ldots)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Determinant of a 3 by 3 matrix",
+        "description": null
+      },
+      "hy": {
+        "name": "3×3 մատրիցի որոշիչ",
+        "description": null
+      },
+      "ru": {
+        "name": "Определитель матрицы 3 на 3",
+        "description": null
+      },
+      "fr": {
+        "name": "Déterminant d'une matrice 3 par 3",
+        "description": null
+      }
+    }
   },
   {
-    "name": "2×2 մատրիցի հակադարձը",
     "category": "linearAlgebra:matrices",
     "formula": "A^{-1} = \\frac{1}{\\det A}\\begin{pmatrix}d&-b\\\\-c&a\\end{pmatrix}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Inverse of a 2 by 2 matrix",
+        "description": null
+      },
+      "hy": {
+        "name": "2×2 մատրիցի հակադարձը",
+        "description": null
+      },
+      "ru": {
+        "name": "Обратная матрица 2 на 2",
+        "description": null
+      },
+      "fr": {
+        "name": "Inverse d'une matrice 2 par 2",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մատրիցի հետք",
     "category": "linearAlgebra:matrices",
     "formula": "\\text{tr}(A) = \\sum_i A_{ii}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Trace of a matrix",
+        "description": null
+      },
+      "hy": {
+        "name": "Մատրիցի հետք",
+        "description": null
+      },
+      "ru": {
+        "name": "След матрицы",
+        "description": null
+      },
+      "fr": {
+        "name": "Trace d'une matrice",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մատրիցի ռանգ",
     "category": "linearAlgebra:matrices",
     "formula": "\\text{rank}(A) = \\text{dim}(\\text{col}(A))",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Rank of a matrix",
+        "description": null
+      },
+      "hy": {
+        "name": "Մատրիցի ռանգ",
+        "description": null
+      },
+      "ru": {
+        "name": "Ранг матрицы",
+        "description": null
+      },
+      "fr": {
+        "name": "Rang d'une matrice",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Սեփական արժեքների պայման",
     "category": "linearAlgebra:matrices",
     "formula": "Av = \\lambda v \\iff \\det(A-\\lambda I)=0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Eigenvalue condition",
+        "description": null
+      },
+      "hy": {
+        "name": "Սեփական արժեքների պայման",
+        "description": null
+      },
+      "ru": {
+        "name": "Условие собственного значения",
+        "description": null
+      },
+      "fr": {
+        "name": "Condition de valeur propre",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Քելի-Համիլթոնի թեորեմ",
     "category": "linearAlgebra:matrices",
     "formula": "A^2 - \\text{tr}(A)A + \\det(A)I = 0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Cayley-Hamilton theorem",
+        "description": null
+      },
+      "hy": {
+        "name": "Քելի-Համիլթոնի թեորեմ",
+        "description": null
+      },
+      "ru": {
+        "name": "Теорема Кэли-Гамильтона",
+        "description": null
+      },
+      "fr": {
+        "name": "Théorème de Cayley-Hamilton",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կրամերի կանոն",
     "category": "linearAlgebra:matrices",
     "formula": "x_i = \\frac{\\det(A_i)}{\\det(A)}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Cramer rule",
+        "description": null
+      },
+      "hy": {
+        "name": "Կրամերի կանոն",
+        "description": null
+      },
+      "ru": {
+        "name": "Правило Крамера",
+        "description": null
+      },
+      "fr": {
+        "name": "Règle de Cramer",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պտույտի մատրից 2D-ում",
     "category": "linearAlgebra:transformations",
     "formula": "R_\\theta = \\begin{pmatrix}\\cos\\theta & -\\sin\\theta\\\\ \\sin\\theta & \\cos\\theta\\end{pmatrix}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Rotation matrix in 2D",
+        "description": null
+      },
+      "hy": {
+        "name": "Պտույտի մատրից 2D-ում",
+        "description": null
+      },
+      "ru": {
+        "name": "Матрица вращения в 2D",
+        "description": null
+      },
+      "fr": {
+        "name": "Matrice de rotation en 2D",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մասշտաբավորման մատրից",
     "category": "linearAlgebra:transformations",
     "formula": "S = \\begin{pmatrix}s_x & 0\\\\ 0 & s_y\\end{pmatrix}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Scaling matrix",
+        "description": null
+      },
+      "hy": {
+        "name": "Մասշտաբավորման մատրից",
+        "description": null
+      },
+      "ru": {
+        "name": "Матрица масштабирования",
+        "description": null
+      },
+      "fr": {
+        "name": "Matrice de mise à l'échelle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Արտացոլում X առանցքի նկատմամբ",
     "category": "linearAlgebra:transformations",
     "formula": "\\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Reflection across the x-axis",
+        "description": null
+      },
+      "hy": {
+        "name": "Արտացոլում X առանցքի նկատմամբ",
+        "description": null
+      },
+      "ru": {
+        "name": "Отражение по оси X",
+        "description": null
+      },
+      "fr": {
+        "name": "Réflexion sur l'axe des x",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Շեղման մատրից",
     "category": "linearAlgebra:transformations",
     "formula": "\\begin{pmatrix}1&k\\\\0&1\\end{pmatrix}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Shear matrix",
+        "description": null
+      },
+      "hy": {
+        "name": "Շեղման մատրից",
+        "description": null
+      },
+      "ru": {
+        "name": "Матрица сдвига",
+        "description": null
+      },
+      "fr": {
+        "name": "Matrice de cisaillement",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տեղափոխություններ առանց կրկնության",
     "category": "statistics:combinatorics",
     "formula": "P_n^r = \\frac{n!}{(n-r)!}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Permutations without repetition",
+        "description": null
+      },
+      "hy": {
+        "name": "Տեղափոխություններ առանց կրկնության",
+        "description": null
+      },
+      "ru": {
+        "name": "Перестановки без повторений",
+        "description": null
+      },
+      "fr": {
+        "name": "Permutations sans répétition",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Տեղափոխություններ կրկնությամբ",
     "category": "statistics:combinatorics",
     "formula": "P_n^r = n^r",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Permutations with repetition",
+        "description": null
+      },
+      "hy": {
+        "name": "Տեղափոխություններ կրկնությամբ",
+        "description": null
+      },
+      "ru": {
+        "name": "Перестановки с повторением",
+        "description": null
+      },
+      "fr": {
+        "name": "Permutations avec répétition",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Զուգորդություններ առանց կրկնության",
     "category": "statistics:combinatorics",
     "formula": "C_n^r = \\binom{n}{r} = \\frac{n!}{r!(n-r)!}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Combinations without repetition",
+        "description": null
+      },
+      "hy": {
+        "name": "Զուգորդություններ առանց կրկնության",
+        "description": null
+      },
+      "ru": {
+        "name": "Комбинации без повторений",
+        "description": null
+      },
+      "fr": {
+        "name": "Combinaisons sans répétition",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Զուգորդություններ կրկնությամբ",
     "category": "statistics:combinatorics",
     "formula": "\\bar{C}_n^r = \\binom{n+r-1}{r}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Combinations with repetition",
+        "description": null
+      },
+      "hy": {
+        "name": "Զուգորդություններ կրկնությամբ",
+        "description": null
+      },
+      "ru": {
+        "name": "Комбинации с повторением",
+        "description": null
+      },
+      "fr": {
+        "name": "Combinaisons avec répétition",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Լրիվ տեղափոխություններ",
     "category": "statistics:combinatorics",
     "formula": "P_n = n!",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Full permutations",
+        "description": null
+      },
+      "hy": {
+        "name": "Լրիվ տեղափոխություններ",
+        "description": null
+      },
+      "ru": {
+        "name": "Полные перестановки",
+        "description": null
+      },
+      "fr": {
+        "name": "Permutations complètes",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հավանականության սահմանում",
     "category": "statistics:probability",
     "formula": "P(A) = \\frac{|A|}{|\\Omega|}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Definition of probability",
+        "description": null
+      },
+      "hy": {
+        "name": "Հավանականության սահմանում",
+        "description": null
+      },
+      "ru": {
+        "name": "Определение вероятности",
+        "description": null
+      },
+      "fr": {
+        "name": "Définition de la probabilité",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հակադարձ իրադարձության հավանականություն",
     "category": "statistics:probability",
     "formula": "P(\\bar{A}) = 1 - P(A)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Probability of the complementary event",
+        "description": null
+      },
+      "hy": {
+        "name": "Հակադարձ իրադարձության հավանականություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Вероятность дополнительного события",
+        "description": null
+      },
+      "fr": {
+        "name": "Probabilité de l'événement complémentaire",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հավանականությունների գումարման բանաձև",
     "category": "statistics:probability",
     "formula": "P(A\\cup B) = P(A)+P(B)-P(A\\cap B)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Addition rule for probabilities",
+        "description": null
+      },
+      "hy": {
+        "name": "Հավանականությունների գումարման բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Правило сложения вероятностей",
+        "description": null
+      },
+      "fr": {
+        "name": "Règle d'addition pour les probabilités",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անկապ իրադարձությունների գումարման բանաձև",
     "category": "statistics:probability",
     "formula": "P(A\\cup B) = P(A)+P(B) \\quad (A\\cap B=\\emptyset)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Addition rule for disjoint events",
+        "description": null
+      },
+      "hy": {
+        "name": "Անկապ իրադարձությունների գումարման բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Правило сложения для непересекающихся событий",
+        "description": null
+      },
+      "fr": {
+        "name": "Règle d'addition pour les événements disjoints",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պայմանական հավանականություն",
     "category": "statistics:probability",
     "formula": "P(A|B) = \\frac{P(A\\cap B)}{P(B)}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Conditional probability",
+        "description": null
+      },
+      "hy": {
+        "name": "Պայմանական հավանականություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Условная вероятность",
+        "description": null
+      },
+      "fr": {
+        "name": "Probabilité conditionnelle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Հավանականությունների բազմապատկման բանաձև",
     "category": "statistics:probability",
     "formula": "P(A\\cap B) = P(A|B)\\cdot P(B)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Multiplication rule for probabilities",
+        "description": null
+      },
+      "hy": {
+        "name": "Հավանականությունների բազմապատկման բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Правило умножения вероятностей",
+        "description": null
+      },
+      "fr": {
+        "name": "Règle de multiplication pour les probabilités",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Անկախության պայման",
     "category": "statistics:probability",
     "formula": "P(A\\cap B) = P(A)\\cdot P(B)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Independence condition",
+        "description": null
+      },
+      "hy": {
+        "name": "Անկախության պայման",
+        "description": null
+      },
+      "ru": {
+        "name": "Условие независимости",
+        "description": null
+      },
+      "fr": {
+        "name": "Condition d'indépendance",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բեյսի բանաձև",
     "category": "statistics:probability",
     "formula": "P(A|B) = \\frac{P(B|A)P(A)}{P(B)}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Bayes formula",
+        "description": null
+      },
+      "hy": {
+        "name": "Բեյսի բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Формула Байеса",
+        "description": null
+      },
+      "fr": {
+        "name": "Formule de Bayes",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Լրիվ հավանականության բանաձև",
     "category": "statistics:probability",
     "formula": "P(B) = \\sum_i P(B|A_i)P(A_i)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Formula of total probability",
+        "description": null
+      },
+      "hy": {
+        "name": "Լրիվ հավանականության բանաձև",
+        "description": null
+      },
+      "ru": {
+        "name": "Формула полной вероятности",
+        "description": null
+      },
+      "fr": {
+        "name": "Formule de probabilité totale",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Բինոմային բաշխում",
     "category": "statistics:distributions",
     "formula": "P(X=k) = \\binom{n}{k}p^k(1-p)^{n-k}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Binomial distribution",
+        "description": null
+      },
+      "hy": {
+        "name": "Բինոմային բաշխում",
+        "description": null
+      },
+      "ru": {
+        "name": "Биномиальное распределение",
+        "description": null
+      },
+      "fr": {
+        "name": "Distribution binomiale",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Պուասոնի բաշխում",
     "category": "statistics:distributions",
     "formula": "P(X=k) = \\frac{\\lambda^k e^{-\\lambda}}{k!}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Poisson distribution",
+        "description": null
+      },
+      "hy": {
+        "name": "Պուասոնի բաշխում",
+        "description": null
+      },
+      "ru": {
+        "name": "Распределение Пуассона",
+        "description": null
+      },
+      "fr": {
+        "name": "Distribution de Poisson",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Նորմալ բաշխման խտության ֆունկցիա",
     "category": "statistics:distributions",
     "formula": "f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}}e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Density function of the normal distribution",
+        "description": null
+      },
+      "hy": {
+        "name": "Նորմալ բաշխման խտության ֆունկցիա",
+        "description": null
+      },
+      "ru": {
+        "name": "Функция плотности нормального распределения",
+        "description": null
+      },
+      "fr": {
+        "name": "Fonction de densité de la distribution normale",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ստանդարտ նորմալ բաշխում",
     "category": "statistics:distributions",
     "formula": "Z = \\frac{X-\\mu}{\\sigma}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Standard normal distribution",
+        "description": null
+      },
+      "hy": {
+        "name": "Ստանդարտ նորմալ բաշխում",
+        "description": null
+      },
+      "ru": {
+        "name": "Стандартное нормальное распределение",
+        "description": null
+      },
+      "fr": {
+        "name": "Distribution normale standard",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Էքսպոնենցյալ բաշխում",
     "category": "statistics:distributions",
     "formula": "f(x) = \\lambda e^{-\\lambda x},\\quad x\\geq 0",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Exponential distribution",
+        "description": null
+      },
+      "hy": {
+        "name": "Էքսպոնենցյալ բաշխում",
+        "description": null
+      },
+      "ru": {
+        "name": "Экспоненциальное распределение",
+        "description": null
+      },
+      "fr": {
+        "name": "Distribution exponentielle",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Երկրաչափական բաշխում",
     "category": "statistics:distributions",
     "formula": "P(X=k) = (1-p)^{k-1}p",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Geometric distribution",
+        "description": null
+      },
+      "hy": {
+        "name": "Երկրաչափական բաշխում",
+        "description": null
+      },
+      "ru": {
+        "name": "Геометрическое распределение",
+        "description": null
+      },
+      "fr": {
+        "name": "Distribution géométrique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Թվաբանական միջին",
     "category": "statistics:stats-measures",
     "formula": "\\bar{x} = \\frac{1}{n}\\sum_{i=1}^n x_i",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Arithmetic mean",
+        "description": null
+      },
+      "hy": {
+        "name": "Թվաբանական միջին",
+        "description": null
+      },
+      "ru": {
+        "name": "Среднее арифметическое",
+        "description": null
+      },
+      "fr": {
+        "name": "Moyenne arithmétique",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Դիսպերսիա",
     "category": "statistics:stats-measures",
     "formula": "\\sigma^2 = \\frac{1}{n}\\sum_{i=1}^n (x_i-\\bar{x})^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Variance",
+        "description": null
+      },
+      "hy": {
+        "name": "Դիսպերսիա",
+        "description": null
+      },
+      "ru": {
+        "name": "Дисперсия",
+        "description": null
+      },
+      "fr": {
+        "name": "Écart",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ստանդարտ շեղում",
     "category": "statistics:stats-measures",
     "formula": "\\sigma = \\sqrt{\\frac{1}{n}\\sum(x_i-\\bar{x})^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Standard deviation",
+        "description": null
+      },
+      "hy": {
+        "name": "Ստանդարտ շեղում",
+        "description": null
+      },
+      "ru": {
+        "name": "Стандартное отклонение",
+        "description": null
+      },
+      "fr": {
+        "name": "Écart type",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Ընտրանքային դիսպերսիա",
     "category": "statistics:stats-measures",
     "formula": "s^2 = \\frac{1}{n-1}\\sum_{i=1}^n (x_i-\\bar{x})^2",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Sample variance",
+        "description": null
+      },
+      "hy": {
+        "name": "Ընտրանքային դիսպերսիա",
+        "description": null
+      },
+      "ru": {
+        "name": "Выборочная дисперсия",
+        "description": null
+      },
+      "fr": {
+        "name": "Écart de l'échantillon",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մեդիանա",
     "category": "statistics:stats-measures",
-    "formula": "\\text{Г„} = x_{(n+1)/2}",
-    "description": null,
-    "example": null
+    "formula": "\\operatorname{Med} = x_{(n+1)/2}",
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Median",
+        "description": null
+      },
+      "hy": {
+        "name": "Մեդիանա",
+        "description": null
+      },
+      "ru": {
+        "name": "медиана",
+        "description": null
+      },
+      "fr": {
+        "name": "Médiane",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կովարիացիա",
     "category": "statistics:stats-measures",
     "formula": "\\text{Cov}(X,Y) = E[(X-\\mu_X)(Y-\\mu_Y)]",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Covariance",
+        "description": null
+      },
+      "hy": {
+        "name": "Կովարիացիա",
+        "description": null
+      },
+      "ru": {
+        "name": "Ковариация",
+        "description": null
+      },
+      "fr": {
+        "name": "Covariance",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Կոռելյացիա",
     "category": "statistics:stats-measures",
     "formula": "r = \\frac{\\text{Cov}(X,Y)}{\\sigma_X \\sigma_Y}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Correlation",
+        "description": null
+      },
+      "hy": {
+        "name": "Կոռելյացիա",
+        "description": null
+      },
+      "ru": {
+        "name": "Корреляция",
+        "description": null
+      },
+      "fr": {
+        "name": "Corrélation",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մաթեմատիկական սպասում (դիսկրետ)",
     "category": "statistics:stats-measures",
     "formula": "E[X] = \\sum_i x_i P(X=x_i)",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Expected value for a discrete random variable",
+        "description": null
+      },
+      "hy": {
+        "name": "Մաթեմատիկական սպասում (դիսկրետ)",
+        "description": null
+      },
+      "ru": {
+        "name": "Ожидаемое значение дискретной случайной величины",
+        "description": null
+      },
+      "fr": {
+        "name": "Valeur attendue pour une variable aléatoire discrète",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Մաթեմատիկական սպասում (անընդհատ)",
     "category": "statistics:stats-measures",
     "formula": "E[X] = \\int_{-\\infty}^{\\infty} x f(x)\\,dx",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Expected value for a continuous random variable",
+        "description": null
+      },
+      "hy": {
+        "name": "Մաթեմատիկական սպասում (անընդհատ)",
+        "description": null
+      },
+      "ru": {
+        "name": "Ожидаемое значение непрерывной случайной величины",
+        "description": null
+      },
+      "fr": {
+        "name": "Valeur attendue pour une variable aléatoire continue",
+        "description": null
+      }
+    }
   },
   {
-    "name": "Չեբիշևի անհավասարություն",
     "category": "statistics:stats-measures",
     "formula": "P(|X-\\mu|\\geq k\\sigma) \\leq \\frac{1}{k^2}",
-    "description": null,
-    "example": null
+    "example": null,
+    "translations": {
+      "en": {
+        "name": "Chebyshev inequality",
+        "description": null
+      },
+      "hy": {
+        "name": "Չեբիշևի անհավասարություն",
+        "description": null
+      },
+      "ru": {
+        "name": "Неравенство Чебышева",
+        "description": null
+      },
+      "fr": {
+        "name": "Inégalité de Chebyshev",
+        "description": null
+      }
+    }
   }
 ]

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Head } from "@inertiajs/vue3";
+import { Head, router } from "@inertiajs/vue3";
 import axios from "axios";
 import { computed, nextTick, onMounted, onUpdated, ref } from "vue";
-import { route } from "ziggy-js";
 import "mathlive";
 import { MathfieldElement } from "mathlive";
 
@@ -96,22 +95,27 @@ function goPrev() {
   }
 }
 
-async function finish() {
+function finish() {
   finishing.value = true;
   error.value = null;
-  try {
-    await axios.post("/api/math-levels/finish", {
+
+  router.post(
+    "/api/math-levels/finish",
+    {
       attempt_id: props.attemptId,
-    });
-    window.location.href = route("math-levels.result", props.attemptId);
-  } catch (err: any) {
-    error.value =
-      err?.response?.data?.message ||
-      err?.message ||
-      "Չհաջողվեց ավարտել մակարդակը։";
-  } finally {
-    finishing.value = false;
-  }
+    },
+    {
+      preserveScroll: true,
+      onError: (errors) => {
+        error.value =
+          String(Object.values(errors)[0] ?? "") ||
+          "Failed to finish level.";
+      },
+      onFinish: () => {
+        finishing.value = false;
+      },
+    },
+  );
 }
 
 onMounted(loadAttempt);

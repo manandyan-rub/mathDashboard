@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Head } from "@inertiajs/vue3";
+import { Head, router } from "@inertiajs/vue3";
 import { cmsTranslate as __, useLanguageVersion } from "@/lib/i18n";
 import axios from "axios";
 import { computed, onMounted, ref, watch } from "vue";
-import { route } from "ziggy-js";
 import { Lock, Sparkles, Star } from "lucide-vue-next";
 
 type LevelItem = {
@@ -83,31 +82,27 @@ async function loadLevels() {
   }
 }
 
-async function startLevel(levelId: number) {
+function startLevel(levelId: number) {
   starting.value = levelId;
   error.value = null;
-  try {
-    const response = await axios.post("/api/math-levels/start", {
+
+  router.post(
+    "/api/math-levels/start",
+    {
       level_id: levelId,
-    });
-    if (response.data?.busy) {
-      error.value = response.data?.message || __("Generator is busy. Try again shortly.");
-      return;
-    }
-    const attemptId = response.data?.attempt_id;
-    if (attemptId) {
-      window.location.href = route("math-levels.session", attemptId);
-      return;
-    }
-    error.value = __("Failed to start level.");
-  } catch (err: any) {
-    error.value =
-      err?.response?.data?.message ||
-      err?.message ||
-      __("Failed to start level.");
-  } finally {
-    starting.value = null;
-  }
+    },
+    {
+      preserveScroll: true,
+      onError: (errors) => {
+        error.value =
+          String(Object.values(errors)[0] ?? "") ||
+          __("Failed to start level.");
+      },
+      onFinish: () => {
+        starting.value = null;
+      },
+    },
+  );
 }
 
 onMounted(loadLevels);

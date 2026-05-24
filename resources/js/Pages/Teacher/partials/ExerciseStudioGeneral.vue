@@ -675,9 +675,10 @@ async function checkGeneration() {
   if (!generationId.value) return;
 
   try {
-    const response = await axios.get(
-      `/api/teacher/exercises/generations/${generationId.value}`,
-    );
+    const response = await axios.get<{
+      generation?: { status?: StudioStatus; error?: string | null };
+      document?: ExerciseDocument | null;
+    }>(`/api/teacher/exercises/generations/${generationId.value}`);
 
     const status = (response.data?.generation?.status ??
       "processing") as StudioStatus;
@@ -719,7 +720,10 @@ async function generateExercises() {
   generationError.value = null;
 
   try {
-    const response = await axios.post("/api/teacher/exercises/generate", {
+    const response = await axios.post<{
+      generation_id?: number;
+      document_id?: number;
+    }>("/api/teacher/exercises/generate", {
       topic: topic.value.trim(),
       grade: grade.value.trim() || null,
       difficulty: difficulty.value,
@@ -761,7 +765,9 @@ async function saveDraft(showSuccessTimestamp = true) {
   generationError.value = null;
 
   try {
-    const response = await axios.post("/api/teacher/exercises/save-draft", {
+    const response = await axios.post<{
+      document?: ExerciseDocument;
+    }>("/api/teacher/exercises/save-draft", {
       document_id: documentId.value,
       title: topic.value.trim() || "Untitled exercise document",
       language: language.value,
@@ -813,7 +819,9 @@ async function publishDocument() {
   generationError.value = null;
 
   try {
-    const response = await axios.post("/api/teacher/exercises/publish", {
+    const response = await axios.post<{
+      document?: ExerciseDocument;
+    }>("/api/teacher/exercises/publish", {
       document_id: documentId.value,
       title: topic.value.trim() || "Untitled exercise document",
       language: language.value,
@@ -849,7 +857,7 @@ async function extractPdfErrorMessage(error: any): Promise<string> {
         return parsed.message;
       }
     } catch {
-      // ignore blob parsing failures and fall back below
+      // Fall back to the generic message below.
     }
   }
 
@@ -874,7 +882,7 @@ async function downloadPdf() {
   generationError.value = null;
 
   try {
-    const response = await axios.post(
+    const response = await axios.post<Blob>(
       "/api/teacher/exercises/pdf",
       {
         document_id: documentId.value,
@@ -920,7 +928,9 @@ async function regenerateItem(item: ExerciseItem) {
   generationError.value = null;
 
   try {
-    const response = await axios.post(
+    const response = await axios.post<{
+      item?: ExerciseItem;
+    }>(
       "/api/teacher/exercises/regenerate-item",
       {
         document_id: documentId.value,
@@ -1423,7 +1433,9 @@ async function loadDocument(id: number) {
   loadingDocument.value = true;
   generationError.value = null;
   try {
-    const response = await axios.get(`/api/teacher/exercises/${id}`);
+    const response = await axios.get<{
+      document?: ExerciseDocument;
+    }>(`/api/teacher/exercises/${id}`);
     const documentPayload = response.data?.document as ExerciseDocument;
     if (documentPayload) {
       applyDocument(documentPayload);
@@ -1532,11 +1544,10 @@ async function uploadAndInsertImage(file: File) {
     const form = new FormData();
     form.append("image", file);
 
-    const response = await axios.post("/api/teacher/exercises/images", form, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await axios.post<{ url?: string }>(
+      "/api/teacher/exercises/images",
+      form,
+    );
 
     const uploadedUrl = String(response.data?.url ?? "").trim();
     if (!uploadedUrl) {

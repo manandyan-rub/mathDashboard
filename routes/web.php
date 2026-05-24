@@ -5,7 +5,6 @@ use App\Http\Controllers\IntegralController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\MathematicsControlller;
 use App\Http\Controllers\FormulaController;
-use App\Http\Controllers\Api\FormulaController as ApiFormulaController;
 use App\Http\Controllers\MathLevelController;
 use App\Http\Controllers\TeacherExerciseStudioController;
 use Illuminate\Foundation\Application;
@@ -65,12 +64,7 @@ Route::middleware('auth')->prefix('api')->group(function () {
     Route::get('math-levels/attempts/{attempt}/result', [\App\Http\Controllers\Api\MathLevelController::class, 'result']);
     Route::post('games/xp', [\App\Http\Controllers\Api\GameXpController::class, 'store']);
 
-    Route::get('formula-groups', [ApiFormulaController::class, 'groups']);
-
-    Route::middleware('role:admin')->group(function () {
-        Route::post('formula-groups', [ApiFormulaController::class, 'storeGroup']);
-        Route::post('formulas', [ApiFormulaController::class, 'store']);
-    });
+    Route::get('formula-groups', [\App\Http\Controllers\Api\FormulaController::class, 'groups']);
 
     Route::middleware('role:admin,lecturer')->group(function () {
         Route::post('teacher/exercises/generate', [\App\Http\Controllers\Api\TeacherExerciseStudioController::class, 'generate']);

@@ -217,17 +217,13 @@ class MathLevelController extends Controller
         );
 
         if (!$progress->unlocked) {
-            return response()->json([
-                'message' => __('This level is locked.'),
-            ], 403);
+            return $this->inertiaBackOrJson($request, __('This level is locked.'), 403);
         }
 
         $prompt = $this->resolvePrompt($level, $locales);
 
         if (!$prompt) {
-            return response()->json([
-                'message' => __('Prompt for this level was not found.'),
-            ], 422);
+            return $this->inertiaBackOrJson($request, __('Prompt for this level was not found.'), 422);
         }
 
         $attempt = MathLevelAttempt::create([
@@ -242,15 +238,19 @@ class MathLevelController extends Controller
             $attempt->delete();
             $message = $e->getMessage();
             if (str_contains($message, 'BUSY')) {
-                return response()->json([
-                    'busy' => true,
-                    'message' => __('The generator is busy. Please try again shortly.'),
-                ], 200);
+                return $this->inertiaBackOrJson(
+                    $request,
+                    __('The generator is busy. Please try again shortly.'),
+                    200,
+                    ['busy' => true]
+                );
             }
-            return response()->json([
-                'message' => __('Failed to generate questions. Please try again.'),
-                'details' => $e->getMessage(),
-            ], 502);
+            return $this->inertiaBackOrJson(
+                $request,
+                __('Failed to generate questions. Please try again.'),
+                502,
+                ['details' => $e->getMessage()]
+            );
         }
 
         DB::transaction(function () use ($attempt, $generated) {
@@ -273,6 +273,10 @@ class MathLevelController extends Controller
                 }
             }
         });
+
+        if ($request->header('X-Inertia')) {
+            return redirect()->route('math-levels.session', $attempt);
+        }
 
         return response()->json([
             'attempt_id' => $attempt->id,
@@ -365,6 +369,10 @@ class MathLevelController extends Controller
         $this->authorizeAttempt($attempt);
 
         if ($attempt->finished_at) {
+            if ($request->header('X-Inertia')) {
+                return redirect()->route('math-levels.result', $attempt);
+            }
+
             return response()->json(['message' => __('The game is already finished.')], 422);
         }
 
@@ -450,6 +458,10 @@ class MathLevelController extends Controller
                 ]);
             }
         });
+
+        if ($request->header('X-Inertia')) {
+            return redirect()->route('math-levels.result', $attempt);
+        }
 
         return response()->json([
             'attempt_id' => $attempt->id,
@@ -690,6 +702,18 @@ class MathLevelController extends Controller
         if (!$userId || $attempt->user_id !== $userId) {
             abort(403);
         }
+    }
+
+    private function inertiaBackOrJson(Request $request, string $message, int $status, array $extra = [])
+    {
+        if ($request->header('X-Inertia')) {
+            return back()->withErrors(['level' => $message]);
+        }
+
+        return response()->json([
+            ...$extra,
+            'message' => $message,
+        ], $status);
     }
 }
 

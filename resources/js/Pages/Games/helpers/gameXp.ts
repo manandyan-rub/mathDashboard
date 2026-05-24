@@ -18,4 +18,3 @@ export async function awardGameXp(
     // XP sync should never block gameplay.
   }
 }
-

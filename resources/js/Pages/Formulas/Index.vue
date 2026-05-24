@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import "mathlive";
 import { MathfieldElement } from "mathlive";
-import axios from "axios";
 import {
   ref,
   computed,
@@ -21,8 +20,6 @@ import {
   X,
   Moon,
   Sun,
-  Plus,
-  Save,
 } from "lucide-vue-next";
 import { route } from "ziggy-js";
 import Dropdown from "@/components/Dropdown.vue";
@@ -60,94 +57,94 @@ MathfieldElement.soundsDirectory = `${appOrigin}/sounds/mathlive`;
 const CATEGORY_META = [
   {
     id: "arithmetic",
-    label: "Թվաբանություն",
+    label: "Arithmetic",
     color: "blue",
     sections: [
-      { id: "basic-ops", title: "Հիմնական գործողություններ" },
-      { id: "fractions", title: "Կոտորակներ" },
-      { id: "percentages", title: "Տոկոսներ" },
-      { id: "powers-roots", title: "Աստիճաններ և արմատներ" },
-      { id: "divisibility", title: "Բաժանելիություն" },
+      { id: "basic-ops", title: "Basic operations" },
+      { id: "fractions", title: "Fractions" },
+      { id: "percentages", title: "Percentages" },
+      { id: "powers-roots", title: "Powers and roots" },
+      { id: "divisibility", title: "Divisibility" },
     ],
   },
   {
     id: "algebra",
-    label: "Հանրահաշիվ",
+    label: "Algebra",
     color: "violet",
     sections: [
-      { id: "identities", title: "Հանրահաշվական նույնություններ" },
-      { id: "equations", title: "Հավասարումներ" },
-      { id: "inequalities", title: "Անհավասարություններ" },
-      { id: "sequences", title: "Հաջորդականություններ" },
-      { id: "logarithms", title: "Լոգարիթմներ" },
-      { id: "binomial", title: "Նյուտոնի բինոմ" },
+      { id: "identities", title: "Algebraic identities" },
+      { id: "equations", title: "Equations" },
+      { id: "inequalities", title: "Inequalities" },
+      { id: "sequences", title: "Sequences" },
+      { id: "logarithms", title: "Logarithms" },
+      { id: "binomial", title: "Binomial theorem" },
     ],
   },
   {
     id: "geometry2d",
-    label: "Հարթ երկրաչափություն",
+    label: "Plane Geometry",
     color: "emerald",
     sections: [
-      { id: "triangle", title: "Եռանկյուն" },
-      { id: "circle", title: "Շրջան և աղեղներ" },
-      { id: "quadrilaterals", title: "Քառանկյուններ" },
-      { id: "polygon", title: "Բազմանկյուններ" },
-      { id: "coordinate", title: "Կոորդինատային երկրաչափություն" },
+      { id: "triangle", title: "Triangles" },
+      { id: "circle", title: "Circles and arcs" },
+      { id: "quadrilaterals", title: "Quadrilaterals" },
+      { id: "polygon", title: "Polygons" },
+      { id: "coordinate", title: "Coordinate geometry" },
     ],
   },
   {
     id: "geometry3d",
-    label: "Տարածական երկրաչափություն",
+    label: "Solid Geometry",
     color: "cyan",
     sections: [
-      { id: "prisms", title: "Պրիզմա, ուղղանկյուն զուգահեռանիստ, խորանարդ" },
-      { id: "cylinders-cones", title: "Գլաններ և կոներ" },
-      { id: "sphere", title: "Գունդ" },
-      { id: "pyramids", title: "Բուրգեր" },
+      { id: "prisms", title: "Prisms and cuboids" },
+      { id: "cylinders-cones", title: "Cylinders and cones" },
+      { id: "sphere", title: "Spheres" },
+      { id: "pyramids", title: "Pyramids" },
     ],
   },
   {
     id: "trigonometry",
-    label: "Եռանկյունաչափություն",
+    label: "Trigonometry",
     color: "amber",
     sections: [
-      { id: "trig-defs", title: "Տրիգոնոմետրիկ սահմանումներ" },
-      { id: "trig-values", title: "Հիմնական անկյունների արժեքներ" },
-      { id: "trig-identities", title: "Տրիգոնոմետրիկ նույնություններ" },
-      { id: "inverse-trig", title: "Հակադարձ տրիգոնոմետրիկ ֆունկցիաներ" },
+      { id: "trig-defs", title: "Trigonometric definitions" },
+      { id: "trig-values", title: "Special angle values" },
+      { id: "trig-identities", title: "Trigonometric identities" },
+      { id: "inverse-trig", title: "Inverse trigonometric functions" },
     ],
   },
   {
     id: "calculus",
-    label: "Մաթեմատիկական անալիզ",
+    label: "Calculus",
     color: "rose",
     sections: [
-      { id: "limits", title: "Սահմաններ" },
-      { id: "derivatives", title: "Ածանցյալներ" },
-      { id: "integrals", title: "Ինտեգրալներ" },
-      { id: "series", title: "Շարքեր" },
-      { id: "differential-eqs", title: "Դիֆերենցիալ հավասարումներ" },
+      { id: "limits", title: "Limits" },
+      { id: "derivatives", title: "Derivatives" },
+      { id: "integrals", title: "Integrals" },
+      { id: "series", title: "Series" },
+      { id: "differential-eqs", title: "Differential equations" },
     ],
   },
   {
     id: "linearAlgebra",
-    label: "Գծային հանրահաշիվ",
+    label: "Linear Algebra",
     color: "indigo",
     sections: [
-      { id: "vectors", title: "Վեկտորներ" },
-      { id: "matrices", title: "Մատրիցներ" },
-      { id: "transformations", title: "Երկրաչափական ձևափոխումներ" },
+      { id: "vectors", title: "Vectors" },
+      { id: "matrices", title: "Matrices" },
+      { id: "transformations", title: "Geometric transformations" },
     ],
   },
   {
     id: "statistics",
-    label: "Վիճակագրություն և հավանականություն",
+    label: "Statistics and Probability",
     color: "teal",
     sections: [
-      { id: "combinatorics", title: "Կոմբինատորիկա" },
-      { id: "probability", title: "Հավանականություն" },
-      { id: "distributions", title: "Բաշխումներ" },
-      { id: "stats-measures", title: "Վիճակագրական չափումներ" },
+      { id: "combinatorics", title: "Combinatorics" },
+      { id: "probability", title: "Probability" },
+      { id: "distributions", title: "Distributions" },
+      { id: "stats-measures", title: "Statistical measures" },
     ],
   },
 ];
@@ -223,15 +220,9 @@ const activeId = ref(CATEGORY_META[0]?.id ?? "arithmetic");
 const sidebarOpen = ref(false);
 const page = usePage();
 const user = computed(() => (page.props as any).auth?.user);
-const canUseEditors = computed(() =>
-  Boolean((page.props as any).auth?.permissions?.use_editors),
-);
-const canManageFormulas = computed(() =>
-  Boolean((page.props as any).auth?.permissions?.manage_formulas),
-);
 const { theme, setTheme } = useTheme();
 const initials = computed(() => {
-  const parts = (user.value?.name ?? "Օ").trim().split(/\s+/);
+  const parts = (user.value?.name ?? "U").trim().split(/\s+/);
   return parts.length === 1
     ? parts[0][0].toUpperCase()
     : `${parts[0][0]}${parts[1][0]}`.toUpperCase();
@@ -260,11 +251,11 @@ const categoryMeta = computed(() => [...CATEGORY_META, ...customGroups.value]);
 const allCategories = computed<FormulaCategory[]>(() =>
   categoryMeta.value.map((cat) => ({
     id: cat.id,
-    label: cat.label,
+    label: __(cat.label),
     color: cat.color,
     sections: cat.sections.map((sec) => ({
       id: sec.id,
-      title: sec.title,
+      title: __(sec.title),
       formulas: formulasBySection.value[`${cat.id}:${sec.id}`] ?? [],
     })),
   })),
@@ -292,31 +283,10 @@ const filteredSections = computed(() => {
 
 const totalFormulaCount = computed(() => formulas.value.length);
 
-const groupFormOpen = ref(false);
-const groupSaving = ref(false);
-const groupFormError = ref<string | null>(null);
-const groupForm = ref({
-  label: "",
-  sectionTitle: "",
-  color: "indigo",
-});
-
-const formulaFormOpen = ref(false);
-const formulaSaving = ref(false);
-const formulaFormError = ref<string | null>(null);
-const formulaForm = ref({
-  sectionId: "",
-  name: "",
-  formula: "",
-  description: "",
-  example: "",
-});
-
 const stepsDialogOpen = ref(false);
 const stepsLoading = ref(false);
 const stepsError = ref<string | null>(null);
 const stepsPlaying = ref(false);
-const stepsRegenerating = ref(false);
 
 const selectedFormula = ref<Formula | null>(null);
 const selectedSteps = ref<FormulaStep[]>([]);
@@ -380,7 +350,6 @@ function onStepsDialogToggle(open: boolean) {
   if (!open) {
     clearStepAnimationInterval();
     stepsPlaying.value = false;
-    stepsRegenerating.value = false;
     activeStepIndex.value = 0;
   }
 }
@@ -426,7 +395,6 @@ async function openFormulaStepsDialog(formula: Formula) {
   activeStepIndex.value = 0;
   stepsError.value = null;
   stepsLoading.value = true;
-  stepsRegenerating.value = false;
   stepsPlaying.value = false;
 
   try {
@@ -436,7 +404,7 @@ async function openFormulaStepsDialog(formula: Formula) {
     );
     const payload = (await res.json()) as FormulaStepsResponse & { message?: string };
     if (!res.ok) {
-      throw new Error(payload?.message ?? "Չհաջողվեց բեռնել քայլերը");
+      throw new Error(payload?.message ?? __("Failed to load steps."));
     }
 
     selectedSteps.value = normalizeStepsPayload(payload);
@@ -451,53 +419,9 @@ async function openFormulaStepsDialog(formula: Formula) {
   } catch (err) {
     selectedSteps.value = [];
     stepsError.value =
-      err instanceof Error ? err.message : "Քայլերի բեռնումը ձախողվեց";
+      err instanceof Error ? err.message : __("Failed to load steps.");
   } finally {
     stepsLoading.value = false;
-  }
-}
-
-async function regenerateSelectedFormulaSteps() {
-  if (!selectedFormula.value || stepsRegenerating.value) {
-    return;
-  }
-
-  stepsError.value = null;
-  stepsRegenerating.value = true;
-  stepsPlaying.value = false;
-  clearStepAnimationInterval();
-
-  try {
-    const res = await fetch(`/api/formulas/${selectedFormula.value.id}/steps/regenerate`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        locale: (document?.documentElement?.lang ?? "en").slice(0, 2),
-      }),
-    });
-
-    const payload = (await res.json()) as FormulaStepsResponse & { message?: string };
-    if (!res.ok) {
-      throw new Error(payload?.message ?? "Չհաջողվեց վերագեներացնել քայլերը");
-    }
-
-    selectedSteps.value = normalizeStepsPayload(payload);
-    if (!selectedSteps.value.length) {
-      throw new Error("AI-ը վավեր քայլեր չվերադարձրեց");
-    }
-
-    activeStepIndex.value = 0;
-    await nextTick();
-    renderAll();
-    replaySelectedFormulaSteps();
-  } catch (err) {
-    stepsError.value =
-      err instanceof Error ? err.message : "Քայլերի վերագեներացումը ձախողվեց";
-  } finally {
-    stepsRegenerating.value = false;
   }
 }
 
@@ -604,99 +528,6 @@ function renderAll() {
   });
 }
 
-function requestErrorMessage(err: unknown, fallback: string) {
-  if (axios.isAxiosError(err)) {
-    const payload = err.response?.data as { message?: string } | undefined;
-    return payload?.message ?? fallback;
-  }
-
-  return err instanceof Error ? err.message : fallback;
-}
-
-function resetGroupForm() {
-  groupForm.value = {
-    label: "",
-    sectionTitle: "",
-    color: "indigo",
-  };
-  groupFormError.value = null;
-}
-
-function resetFormulaForm(sectionId = activeCategory.value?.sections[0]?.id ?? "") {
-  formulaForm.value = {
-    sectionId,
-    name: "",
-    formula: "",
-    description: "",
-    example: "",
-  };
-  formulaFormError.value = null;
-}
-
-function openFormulaForm(sectionId = activeCategory.value?.sections[0]?.id ?? "") {
-  resetFormulaForm(sectionId);
-  formulaFormOpen.value = true;
-}
-
-async function createFormulaGroup() {
-  if (!canManageFormulas.value || groupSaving.value) {
-    return;
-  }
-
-  groupSaving.value = true;
-  groupFormError.value = null;
-
-  try {
-    const response = await axios.post<FormulaGroupApiRecord>("/api/formula-groups", {
-      label: groupForm.value.label,
-      section_title: groupForm.value.sectionTitle,
-      color: groupForm.value.color,
-    });
-
-    customGroups.value.push(response.data);
-    activeId.value = response.data.id;
-    groupFormOpen.value = false;
-    resetGroupForm();
-  } catch (err) {
-    groupFormError.value = requestErrorMessage(err, "Could not create formula group.");
-  } finally {
-    groupSaving.value = false;
-  }
-}
-
-async function createFormula() {
-  const category = activeCategory.value;
-  if (!canManageFormulas.value || formulaSaving.value || !category) {
-    return;
-  }
-
-  formulaSaving.value = true;
-  formulaFormError.value = null;
-
-  try {
-    const sectionId =
-      formulaForm.value.sectionId || category.sections[0]?.id || "general";
-    const response = await axios.post<FormulaApiRecord>("/api/formulas", {
-      category: `${category.id}:${sectionId}`,
-      name: formulaForm.value.name,
-      formula: formulaForm.value.formula,
-      description: formulaForm.value.description,
-      example: formulaForm.value.example,
-      locale: (document?.documentElement?.lang ?? "en").slice(0, 5),
-    });
-
-    formulas.value.push(response.data);
-    formulaFormOpen.value = false;
-    resetFormulaForm(sectionId);
-    await nextTick();
-    renderAll();
-  } catch (err) {
-    formulaFormError.value = requestErrorMessage(err, "Could not create formula.");
-  } finally {
-    formulaSaving.value = false;
-  }
-}
-
 async function fetchFormulaGroups() {
   const res = await fetch("/api/formula-groups");
   if (!res.ok) {
@@ -712,12 +543,12 @@ async function fetchFormulas() {
   try {
     const [res] = await Promise.all([fetch("/api/formulas"), fetchFormulaGroups()]);
     if (!res.ok) {
-      throw new Error("Չհաջողվեց բեռնել բանաձևերը");
+      throw new Error(__("Failed to load formulas."));
     }
     formulas.value = await res.json();
   } catch (err) {
     error.value =
-      err instanceof Error ? err.message : "Տվյալների բեռնումը ձախողվեց";
+      err instanceof Error ? err.message : __("Failed to load data.");
   } finally {
     loading.value = false;
     nextTick(renderAll);
@@ -757,7 +588,7 @@ function selectCategory(id: string) {
 </script>
 
 <template>
-  <Head title="Մաթեմատիկական բանաձևերի գրադարան" />
+  <Head :title="__('Formula Library')" />
 
   <div class="h-screen flex flex-col overflow-hidden bg-background">
     <header class="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
@@ -782,20 +613,22 @@ function selectCategory(id: string) {
           class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition"
         >
           <ArrowLeft :size="14" />
-          <span class="hidden sm:inline">Վերադառնալ</span>
+          <span class="hidden sm:inline">{{ __("Back") }}</span>
         </Link>
 
         <div class="flex items-center gap-2 min-w-0">
-          <h1 class="font-semibold text-base whitespace-nowrap">Formula Library</h1>
+          <h1 class="font-semibold text-base whitespace-nowrap">
+            {{ __("Formula Library") }}
+          </h1>
           <Badge variant="secondary" class="hidden sm:flex text-xs">
-            {{ totalFormulaCount }} բանաձև
+            {{ __(":count formulas", { count: String(totalFormulaCount) }) }}
           </Badge>
         </div>
 
         <div class="flex-1 max-w-sm ml-auto">
           <Input
             v-model="search"
-            placeholder="Որոնել բանաձև..."
+            :placeholder="__('Search formulas...')"
             class="h-8 text-sm"
           />
         </div>
@@ -820,16 +653,16 @@ function selectCategory(id: string) {
           </template>
           <template #content>
             <div class="px-4 py-2">
-              <p class="text-sm font-semibold">{{ user?.name ?? "Օգտատեր" }}</p>
+              <p class="text-sm font-semibold">{{ user?.name ?? __("User") }}</p>
               <p class="text-xs text-muted-foreground">
                 {{ user?.email ?? "" }}
               </p>
             </div>
-            <DropdownLink :href="route('profile.edit')">Պրոֆիլ</DropdownLink>
+            <DropdownLink :href="route('profile.edit')">{{ __("Profile") }}</DropdownLink>
 
             <div class="px-4 py-2">
               <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-                Թեմա
+                {{ __("Theme") }}
               </p>
               <div class="grid grid-cols-2 gap-2">
                 <button
@@ -843,7 +676,7 @@ function selectCategory(id: string) {
                   @click.stop="setTheme('light')"
                 >
                   <Sun :size="14" />
-                  Լույս
+                  {{ __("Light") }}
                 </button>
                 <button
                   type="button"
@@ -856,13 +689,13 @@ function selectCategory(id: string) {
                   @click.stop="setTheme('dark')"
                 >
                   <Moon :size="14" />
-                  Մութ
+                  {{ __("Dark") }}
                 </button>
               </div>
             </div>
 
             <DropdownLink :href="route('logout')" method="post" as="button">
-              Դուրս գալ
+              {{ __("Log Out") }}
             </DropdownLink>
           </template>
         </Dropdown>
@@ -884,59 +717,6 @@ function selectCategory(id: string) {
           @click="sidebarOpen = false"
         />
         <ScrollArea class="h-full py-3">
-          <div v-if="canManageFormulas" class="px-2 pb-3">
-            <button
-              type="button"
-              class="flex w-full items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/15"
-              @click="groupFormOpen = !groupFormOpen"
-            >
-              <Plus :size="14" />
-              New group
-            </button>
-
-            <form
-              v-if="groupFormOpen"
-              class="mt-2 space-y-2 rounded-lg border border-border bg-card p-2"
-              @submit.prevent="createFormulaGroup"
-            >
-              <Input
-                v-model="groupForm.label"
-                required
-                :placeholder="__('Group name')"
-                class="h-8 text-xs"
-              />
-              <Input
-                v-model="groupForm.sectionTitle"
-                :placeholder="__('Section name')"
-                class="h-8 text-xs"
-              />
-              <select
-                v-model="groupForm.color"
-                class="h-8 w-full rounded-md border border-input bg-background px-2 text-xs text-foreground"
-              >
-                <option value="indigo">{{ __("Indigo") }}</option>
-                <option value="blue">{{ __("Blue") }}</option>
-                <option value="violet">{{ __("Violet") }}</option>
-                <option value="emerald">{{ __("Emerald") }}</option>
-                <option value="cyan">{{ __("Cyan") }}</option>
-                <option value="amber">{{ __("Amber") }}</option>
-                <option value="rose">{{ __("Rose") }}</option>
-                <option value="teal">{{ __("Teal") }}</option>
-              </select>
-              <p v-if="groupFormError" class="text-xs text-destructive">
-                {{ groupFormError }}
-              </p>
-              <button
-                type="submit"
-                class="flex h-8 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-2 text-xs font-semibold text-primary-foreground disabled:opacity-60"
-                :disabled="groupSaving"
-              >
-                <Save :size="13" />
-                {{ groupSaving ? "Saving..." : "Save group" }}
-              </button>
-            </form>
-          </div>
-
           <nav class="px-2 space-y-0.5">
             <button
               v-for="cat in allCategories"
@@ -965,125 +745,21 @@ function selectCategory(id: string) {
           >
             <div class="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary dark:text-primary">
               <Sigma :size="14" />
-              Knowledge Base
+              {{ __("Knowledge Base") }}
             </div>
             <h2 class="mt-4 text-2xl font-bold text-foreground dark:text-primary-foreground md:text-3xl">
               {{ activeCategory.label }}
             </h2>
             <p class="mt-2 max-w-3xl text-sm text-muted-foreground dark:text-muted-foreground">
-              Սեղմիր ցանկացած քարտի վրա և տես քայլ առ քայլ բացատրությունը անիմացիայով։
+              {{ __("Browse formulas and open step-by-step animated explanations.") }}
             </p>
-            <button
-              v-if="canManageFormulas"
-              type="button"
-              class="mt-5 inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
-              @click="openFormulaForm()"
-            >
-              <Plus :size="15" />
-              Add formula
-            </button>
           </div>
-
-          <form
-            v-if="formulaFormOpen && canManageFormulas"
-            class="mb-8 grid gap-3 rounded-xl border border-border bg-card p-4 shadow-sm md:grid-cols-2"
-            @submit.prevent="createFormula"
-          >
-            <div class="md:col-span-2 flex items-center justify-between gap-3">
-              <div>
-                <p class="text-sm font-semibold text-foreground">New formula</p>
-                <p class="text-xs text-muted-foreground">
-                  Add it to {{ activeCategory.label }}.
-                </p>
-              </div>
-              <button
-                type="button"
-                class="inline-flex h-8 w-8 items-center justify-center rounded-full border text-muted-foreground hover:bg-muted hover:text-foreground"
-                @click="formulaFormOpen = false"
-              >
-                <X :size="15" />
-              </button>
-            </div>
-
-            <label class="space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Section
-              <select
-                v-model="formulaForm.sectionId"
-                class="h-10 w-full rounded-md border border-input bg-background px-3 text-sm font-medium normal-case tracking-normal text-foreground"
-                required
-              >
-                <option
-                  v-for="section in activeCategory.sections"
-                  :key="section.id"
-                  :value="section.id"
-                >
-                  {{ section.title }}
-                </option>
-              </select>
-            </label>
-            <label class="space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Name
-              <Input
-                v-model="formulaForm.name"
-                required
-                :placeholder="__('Formula name')"
-                class="h-10 text-sm normal-case tracking-normal"
-              />
-            </label>
-            <label class="md:col-span-2 space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Latex
-              <Input
-                v-model="formulaForm.formula"
-                required
-                placeholder="a^2 + b^2 = c^2"
-                class="h-10 font-mono text-sm normal-case tracking-normal"
-              />
-            </label>
-            <label class="space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Description
-              <textarea
-                v-model="formulaForm.description"
-                rows="3"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground"
-                :placeholder="__('Short explanation')"
-              />
-            </label>
-            <label class="space-y-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Example
-              <textarea
-                v-model="formulaForm.example"
-                rows="3"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground"
-                :placeholder="__('Optional example')"
-              />
-            </label>
-            <p v-if="formulaFormError" class="md:col-span-2 text-sm text-destructive">
-              {{ formulaFormError }}
-            </p>
-            <div class="md:col-span-2 flex justify-end gap-2">
-              <button
-                type="button"
-                class="inline-flex h-9 items-center rounded-md border px-3 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
-                @click="formulaFormOpen = false"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
-                :disabled="formulaSaving"
-              >
-                <Save :size="15" />
-                {{ formulaSaving ? "Saving..." : "Save formula" }}
-              </button>
-            </div>
-          </form>
 
           <div
             v-if="loading"
             class="rounded-lg border border-dashed px-4 py-3 text-sm text-muted-foreground"
           >
-            Տվյալները բեռնվում են...
+            {{ __("Loading formulas...") }}
           </div>
           <div
             v-else-if="error"
@@ -1096,7 +772,7 @@ function selectCategory(id: string) {
             v-if="search && filteredSections.length === 0"
             class="text-center py-16 text-muted-foreground"
           >
-            <p>«{{ search }}» հարցմամբ բանաձև չգտնվեց</p>
+            <p>{{ __("No formulas found for :query.", { query: search }) }}</p>
           </div>
 
           <div
@@ -1110,15 +786,6 @@ function selectCategory(id: string) {
               </h3>
               <Separator class="flex-1" />
               <span class="text-xs text-muted-foreground">{{ section.formulas.length }}</span>
-              <button
-                v-if="canManageFormulas"
-                type="button"
-                class="inline-flex h-8 items-center gap-1.5 rounded-md border border-primary/30 px-2.5 text-xs font-semibold text-primary transition hover:bg-primary/10"
-                @click="openFormulaForm(section.id)"
-              >
-                <Plus :size="13" />
-                Add
-              </button>
             </div>
 
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
@@ -1165,7 +832,7 @@ function selectCategory(id: string) {
 
                 <div class="relative z-10 mt-4 border-t border-dashed border-border pt-3 dark:border-border">
                   <span class="text-[11px] font-medium text-primary dark:text-primary">
-                    Բացել անիմացված լուծում
+                    {{ __("Open animated solution") }}
                   </span>
                 </div>
               </div>
@@ -1181,33 +848,23 @@ function selectCategory(id: string) {
           <DialogHeader class="sr-only">
             <DialogTitle>{{ selectedFormula?.name ?? "Formula" }}</DialogTitle>
             <DialogDescription>
-              {{ selectedFormula?.description ?? "Քայլերով բացատրություն" }}
+              {{ selectedFormula?.description ?? __("Step-by-step explanation") }}
             </DialogDescription>
           </DialogHeader>
 
           <div class="flex items-start justify-between border-b border-border p-5 dark:border-border">
             <div>
               <span class="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary dark:text-primary">
-                Քայլերով բացատրություն
+                {{ __("Step-by-step explanation") }}
               </span>
               <h3 class="mt-2 text-xl font-bold md:text-2xl">
-                {{ selectedFormula?.name ?? "Բանաձև" }}
+                {{ selectedFormula?.name ?? __("Formula") }}
               </h3>
               <p class="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-                {{ selectedFormula?.description ?? "Տես քայլ առ քայլ լուծման անիմացիան" }}
+                {{ selectedFormula?.description ?? __("Watch the step-by-step animated solution.") }}
               </p>
             </div>
             <div class="flex items-center gap-2">
-              <button
-                v-if="canUseEditors"
-                type="button"
-                class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-60 dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-card dark:hover:text-primary-foreground"
-                :disabled="stepsLoading || stepsRegenerating || !selectedFormula"
-                @click="regenerateSelectedFormulaSteps"
-              >
-                <RotateCcw :size="14" />
-                {{ stepsRegenerating ? "Generating..." : "Regenerate" }}
-              </button>
               <button
                 type="button"
                 class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition hover:bg-muted hover:text-foreground dark:border-border dark:bg-card dark:text-muted-foreground dark:hover:bg-card dark:hover:text-primary-foreground"
@@ -1233,7 +890,7 @@ function selectCategory(id: string) {
               v-if="stepsLoading"
               class="rounded-md border border-dashed p-4 text-sm text-muted-foreground"
             >
-              Քայլերը բեռնվում են...
+              {{ __("Loading steps...") }}
             </div>
 
             <div
@@ -1247,7 +904,7 @@ function selectCategory(id: string) {
               v-else-if="selectedSteps.length === 0"
               class="rounded-md border border-chart-3/30 bg-chart-3/10 p-4 text-sm text-chart-3 dark:border-chart-3/60 dark:bg-chart-3/30 dark:text-chart-3"
             >
-              Քայլերը դեռ չեն գեներացվել։ Սեղմիր Regenerate կոճակը։
+              {{ __("Steps have not been generated yet.") }}
             </div>
 
             <div
@@ -1256,7 +913,7 @@ function selectCategory(id: string) {
             >
               <div class="overflow-hidden rounded-xl border border-border bg-muted dark:border-border dark:bg-card">
                 <div class="flex items-center justify-between border-b border-border bg-card px-4 py-3 dark:border-border dark:bg-card/70">
-                  <p class="text-sm font-semibold">Live Example</p>
+                  <p class="text-sm font-semibold">{{ __("Live Example") }}</p>
                   <div class="flex items-center gap-2">
                     <button
                       type="button"
@@ -1295,7 +952,7 @@ function selectCategory(id: string) {
                           class="min-h-[70px] w-full flex items-center justify-center overflow-x-auto text-center text-2xl text-foreground dark:text-primary-foreground"
                         />
                         <div class="inline-flex min-h-[38px] max-w-full items-center justify-center rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-center text-sm font-medium text-primary dark:text-primary">
-                          {{ activeStep?.note ?? `Քայլ ${activeStepIndex + 1}` }}
+                          {{ activeStep?.note ?? __("Step :number", { number: String(activeStepIndex + 1) }) }}
                         </div>
                       </div>
                     </Transition>
@@ -1312,7 +969,7 @@ function selectCategory(id: string) {
 
               <div class="rounded-xl border border-border bg-card p-3 dark:border-border dark:bg-card/55">
                 <p class="mb-2 px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-                  Steps
+                  {{ __("Steps") }}
                 </p>
                 <div class="space-y-2 max-h-[460px] overflow-y-auto custom-scrollbar pr-1">
                   <div
@@ -1337,7 +994,7 @@ function selectCategory(id: string) {
                             : 'text-muted-foreground'
                       "
                     >
-                      Քայլ {{ index + 1 }}
+                      {{ __("Step :number", { number: String(index + 1) }) }}
                     </p>
                     <div
                       :data-latex="step.latex"

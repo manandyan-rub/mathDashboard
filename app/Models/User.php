@@ -67,9 +67,4 @@ class User extends Authenticatable
     {
         return $this->isAdmin() || $this->isLecturer();
     }
-
-    public function canManageFormulas(): bool
-    {
-        return $this->isAdmin();
-    }
 }

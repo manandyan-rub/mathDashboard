@@ -13,6 +13,14 @@ export type FormulaApiRecord = {
   formula: string;
   description?: string | null;
   example?: string | null;
+  locale?: string | null;
+  translations?: Record<
+    string,
+    {
+      name: string;
+      description?: string | null;
+    }
+  >;
 };
 
 export type FormulaGroupApiRecord = {

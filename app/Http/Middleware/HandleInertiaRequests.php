@@ -43,7 +43,6 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
                 'permissions' => [
                     'use_editors' => $user?->canUseEditors() ?? false,
-                    'manage_formulas' => $user?->canManageFormulas() ?? false,
                 ],
             ],
         ];
