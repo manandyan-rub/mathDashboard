@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
+import { cmsTranslate as __ } from "@/lib/i18n";
 import { useEquilibriumEngine } from "../helpers/useEquilibriumEngine";
 
 const {
@@ -28,7 +29,7 @@ const {
 </script>
 
 <template>
-  <Head title="Հավասարակշռություն" />
+  <Head :title="__('Equilibrium')" />
 
   <div class="relative z-10 flex h-full w-full flex-col overflow-hidden">
     <div
@@ -39,28 +40,26 @@ const {
           <h1
             class="max-w-full text-2xl font-black leading-tight tracking-tight text-chart-2 [overflow-wrap:anywhere] dark:text-chart-2 sm:text-3xl md:text-4xl"
           >
-            ՀԱՎԱՍԱՐԱԿՇՌՈՒԹՅՈՒՆ
+            {{ __("Equilibrium") }}
           </h1>
           <div class="mt-2 flex flex-wrap gap-2">
             <span
               class="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-primary-foreground"
               :class="modeColor"
             >
-              {{ modeLabel }}
+              {{ __(modeLabel) }}
             </span>
             <span
-              class="rounded-full bg-muted px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground dark:bg-card dark:text-muted-foreground"
+              class="rounded-full bg-muted px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-muted-foreground dark:bg-card"
             >
-              Մակարդակ {{ level }}
+              {{ __("Level") }} {{ level }}
             </span>
           </div>
         </div>
 
         <div class="shrink-0 text-right">
-          <span
-            class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground"
-          >
-            Կայունության միավոր
+          <span class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            {{ __("Score") }}
           </span>
           <div class="text-4xl font-black leading-none text-chart-2">
             {{ score }}
@@ -69,9 +68,7 @@ const {
       </div>
 
       <div class="px-5 pb-2 sm:px-8">
-        <div
-          class="h-2 w-full overflow-hidden rounded-full bg-muted dark:bg-card"
-        >
+        <div class="h-2 w-full overflow-hidden rounded-full bg-muted dark:bg-card">
           <div
             class="h-full bg-chart-2 transition-all duration-100"
             :style="{ width: `${(timeLeft / maxTime) * 100}%` }"
@@ -93,9 +90,9 @@ const {
             "
           >
             <span
-              class="absolute -top-3 rounded-full bg-muted px-4 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:bg-card dark:text-muted-foreground"
+              class="absolute -top-3 rounded-full bg-muted px-4 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:bg-card"
             >
-              Կողմ A
+              {{ __("Side A") }}
             </span>
 
             <div
@@ -111,7 +108,7 @@ const {
                 :key="item.id"
                 type="button"
                 class="added-item rounded-lg bg-muted px-2.5 py-1 text-sm font-black dark:bg-card"
-                title="Հպեք՝ հեռացնելու համար"
+                :title="__('Remove from scale')"
                 @click="removeFromScale(idx)"
               >
                 +{{ item.val }}
@@ -122,12 +119,12 @@ const {
               v-if="leftItems.length > 0"
               class="mt-2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
             >
-              Հպեք թվին՝ հեռացնելու համար
+              {{ __("Click an item to remove it") }}
             </div>
           </div>
 
           <div class="flex flex-col items-center text-muted-foreground">
-            <span class="mb-2 text-4xl">⚖️</span>
+            <span class="mb-2 text-4xl">=</span>
             <div class="h-12 w-1 rounded-full bg-muted-foreground" />
           </div>
 
@@ -135,9 +132,9 @@ const {
             class="relative flex min-h-[230px] flex-1 flex-col items-center justify-center rounded-[2.2rem] border-4 border-border bg-card p-5 shadow-xl dark:border-border dark:bg-card"
           >
             <span
-              class="absolute -top-3 rounded-full bg-muted px-4 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:bg-card dark:text-muted-foreground"
+              class="absolute -top-3 rounded-full bg-muted px-4 py-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground dark:bg-card"
             >
-              Կողմ B
+              {{ __("Side B") }}
             </span>
 
             <div class="text-6xl font-black text-chart-5">
@@ -154,14 +151,14 @@ const {
               v-if="mode === 'einstein'"
               class="mt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground"
             >
-              Գումարեք ներքևի թվերը
+              {{ __("Guess the hidden side") }}
             </div>
 
             <div class="mt-4 flex flex-wrap justify-center gap-1.5 opacity-90">
               <span
                 v-for="(n, idx) in rightItems"
                 :key="`r-${idx}`"
-                class="rounded-lg bg-chart-5/10 px-2.5 py-1 text-sm font-bold text-chart-5 dark:bg-chart-5/30 dark:text-chart-5"
+                class="rounded-lg bg-chart-5/10 px-2.5 py-1 text-sm font-bold text-chart-5 dark:bg-chart-5/30"
               >
                 {{ n }}
               </span>
@@ -176,7 +173,7 @@ const {
             class="rounded-full bg-chart-2 px-10 py-3 text-xl font-black text-primary-foreground shadow-lg shadow-chart-2/40 transition hover:scale-105 active:scale-95 sm:px-16 sm:py-4 sm:text-2xl"
             @click="balance"
           >
-            ՀԱՎԱՍԱՐԵՑՆԵԼ
+            {{ __("Balance") }}
           </button>
         </div>
       </div>
@@ -202,7 +199,7 @@ const {
             class="col-span-2 mt-1 h-14 rounded-2xl bg-muted text-xs font-black uppercase tracking-[0.2em] text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive dark:bg-card dark:hover:bg-destructive/30 dark:hover:text-destructive sm:col-span-4"
             @click="resetCurrent"
           >
-            Մաքրել բոլորը
+            {{ __("Reset hand") }}
           </button>
         </div>
       </div>
@@ -217,24 +214,21 @@ const {
           class="w-full max-w-lg rounded-3xl border border-border bg-card p-6 text-center shadow-2xl dark:border-border dark:bg-card sm:p-8"
         >
           <div v-if="gameState === 'idle'">
-            <div class="mb-5 text-6xl">🧠</div>
-            <p
-              class="mb-8 text-sm font-medium text-muted-foreground dark:text-muted-foreground sm:text-base"
-            >
-              Հավասարակշռեք կշեռքը։ Էյնշտեյն ռեժիմում աջ կողմի ընդհանուր թիվը
-              թաքնված է, պետք է հաշվեք ներքևի բաղադրիչներով։
+            <div class="mb-5 text-5xl font-black text-chart-2">=</div>
+            <p class="mb-8 text-sm font-medium text-muted-foreground sm:text-base">
+              {{ __("Balance the scale by choosing numbers that match the hidden target.") }}
             </p>
           </div>
 
           <div v-if="gameState === 'ended'" class="mb-8">
             <h2 class="mb-2 text-5xl font-black text-destructive sm:text-6xl">
-              ՊԱՐՏՎԵՑԻՔ
+              {{ __("Time up!") }}
             </h2>
-            <p class="mb-2 font-bold text-muted-foreground dark:text-muted-foreground">
-              Կողմ B-ի գումարը՝ {{ rightSum }}
+            <p class="mb-2 font-bold text-muted-foreground">
+              {{ __("Side B target was :value", { value: String(rightSum) }) }}
             </p>
             <p class="text-lg font-medium">
-              Վերջնական միավոր:
+              {{ __("Final score") }}:
               <span class="font-black text-chart-2">{{ score }}</span>
             </p>
           </div>
@@ -245,9 +239,9 @@ const {
               class="flex w-full items-center justify-between rounded-3xl border-2 border-transparent bg-card px-6 py-4 text-lg font-black shadow transition hover:border-chart-2 dark:bg-card"
               @click="start('scholastic')"
             >
-              <span>{{ MODE_CONFIG.scholastic.label }}</span>
+              <span>{{ __(MODE_CONFIG.scholastic.label) }}</span>
               <span class="text-xs uppercase tracking-widest text-muted-foreground">
-                Սկիզբ
+                {{ __("Easy") }}
               </span>
             </button>
 
@@ -256,20 +250,20 @@ const {
               class="flex w-full items-center justify-between rounded-3xl border-2 border-transparent bg-card px-6 py-4 text-lg font-black shadow transition hover:border-chart-5 dark:bg-card"
               @click="start('student')"
             >
-              <span>{{ MODE_CONFIG.student.label }}</span>
+              <span>{{ __(MODE_CONFIG.student.label) }}</span>
               <span class="text-xs uppercase tracking-widest text-muted-foreground">
-                Ստանդարտ
+                {{ __("Standard") }}
               </span>
             </button>
 
             <button
               type="button"
-              class="flex w-full items-center justify-between rounded-3xl border-2 border-transparent bg-card px-6 py-4 text-lg font-black text-primary-foreground shadow transition hover:border-destructive dark:bg-card dark:text-foreground"
+              class="flex w-full items-center justify-between rounded-3xl border-2 border-destructive/20 bg-destructive/10 px-6 py-4 text-lg font-black text-destructive shadow transition hover:border-destructive hover:bg-destructive/15 dark:bg-card dark:text-destructive"
               @click="start('einstein')"
             >
-              <span>{{ MODE_CONFIG.einstein.label }}</span>
+              <span>{{ __(MODE_CONFIG.einstein.label) }}</span>
               <span class="text-xs uppercase tracking-widest text-muted-foreground">
-                Թաքնված X
+                {{ __("Hidden target") }}
               </span>
             </button>
           </div>

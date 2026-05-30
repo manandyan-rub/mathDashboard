@@ -18,6 +18,7 @@ import { genEinstein } from "./genEinstein";
 import { awardGameXp } from "./gameXp";
 import { useTheme } from "@/composables/useTheme";
 import { themeColor } from "@/lib/themeColors";
+import { cmsTranslate as __ } from "@/lib/i18n";
 
 MathfieldElement.fontsDirectory = "/fonts/mathlive";
 MathfieldElement.soundsDirectory = "/sounds/mathlive";
@@ -58,7 +59,7 @@ export function useGameEngine() {
         : themeColor("--destructive"),
   );
   const isEinstein = computed(() => mode.value === "einstein");
-  const timerDisplay = computed(() => timeLeft.value.toFixed(1) + "վ");
+  const timerDisplay = computed(() => `${timeLeft.value.toFixed(1)}s`);
 
   onMounted(() => {
     updateArena();
@@ -78,9 +79,14 @@ export function useGameEngine() {
 
   function injectMath(container: HTMLElement, latex: string, color: string) {
     const isBubble = container.hasAttribute("data-mf-bubble");
-    let mf = container.querySelector("math-field") as any;
+    let mf = container.querySelector("math-field") as
+      | (HTMLElement & { setValue?: (value: string) => void; value?: string })
+      | null;
     if (!mf) {
-      mf = document.createElement("math-field");
+      mf = document.createElement("math-field") as HTMLElement & {
+        setValue?: (value: string) => void;
+        value?: string;
+      };
       mf.setAttribute("read-only", "");
       mf.style.cssText = isBubble
         ? "background:transparent;border:none;pointer-events:none;display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:0;margin:0;"
@@ -89,29 +95,31 @@ export function useGameEngine() {
     }
     mf.style.color = color;
     requestAnimationFrame(() => {
-      if (typeof mf.setValue === "function") mf.setValue(latex);
-      else mf.value = latex;
+      if (typeof mf?.setValue === "function") mf.setValue(latex);
+      else if (mf) mf.value = latex;
     });
   }
 
   function renderAll() {
     const textColor = themeColor("--foreground");
     const qEl = document.querySelector<HTMLElement>("[data-mf-question]");
-    if (qEl && problem.value.latex)
+    if (qEl && problem.value.latex) {
       injectMath(qEl, problem.value.latex, textColor);
+    }
     document.querySelectorAll<HTMLElement>("[data-mf-bubble]").forEach((el) => {
       const lat = el.dataset.mfBubble;
       if (lat) injectMath(el, lat, themeColor("--primary-foreground"));
     });
     const aEl = document.querySelector<HTMLElement>("[data-mf-answer]");
-    if (aEl && problem.value.answerLatex)
+    if (aEl && problem.value.answerLatex) {
       injectMath(aEl, problem.value.answerLatex, themeColor("--chart-5"));
+    }
   }
 
   function genWrongs(correct: string, count: number): string[] {
     const num = Number(correct);
     const isNumeric =
-      !isNaN(num) && correct !== "" && !/[a-zA-Z\\{}π+C]/.test(correct);
+      !Number.isNaN(num) && correct !== "" && !/[a-zA-Z\\{}π+C]/.test(correct);
     if (isNumeric) {
       const wrongs = new Set<number>();
       const spread = Math.max(5, Math.abs(num) * 0.3);
@@ -124,19 +132,22 @@ export function useGameEngine() {
       }
       return [...wrongs].map(String);
     }
+
     const numMatch = correct.match(/\d+/g);
     if (numMatch) {
       const wrongs: string[] = [];
       for (let i = 0; i < count * 4 && wrongs.length < count; i++) {
         const modified = correct.replace(/\d+/g, (m) => {
-          const n = parseInt(m);
+          const n = Number.parseInt(m);
           return String(Math.max(1, n + pick([-2, -1, 1, 2, 3])));
         });
-        if (modified !== correct && !wrongs.includes(modified))
+        if (modified !== correct && !wrongs.includes(modified)) {
           wrongs.push(modified);
+        }
       }
       if (wrongs.length >= count) return wrongs.slice(0, count);
     }
+
     const fallbacks: Record<string, string[]> = {
       "-\\cos x+C": ["\\cos x+C", "\\sin x+C", "-\\sin x+C", "\\tan x+C"],
       "\\sin x+C": ["-\\sin x+C", "\\cos x+C", "-\\cos x+C", "\\tan x+C"],
@@ -155,10 +166,13 @@ export function useGameEngine() {
       "1": ["0", "2", "-1", "\\frac{1}{2}"],
       "0": ["1", "-1", "\\frac{1}{2}", "2"],
     };
+
     for (const [key, ws] of Object.entries(fallbacks)) {
-      if (correct === key)
+      if (correct === key) {
         return ws.filter((w) => w !== correct).slice(0, count);
+      }
     }
+
     return ["A", "B", "C", "D", "E"].slice(0, count);
   }
 
@@ -187,10 +201,10 @@ export function useGameEngine() {
     const topPad = 185;
 
     values.forEach(({ v, correct }, index) => {
-      let cx = 0,
-        cy = 0,
-        ok = false,
-        tries = 0;
+      let cx = 0;
+      let cy = 0;
+      let ok = false;
+      let tries = 0;
       while (!ok && tries < 150) {
         cx = size / 2 + 16 + Math.random() * (w - size - 32);
         cy = topPad + size / 2 + Math.random() * (h - topPad - size - 20);
@@ -260,11 +274,12 @@ export function useGameEngine() {
     if (gameState.value !== "playing") return;
     if (bubble.state !== "idle") return;
     clearTick();
+
     if (bubble.isCorrect) {
       bubble.state = "correct";
       const ratio = timeLeft.value / timeLimit.value;
       const speed =
-        ratio > 0.8 ? "ՀԱՆՃԱՐ!" : ratio > 0.5 ? "ՀԻԱՆԱԼԻ" : "ՓՐԿՎԵՑ";
+        ratio > 0.8 ? __("Great!") : ratio > 0.5 ? __("Nice!") : __("Good!");
       score.value += cfg.value.pointsPerCorrect;
       streak.value++;
       void awardGameXp("oneplusone", mode.value, 1);
@@ -279,15 +294,16 @@ export function useGameEngine() {
       );
       showFeedback(speed, true);
       setTimeout(nextRound, 400);
-    } else {
-      bubble.state = "wrong";
-      timeLeft.value = Math.max(0, timeLeft.value - cfg.value.penaltySecs);
-      showFeedback("ՍԽԱԼ!", false);
-      setTimeout(() => {
-        bubble.state = "idle";
-        startTick();
-      }, 420);
+      return;
     }
+
+    bubble.state = "wrong";
+    timeLeft.value = Math.max(0, timeLeft.value - cfg.value.penaltySecs);
+    showFeedback(__("Oops!"), false);
+    setTimeout(() => {
+      bubble.state = "idle";
+      startTick();
+    }, 420);
   }
 
   function showFeedback(text: string, good: boolean) {

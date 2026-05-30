@@ -15,17 +15,17 @@ const MODE_CONFIG: Record<
   { label: string; color: string; pointsMultiplier: number }
 > = {
   scholastic: {
-    label: "Դպրոցական",
+    label: "Scholastic",
     color: "bg-chart-2",
     pointsMultiplier: 50,
   },
   student: {
-    label: "Ուսանող",
+    label: "Student",
     color: "bg-chart-5",
     pointsMultiplier: 100,
   },
   einstein: {
-    label: "Էյնշտեյն",
+    label: "Einstein",
     color: "bg-destructive",
     pointsMultiplier: 250,
   },

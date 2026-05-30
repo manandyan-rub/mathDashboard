@@ -35,9 +35,9 @@ export type ModeConfig = {
 
 export const MODES: Record<Mode, ModeConfig> = {
   child: {
-    label: "Երեխա",
-    emoji: "🧒",
-    desc: "Պարզ հաշվարկներ և հեշտ խնդիրներ սկսնակների համար։",
+    label: "Child",
+    emoji: "Kid",
+    desc: "Simple arithmetic with friendly timing and no wrong-answer penalty.",
     startTimer: 12,
     minTimer: 4,
     decrement: 0.3,
@@ -47,9 +47,9 @@ export const MODES: Record<Mode, ModeConfig> = {
     penaltySecs: 0,
   },
   student: {
-    label: "Ուսանող",
-    emoji: "📐",
-    desc: "Միջին բարդության խնդիրներ՝ գումարում, հանում, բազմապատկում, բաժանում և այլ։",
+    label: "Student",
+    emoji: "Math",
+    desc: "Mixed practice with arithmetic, fractions, percentages, geometry, and logic.",
     startTimer: 6,
     minTimer: 1.5,
     decrement: 0.2,
@@ -59,9 +59,9 @@ export const MODES: Record<Mode, ModeConfig> = {
     penaltySecs: 3,
   },
   einstein: {
-    label: "Էյնշտեյն",
-    emoji: "⚛️",
-    desc: "Ավելի բարդ խնդիրներ՝ արագ մտածողության և ճշգրտության համար։",
+    label: "Einstein",
+    emoji: "Atom",
+    desc: "Advanced calculus, geometry, algebra, and fast-response challenges.",
     startTimer: 8,
     minTimer: 2,
     decrement: 0.15,

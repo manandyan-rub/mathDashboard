@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import type { Mode } from "@/types/game";
+import { cmsTranslate as __ } from "@/lib/i18n";
 import { useGameEngine } from "../helpers/usageGameEngine";
 
 const {
@@ -10,7 +11,6 @@ const {
   highScore,
   streak,
   bestStreak,
-  timeLeft,
   timeLimit,
   bubbles,
   problem,
@@ -27,13 +27,13 @@ const {
 </script>
 
 <template>
-  <Head title="MathQuest" />
+  <Head :title="__('MathQuest')" />
 
   <div
-    class="z-10 h-full flex flex-col bg-muted dark:bg-card text-foreground dark:text-primary-foreground transition-colors duration-200 overflow-hidden"
+    class="z-10 flex h-full flex-col overflow-hidden bg-muted text-foreground transition-colors duration-200 dark:bg-card dark:text-primary-foreground"
   >
     <header
-      class="flex items-center justify-between px-5 py-3 bg-card dark:bg-card border-b border-border dark:border-border z-50 shrink-0"
+      class="z-50 flex shrink-0 items-center justify-between border-b border-border bg-card px-5 py-3 dark:border-border dark:bg-card"
     >
       <div class="flex items-center gap-3">
         <div>
@@ -41,12 +41,12 @@ const {
             class="text-lg font-bold leading-none tracking-tight"
             :class="isEinstein ? 'text-destructive' : 'text-chart-5'"
           >
-            MathQuest
-            <span class="text-[10px] font-normal opacity-40 italic">v3.0</span>
+            {{ __("MathQuest") }}
+            <span class="text-[10px] font-normal italic opacity-40">v3.0</span>
           </h1>
-          <div class="flex items-center gap-2 mt-0.5">
+          <div class="mt-0.5 flex items-center gap-2">
             <span
-              class="text-[10px] px-2 py-0.5 rounded font-black uppercase tracking-wider text-primary-foreground"
+              class="rounded px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-primary-foreground"
               :class="
                 isEinstein
                   ? 'bg-destructive'
@@ -55,80 +55,80 @@ const {
                     : 'bg-chart-2'
               "
             >
-              {{ MODES[mode].label }}
+              {{ __(MODES[mode].label) }}
             </span>
-            <span class="text-[10px] text-muted-foreground font-medium"
-              >Ժամ: {{ timeLimit.toFixed(1) }}վ</span
-            >
+            <span class="text-[10px] font-medium text-muted-foreground">
+              {{ __("Time") }}: {{ timeLimit.toFixed(1) }}s
+            </span>
           </div>
         </div>
       </div>
 
       <div class="text-center">
-        <div
-          class="text-2xl font-bold text-chart-3 dark:text-chart-3 leading-none"
-        >
+        <div class="text-2xl font-bold leading-none text-chart-3">
           {{ score }}
         </div>
-        <div
-          class="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5"
-        >
-          Հաշիվ
+        <div class="mt-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+          {{ __("Score") }}
         </div>
       </div>
 
       <div class="text-right">
-        <div class="text-sm font-semibold">Լավագույն: {{ highScore }}</div>
-        <div class="text-[10px] text-muted-foreground">Շարք: {{ streak }}</div>
+        <div class="text-sm font-semibold">
+          {{ __("High score") }}: {{ highScore }}
+        </div>
+        <div class="text-[10px] text-muted-foreground">
+          {{ __("Streak") }}: {{ streak }}
+        </div>
       </div>
     </header>
 
-    <div class="w-full h-1.5 bg-muted dark:bg-background shrink-0">
+    <div class="h-1.5 w-full shrink-0 bg-muted dark:bg-background">
       <div
         class="h-full transition-all duration-[50ms]"
         :style="{ width: timerPct + '%', background: timerColor }"
       />
     </div>
 
-    <div id="arena" class="flex-1 relative overflow-hidden">
+    <div id="arena" class="relative flex-1 overflow-hidden">
       <Transition name="overlay">
         <div
           v-if="gameState === 'idle'"
-          class="absolute inset-0 z-40 bg-card/95 dark:bg-background/95 flex items-center justify-center p-6"
+          class="absolute inset-0 z-40 flex items-center justify-center bg-card/95 p-6 dark:bg-background/95"
         >
           <div class="w-full max-w-md">
-            <h2 class="text-2xl font-bold text-center mb-6">
-              Ընտրեք դժվարությունը
+            <h2 class="mb-6 text-center text-2xl font-bold">
+              {{ __("Choose a mode") }}
             </h2>
             <div class="flex flex-col gap-3">
               <button
                 v-for="(conf, m) in MODES"
                 :key="m"
-                class="flex items-center justify-between p-5 border-2 rounded-3xl transition-all text-left group hover:border-chart-5"
+                class="group flex items-center justify-between rounded-3xl border-2 p-5 text-left transition-all hover:border-chart-5"
                 :class="
                   m === 'einstein'
-                    ? 'border-destructive bg-destructive dark:bg-destructive/20'
+                    ? 'border-destructive bg-destructive/10 dark:bg-destructive/20'
                     : 'border-transparent bg-muted dark:bg-card'
                 "
+                type="button"
                 @click="startGame(m as Mode)"
               >
                 <div class="pr-4">
                   <h3
-                    class="font-black text-xl group-hover:text-chart-5 transition-colors"
+                    class="text-xl font-black transition-colors group-hover:text-chart-5"
                     :class="m === 'einstein' ? 'text-destructive' : ''"
                   >
-                    {{ conf.label }}
+                    {{ __(conf.label) }}
                   </h3>
-                  <p
-                    class="text-xs text-muted-foreground dark:text-muted-foreground mt-1 leading-snug"
-                  >
-                    {{ conf.desc }}
+                  <p class="mt-1 text-xs leading-snug text-muted-foreground">
+                    {{ __(conf.desc) }}
                   </p>
                 </div>
                 <span
-                  class="text-4xl opacity-50 group-hover:opacity-100 transition-opacity"
-                  >{{ conf.emoji }}</span
+                  class="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-70 transition-opacity group-hover:opacity-100"
                 >
+                  {{ __(conf.emoji) }}
+                </span>
               </button>
             </div>
           </div>
@@ -138,46 +138,50 @@ const {
       <Transition name="overlay">
         <div
           v-if="gameState === 'ended'"
-          class="absolute inset-0 z-40 bg-card/95 dark:bg-background/95 flex items-center justify-center p-6"
+          class="absolute inset-0 z-40 flex items-center justify-center bg-card/95 p-6 dark:bg-background/95"
         >
           <div class="w-full max-w-md text-center">
-            <h2 class="text-6xl font-black text-destructive mb-3">ԱՎԱՐՏ</h2>
-            <p class="text-muted-foreground mb-6">
-              Հաշիվ:
-              <span class="text-2xl font-bold text-foreground dark:text-primary-foreground">{{
-                score
-              }}</span>
-              &nbsp;·&nbsp; Լավագույն շարք:
-              <span class="font-bold text-foreground dark:text-primary-foreground">{{
-                bestStreak
-              }}</span>
+            <h2 class="mb-3 text-6xl font-black text-destructive">
+              {{ __("Game Over") }}
+            </h2>
+            <p class="mb-6 text-muted-foreground">
+              {{ __("Score") }}:
+              <span class="text-2xl font-bold text-foreground dark:text-primary-foreground">
+                {{ score }}
+              </span>
+              &nbsp;-&nbsp; {{ __("Best streak") }}:
+              <span class="font-bold text-foreground dark:text-primary-foreground">
+                {{ bestStreak }}
+              </span>
             </p>
             <div
-              class="bg-muted dark:bg-card rounded-2xl border dark:border-border p-6 mb-6 shadow-inner"
+              class="mb-6 rounded-2xl border border-border bg-muted p-6 shadow-inner dark:bg-card"
             >
               <p
-                class="text-xs text-muted-foreground uppercase tracking-widest mb-3 font-bold"
+                class="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground"
               >
-                Ճիշտ պատասխանն էր
+                {{ __("Correct answer") }}
               </p>
               <div
                 data-mf-answer
-                class="min-h-[44px] flex items-center justify-center overflow-x-auto"
+                class="flex min-h-[44px] items-center justify-center overflow-x-auto"
               />
-              <p class="text-xs text-muted-foreground mt-2">{{ problem.display }}</p>
+              <p class="mt-2 text-xs text-muted-foreground">{{ problem.display }}</p>
             </div>
             <div class="flex flex-col gap-3">
               <button
-                class="rounded-2xl bg-chart-5 hover:bg-chart-5 text-primary-foreground px-6 py-3 font-bold transition"
+                class="rounded-2xl bg-chart-5 px-6 py-3 font-bold text-primary-foreground transition hover:bg-chart-5"
+                type="button"
                 @click="startGame(mode)"
               >
-                Նորից խաղալ — {{ MODES[mode].label }}
+                {{ __("Play again - :mode", { mode: __(MODES[mode].label) }) }}
               </button>
               <button
-                class="rounded-2xl border border-border dark:border-border px-6 py-3 text-sm font-medium hover:bg-muted dark:hover:bg-card transition"
+                class="rounded-2xl border border-border px-6 py-3 text-sm font-medium transition hover:bg-muted dark:hover:bg-card"
+                type="button"
                 @click="gameState = 'idle'"
               >
-                Փոխել դժվարությունը
+                {{ __("Change mode") }}
               </button>
             </div>
           </div>
@@ -187,15 +191,15 @@ const {
       <Transition name="question">
         <div
           v-if="gameState === 'playing'"
-          class="absolute top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
+          class="pointer-events-none absolute left-1/2 top-8 z-30 -translate-x-1/2"
         >
           <div
-            class="px-8 py-4 bg-card/90 dark:bg-card/90 backdrop-blur-xl border border-border dark:border-border rounded-[28px] shadow-2xl text-center"
+            class="rounded-[28px] border border-border bg-card/90 px-8 py-4 text-center shadow-2xl backdrop-blur-xl"
             :class="isEinstein ? 'border-destructive/40 shadow-destructive/10' : ''"
           >
             <div
               data-mf-question
-              class="min-h-[52px] min-w-[180px] max-w-[540px] flex items-center justify-center overflow-x-auto"
+              class="flex min-h-[52px] min-w-[180px] max-w-[540px] items-center justify-center overflow-x-auto"
             />
           </div>
         </div>
@@ -205,7 +209,7 @@ const {
         <button
           v-for="bubble in bubbles"
           :key="bubble.id"
-          class="absolute flex items-center justify-center rounded-full border-4 border-primary-foreground/20 shadow-2xl transition-transform select-none overflow-hidden"
+          class="absolute flex select-none items-center justify-center overflow-hidden rounded-full border-4 border-primary-foreground/20 shadow-2xl transition-transform"
           :class="{
             'scale-110 opacity-60': bubble.state === 'correct',
             'animate-shake': bubble.state === 'wrong',
@@ -221,12 +225,13 @@ const {
             background: bubble.color,
             boxShadow: isEinstein ? `0 0 20px ${bubble.color}66` : undefined,
           }"
+          type="button"
           @mousedown="handleBubble(bubble)"
           @touchstart.prevent="handleBubble(bubble)"
         >
           <div
             :data-mf-bubble="bubble.latex"
-            class="w-full h-full flex items-center justify-center pointer-events-none"
+            class="pointer-events-none flex h-full w-full items-center justify-center"
           />
         </button>
       </TransitionGroup>
@@ -234,7 +239,7 @@ const {
       <Transition name="feedback">
         <div
           v-if="feedback"
-          class="absolute bottom-16 left-0 right-0 text-center pointer-events-none z-50"
+          class="pointer-events-none absolute bottom-16 left-0 right-0 z-50 text-center"
         >
           <span
             class="text-5xl font-black italic drop-shadow-2xl"
@@ -248,16 +253,16 @@ const {
 
     <div
       v-if="gameState === 'playing'"
-      class="shrink-0 text-center py-1.5 text-[11px] text-muted-foreground dark:text-muted-foreground bg-card dark:bg-card border-t border-border dark:border-border"
+      class="shrink-0 border-t border-border bg-card py-1.5 text-center text-[11px] text-muted-foreground"
     >
-      ✓ +{{ cfg.bonusSecs }}վ բոնուս
+      {{ __("Correct") }} +{{ cfg.bonusSecs }}s {{ __("bonus") }}
       <span v-if="cfg.penaltySecs > 0">
-        · ✗ -{{ cfg.penaltySecs }}վ տուգանք</span
+        - {{ __("Wrong") }} -{{ cfg.penaltySecs }}s {{ __("penalty") }}</span
       >
-      · շարք ×{{ streak }} ·
-      <span :style="{ color: timerColor }" class="font-medium">{{
-        timerDisplay
-      }}</span>
+      - {{ __("Streak") }} x{{ streak }} -
+      <span :style="{ color: timerColor }" class="font-medium">
+        {{ timerDisplay }}
+      </span>
     </div>
   </div>
 </template>
@@ -348,5 +353,3 @@ math-field[read-only]::part(menu-toggle) {
   display: none;
 }
 </style>
-
-
