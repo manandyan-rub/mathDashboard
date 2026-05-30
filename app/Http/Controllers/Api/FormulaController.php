@@ -50,43 +50,65 @@ class FormulaController extends Controller
 
     public function steps(Formula $formula, Request $request, FormulaStepAiService $aiService): JsonResponse
     {
-        $formula->load('step');
+        $locale = $this->normalizeLocale((string) $request->input('locale', app()->getLocale()));
 
-        $steps = $formula->step?->steps_json;
+        $stepRecord = FormulaStep::query()
+            ->where('formula_id', $formula->id)
+            ->where('locale', $locale)
+            ->first();
+
+        $steps = $stepRecord?->steps_json;
         if (is_array($steps) && !empty($steps)) {
             return response()->json([
                 'formula_id' => $formula->id,
+                'locale' => $locale,
                 'has_steps' => true,
                 'steps' => $steps,
                 'source' => 'db',
+                'can_generate' => $request->user()?->isAdmin() ?? false,
             ]);
+        }
+
+        if (!($request->user()?->isAdmin() ?? false)) {
+            return response()->json([
+                'formula_id' => $formula->id,
+                'locale' => $locale,
+                'has_steps' => false,
+                'steps' => [],
+                'can_generate' => false,
+                'message' => 'This explanation has not been generated yet. Ask an admin to generate it.',
+            ], 403);
         }
 
         try {
             $generated = $aiService->generateForFormula(
                 $formula,
-                (string) $request->input('locale', app()->getLocale())
+                $locale
             );
         } catch (\Throwable $e) {
             return response()->json([
                 'formula_id' => $formula->id,
+                'locale' => $locale,
                 'has_steps' => false,
                 'steps' => [],
+                'can_generate' => true,
                 'message' => __('Failed to generate formula steps. Please try again.'),
                 'details' => $e->getMessage(),
             ], 502);
         }
 
         FormulaStep::updateOrCreate(
-            ['formula_id' => $formula->id],
+            ['formula_id' => $formula->id, 'locale' => $locale],
             ['steps_json' => $generated]
         );
 
         return response()->json([
             'formula_id' => $formula->id,
+            'locale' => $locale,
             'has_steps' => !empty($generated),
             'steps' => $generated,
             'source' => $aiService->lastSource(),
+            'can_generate' => true,
         ]);
     }
 
@@ -106,6 +128,16 @@ class FormulaController extends Controller
         ];
 
         return array_values(array_unique(array_filter($locales)));
+    }
+
+    private function normalizeLocale(string $locale): string
+    {
+        $locale = strtolower(trim($locale));
+        if (str_contains($locale, '-')) {
+            $locale = explode('-', $locale, 2)[0];
+        }
+
+        return in_array($locale, ['en', 'hy', 'fr', 'ru'], true) ? $locale : 'en';
     }
 
     /**

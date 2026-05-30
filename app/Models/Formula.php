@@ -23,4 +23,9 @@ class Formula extends Model
     {
         return $this->hasOne(FormulaStep::class);
     }
+
+    public function steps(): HasMany
+    {
+        return $this->hasMany(FormulaStep::class);
+    }
 }

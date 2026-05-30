@@ -129,7 +129,7 @@ async function calculate() {
   stepsNote.value = "";
 
   try {
-    const response = await axios.post("/mathematics/integral/calculate", {
+    const response = await axios.post("/api/mathematics/integral/calculate", {
       latex: latex.value,
     });
     result.value = response.data?.result ?? "";

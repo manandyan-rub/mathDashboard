@@ -9,6 +9,7 @@ class FormulaStep extends Model
 {
     protected $fillable = [
         'formula_id',
+        'locale',
         'steps_json',
     ];
 
@@ -21,4 +22,3 @@ class FormulaStep extends Model
         return $this->belongsTo(Formula::class);
     }
 }
-

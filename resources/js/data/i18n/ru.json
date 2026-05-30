@@ -442,5 +442,6 @@
   "Side B target was :value": "Цель стороны B была :value",
   "Final score": "Итоговый счёт",
   "Standard": "Стандарт",
-  "Hidden target": "Скрытая цель"
+  "Hidden target": "Скрытая цель",
+  "This explanation has not been generated yet. Ask an admin to generate it.": "Это объяснение ещё не сгенерировано. Попросите админа сгенерировать его."
 }

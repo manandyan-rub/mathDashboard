@@ -40,7 +40,11 @@ export type FormulaStep = {
 
 export type FormulaStepsResponse = {
   formula_id: number;
+  locale?: string;
   has_steps: boolean;
+  can_generate?: boolean;
+  message?: string;
+  source?: string;
   steps: FormulaStep[];
 };
 

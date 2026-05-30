@@ -29,7 +29,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTheme } from "@/composables/useTheme";
-import { cmsTranslate as __ } from "@/lib/i18n";
+import {
+  cmsTranslate as __,
+  getLanguage,
+  setLanguage,
+  type LocaleCode,
+} from "@/lib/i18n";
 import {
   Dialog,
   DialogContent,
@@ -221,6 +226,13 @@ const sidebarOpen = ref(false);
 const page = usePage();
 const user = computed(() => (page.props as any).auth?.user);
 const { theme, setTheme } = useTheme();
+const language = ref<LocaleCode>(getLanguage());
+const languages = [
+  { value: "en", label: "English" },
+  { value: "hy", label: "Armenian" },
+  { value: "fr", label: "French" },
+  { value: "ru", label: "Russian" },
+] satisfies Array<{ value: LocaleCode; label: string }>;
 const initials = computed(() => {
   const parts = (user.value?.name ?? "U").trim().split(/\s+/);
   return parts.length === 1
@@ -404,7 +416,9 @@ async function openFormulaStepsDialog(formula: Formula) {
     );
     const payload = (await res.json()) as FormulaStepsResponse & { message?: string };
     if (!res.ok) {
-      throw new Error(payload?.message ?? __("Failed to load steps."));
+      throw new Error(
+        payload?.message ? __(payload.message) : __("Failed to load steps."),
+      );
     }
 
     selectedSteps.value = normalizeStepsPayload(payload);
@@ -555,6 +569,17 @@ async function fetchFormulas() {
   }
 }
 
+async function changeLanguage(event: Event) {
+  const value = (event.target as HTMLSelectElement).value as LocaleCode;
+  if (value === language.value) return;
+
+  pauseSelectedFormulaSteps();
+  stepsDialogOpen.value = false;
+  language.value = value;
+  setLanguage(value);
+  await fetchFormulas();
+}
+
 onMounted(() => fetchFormulas());
 onUpdated(() => nextTick(renderAll));
 onBeforeUnmount(() => clearStepAnimationInterval());
@@ -632,6 +657,21 @@ function selectCategory(id: string) {
             class="h-8 text-sm"
           />
         </div>
+
+        <select
+          :value="language"
+          class="h-9 rounded-lg border border-border bg-input px-3 py-2 text-sm font-medium text-foreground shadow-sm transition hover:border-ring focus:border-ring focus:outline-none"
+          :aria-label="__('Language')"
+          @change="changeLanguage"
+        >
+          <option
+            v-for="lang in languages"
+            :key="lang.value"
+            :value="lang.value"
+          >
+            {{ __(lang.label) }}
+          </option>
+        </select>
 
         <Dropdown
           align="right"

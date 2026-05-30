@@ -11,7 +11,6 @@ declare module 'ziggy-js' {
     "mathematics.index": [],
     "mathematics.threeD": [],
     "mathematics.integral": [],
-    "mathematics.integral.calculate": [],
     "game.oneplusone": [],
     "game.equilibrium": [],
     "formula.index": [],

@@ -442,5 +442,6 @@
   "Side B target was :value": "La cible du côté B était :value",
   "Final score": "Score final",
   "Standard": "Standard",
-  "Hidden target": "Cible cachée"
+  "Hidden target": "Cible cachée",
+  "This explanation has not been generated yet. Ask an admin to generate it.": "Cette explication n’a pas encore été générée. Demandez à un admin de la générer."
 }
