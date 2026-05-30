@@ -1,4 +1,18 @@
 {
+  "Profile Settings": "Paramètres du profil",
+  "Manage your profile, preferences, and account security.": "Gérez votre profil, vos préférences et la sécurité du compte.",
+  "Personal Information": "Informations personnelles",
+  "Security": "Sécurité",
+  "Preferences": "Préférences",
+  "Choose how MathDash keeps you updated while you study.": "Choisissez comment MathDash vous tient informé pendant vos études.",
+  "Study reminders": "Rappels d’étude",
+  "Get gentle reminders when you have not practiced recently.": "Recevez de doux rappels lorsque vous n’avez pas pratiqué récemment.",
+  "Weekly progress summary": "Résumé hebdomadaire des progrès",
+  "Receive a short recap of your XP and completed levels.": "Recevez un court résumé de votre XP et des niveaux terminés.",
+  "Product updates": "Mises à jour du produit",
+  "Hear about new calculators, games, and formulas.": "Découvrez les nouveaux calculateurs, jeux et formules.",
+  "Preferences saved.": "Préférences enregistrées.",
+  "Save preferences": "Enregistrer les préférences",
   "2D Graphing": "Graphiques 2D",
   "3D Geometry": "Géométrie 3D",
   "A new verification link has been sent to the email address you provided during registration.": "Un nouveau lien de vérification a été envoyé à l’adresse e-mail fournie lors de l’inscription.",
@@ -443,5 +457,7 @@
   "Final score": "Score final",
   "Standard": "Standard",
   "Hidden target": "Cible cachée",
-  "This explanation has not been generated yet. Ask an admin to generate it.": "Cette explication n’a pas encore été générée. Demandez à un admin de la générer."
+  "This explanation has not been generated yet. Ask an admin to generate it.": "Cette explication n’a pas encore été générée. Demandez à un admin de la générer.",
+  "Done": "Terminé",
+  "Edit Drawing": "Modifier le dessin"
 }

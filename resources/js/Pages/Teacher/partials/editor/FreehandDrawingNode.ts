@@ -72,6 +72,14 @@ const FreehandDrawingNode = Node.create({
           };
         },
       },
+      locked: {
+        default: false,
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute("data-locked") === "true",
+        renderHTML: (attributes: Record<string, unknown>) => ({
+          "data-locked": attributes.locked ? "true" : "false",
+        }),
+      },
     };
   },
 
@@ -83,6 +91,7 @@ const FreehandDrawingNode = Node.create({
     const attrs = { ...HTMLAttributes } as Record<string, unknown>;
     const lines = normalizeLines(attrs.lines);
     delete attrs.lines;
+    delete attrs.locked;
 
     return [
       "div",
@@ -114,7 +123,7 @@ const FreehandDrawingNode = Node.create({
         ({ commands }) =>
           commands.insertContent({
             type: this.name,
-            attrs: { lines: [] },
+            attrs: { lines: [], locked: false },
           }),
     };
   },

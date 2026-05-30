@@ -17,7 +17,6 @@ use Throwable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class TeacherExerciseStudioController extends Controller
 {
@@ -184,7 +183,7 @@ class TeacherExerciseStudioController extends Controller
         $path = $file->store($directory, 'public');
 
         return response()->json([
-            'url' => Storage::disk('public')->url($path),
+            'url' => '/storage/' . ltrim($path, '/'),
             'path' => $path,
             'name' => $file->getClientOriginalName(),
         ], 201);

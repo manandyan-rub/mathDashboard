@@ -1,4 +1,18 @@
 {
+  "Profile Settings": "Profile Settings",
+  "Manage your profile, preferences, and account security.": "Manage your profile, preferences, and account security.",
+  "Personal Information": "Personal Information",
+  "Security": "Security",
+  "Preferences": "Preferences",
+  "Choose how MathDash keeps you updated while you study.": "Choose how MathDash keeps you updated while you study.",
+  "Study reminders": "Study reminders",
+  "Get gentle reminders when you have not practiced recently.": "Get gentle reminders when you have not practiced recently.",
+  "Weekly progress summary": "Weekly progress summary",
+  "Receive a short recap of your XP and completed levels.": "Receive a short recap of your XP and completed levels.",
+  "Product updates": "Product updates",
+  "Hear about new calculators, games, and formulas.": "Hear about new calculators, games, and formulas.",
+  "Preferences saved.": "Preferences saved.",
+  "Save preferences": "Save preferences",
   "2D Graphing": "2D Graphing",
   "3D Geometry": "3D Geometry",
   "A new verification link has been sent to the email address you provided during registration.": "A new verification link has been sent to the email address you provided during registration.",
@@ -230,6 +244,8 @@
   "Level": "Level",
   "Failed to export PDF.": "Failed to export PDF.",
   "Image upload failed.": "Image upload failed.",
+  "Could not insert image into the editor.": "Could not insert image into the editor.",
+  "Could not insert drawing into the editor.": "Could not insert drawing into the editor.",
   "Uploaded image": "Uploaded image",
   "Show correct answers": "Show correct answers",
   "Preparing PDF...": "Preparing PDF...",
@@ -443,5 +459,7 @@
   "Final score": "Final score",
   "Standard": "Standard",
   "Hidden target": "Hidden target",
-  "This explanation has not been generated yet. Ask an admin to generate it.": "This explanation has not been generated yet. Ask an admin to generate it."
+  "This explanation has not been generated yet. Ask an admin to generate it.": "This explanation has not been generated yet. Ask an admin to generate it.",
+  "Done": "Done",
+  "Edit Drawing": "Edit Drawing"
 }

@@ -68,6 +68,13 @@ declare module "@tiptap/core" {
     freehandDrawing: {
       insertFreehandDrawing: () => ReturnType;
     };
+    geometryDrawing: {
+      insertGeometryDrawing: (options: {
+        src: string;
+        alt?: string;
+        geometrySvg?: string;
+      }) => ReturnType;
+    };
   }
 }
 
@@ -297,6 +304,17 @@ const GeometryDrawingNode = Node.create({
           "max-width:100%;height:auto;border-radius:10px;margin:8px 0;border:1px solid var(--border);",
       }),
     ];
+  },
+  addCommands() {
+    return {
+      insertGeometryDrawing:
+        (options) =>
+        ({ commands }) =>
+          commands.insertContent({
+            type: this.name,
+            attrs: options,
+          }),
+    };
   },
 });
 
@@ -1524,7 +1542,12 @@ function toggleCanvasPanel() {
 function insertFreehandDrawing() {
   if (!editor.value) return;
 
-  editor.value.chain().focus().insertFreehandDrawing().run();
+  const inserted = editor.value.chain().focus().insertFreehandDrawing().run();
+  if (!inserted) {
+    generationError.value = __("Could not insert drawing into the editor.");
+    return;
+  }
+
   showMathPanel.value = false;
   showCanvasPanel.value = false;
   dirty.value = true;
@@ -1554,14 +1577,18 @@ async function uploadAndInsertImage(file: File) {
       throw new Error(__("Image upload failed."));
     }
 
-    editor.value
-      .chain()
-      .focus()
-      .setImage({
+    const inserted = insertEditorContent({
+      type: "image",
+      attrs: {
         src: uploadedUrl,
         alt: file.name || __("Uploaded image"),
-      })
-      .run();
+      },
+    });
+
+    if (!inserted) {
+      throw new Error(__("Could not insert image into the editor."));
+    }
+
     dirty.value = true;
   } catch (error: any) {
     generationError.value =
@@ -1588,6 +1615,26 @@ async function onImageFileChange(event: Event) {
 function runEditorCommand(action: () => void) {
   if (!editor.value) return;
   action();
+}
+
+function insertEditorContent(content: Content): boolean {
+  const currentEditor = editor.value;
+  if (!currentEditor) return false;
+
+  const insertedAtSelection = currentEditor
+    .chain()
+    .focus()
+    .insertContent(content)
+    .run();
+
+  if (insertedAtSelection) {
+    return true;
+  }
+
+  return currentEditor.commands.insertContentAt(
+    currentEditor.state.doc.content.size,
+    content,
+  );
 }
 
 function applyInlineStyle(partial: {
@@ -1997,21 +2044,24 @@ async function insertDrawingIntoEditor() {
     const geometrySvg = encodeSvgBase64(svg);
     const src = `data:image/svg+xml;base64,${geometrySvg}`;
 
-    editor.value
-      .chain()
-      .focus()
-      .insertContent({
-        type: "geometryDrawing",
-        attrs: {
-          src,
-          alt: __("Geometry Drawing"),
-          geometrySvg,
-        },
-      })
-      .run();
+    const inserted = insertEditorContent({
+      type: "geometryDrawing",
+      attrs: {
+        src,
+        alt: __("Geometry Drawing"),
+        geometrySvg,
+      },
+    });
+
+    if (!inserted) {
+      throw new Error(__("Could not insert drawing into the editor."));
+    }
 
     showCanvasPanel.value = false;
     dirty.value = true;
+  } catch (error: any) {
+    generationError.value =
+      error?.message || __("Could not insert drawing into the editor.");
   } finally {
     insertingDrawing.value = false;
   }

@@ -61,6 +61,7 @@ function normalizeLines(value: unknown): FreehandDrawingLine[] {
 const lines = computed<FreehandDrawingLine[]>(() =>
   normalizeLines(props.node.attrs.lines),
 );
+const locked = computed(() => props.node.attrs.locked === true);
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -147,6 +148,8 @@ function finishDrawing(pointerId?: number) {
 }
 
 function onPointerDown(event: PointerEvent) {
+  if (locked.value) return;
+
   const svg = svgRef.value;
   if (!svg) return;
 
@@ -192,11 +195,24 @@ function onPointerCancel(event: PointerEvent) {
 function clearLines() {
   props.updateAttributes({ lines: [] });
 }
+
+function finishEditing() {
+  finishDrawing();
+  props.updateAttributes({ locked: true });
+}
+
+function editDrawing() {
+  props.updateAttributes({ locked: false });
+}
 </script>
 
 <template>
-  <NodeViewWrapper class="freehand-draw-node" contenteditable="false">
-    <div class="freehand-controls">
+  <NodeViewWrapper
+    class="freehand-draw-node"
+    :class="{ 'freehand-draw-node--locked': locked }"
+    contenteditable="false"
+  >
+    <div v-if="!locked" class="freehand-controls">
       <label class="freehand-label">{{ __("Stroke") }}</label>
       <input v-model="color" class="freehand-color" type="color" />
       <input
@@ -209,11 +225,22 @@ function clearLines() {
       <button type="button" class="freehand-clear-btn" @click="clearLines">
         {{ __("Clear Drawing") }}
       </button>
+      <button type="button" class="freehand-done-btn" @click="finishEditing">
+        {{ __("Done") }}
+      </button>
+    </div>
+
+    <div v-else class="freehand-controls freehand-controls--locked">
+      <span class="freehand-label">{{ __("Drawing") }}</span>
+      <button type="button" class="freehand-clear-btn" @click="editDrawing">
+        {{ __("Edit Drawing") }}
+      </button>
     </div>
 
     <svg
       ref="svgRef"
       class="freehand-canvas"
+      :class="{ 'freehand-canvas--locked': locked }"
       viewBox="0 0 500 250"
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
@@ -306,6 +333,22 @@ function clearLines() {
   color: var(--primary);
 }
 
+.freehand-done-btn {
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  border-radius: 8px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.1rem;
+  padding: 0.32rem 0.7rem;
+  cursor: pointer;
+}
+
+.freehand-done-btn:hover {
+  filter: brightness(0.96);
+}
+
 .freehand-canvas {
   width: 100%;
   min-height: 220px;
@@ -314,6 +357,10 @@ function clearLines() {
   border-radius: 10px;
   cursor: crosshair;
   touch-action: none;
+}
+
+.freehand-canvas--locked {
+  cursor: default;
 }
 
 .freehand-placeholder {

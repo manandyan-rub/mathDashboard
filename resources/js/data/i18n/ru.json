@@ -1,4 +1,18 @@
 {
+  "Profile Settings": "Настройки профиля",
+  "Manage your profile, preferences, and account security.": "Управляйте профилем, предпочтениями и безопасностью аккаунта.",
+  "Personal Information": "Личная информация",
+  "Security": "Безопасность",
+  "Preferences": "Предпочтения",
+  "Choose how MathDash keeps you updated while you study.": "Выберите, как MathDash будет держать вас в курсе во время обучения.",
+  "Study reminders": "Напоминания об учебе",
+  "Get gentle reminders when you have not practiced recently.": "Получайте мягкие напоминания, если давно не практиковались.",
+  "Weekly progress summary": "Еженедельная сводка прогресса",
+  "Receive a short recap of your XP and completed levels.": "Получайте краткую сводку XP и завершенных уровней.",
+  "Product updates": "Обновления продукта",
+  "Hear about new calculators, games, and formulas.": "Узнавайте о новых калькуляторах, играх и формулах.",
+  "Preferences saved.": "Предпочтения сохранены.",
+  "Save preferences": "Сохранить предпочтения",
   "2D Graphing": "2D графики",
   "3D Geometry": "3D геометрия",
   "A new verification link has been sent to the email address you provided during registration.": "Новая ссылка для подтверждения отправлена на адрес, указанный при регистрации.",
@@ -443,5 +457,7 @@
   "Final score": "Итоговый счёт",
   "Standard": "Стандарт",
   "Hidden target": "Скрытая цель",
-  "This explanation has not been generated yet. Ask an admin to generate it.": "Это объяснение ещё не сгенерировано. Попросите админа сгенерировать его."
+  "This explanation has not been generated yet. Ask an admin to generate it.": "Это объяснение ещё не сгенерировано. Попросите админа сгенерировать его.",
+  "Done": "Готово",
+  "Edit Drawing": "Редактировать рисунок"
 }

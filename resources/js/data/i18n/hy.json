@@ -1,4 +1,18 @@
 {
+  "Profile Settings": "Օգտատիրոջ կարգավորումներ",
+  "Manage your profile, preferences, and account security.": "Կառավարեք ձեր պրոֆիլը, նախընտրությունները և հաշվի անվտանգությունը:",
+  "Personal Information": "Անձնական տվյալներ",
+  "Security": "Անվտանգություն",
+  "Preferences": "Նախընտրություններ",
+  "Choose how MathDash keeps you updated while you study.": "Ընտրեք, թե ինչպես MathDash-ը ձեզ տեղեկացված պահի սովորելիս:",
+  "Study reminders": "Ուսման հիշեցումներ",
+  "Get gentle reminders when you have not practiced recently.": "Ստացեք մեղմ հիշեցումներ, երբ վերջերս չեք զբաղվել:",
+  "Weekly progress summary": "Շաբաթական առաջընթացի ամփոփում",
+  "Receive a short recap of your XP and completed levels.": "Ստացեք ձեր XP-ի և ավարտված մակարդակների կարճ ամփոփումը:",
+  "Product updates": "Ապրանքի թարմացումներ",
+  "Hear about new calculators, games, and formulas.": "Իմացեք նոր հաշվիչների, խաղերի և բանաձևերի մասին:",
+  "Preferences saved.": "Նախընտրությունները պահվել են:",
+  "Save preferences": "Պահպանել նախընտրությունները",
   "2D Graphing": "2D գրաֆիկներ",
   "3D Geometry": "3D երկրաչափություն",
   "A new verification link has been sent to the email address you provided during registration.": "Նոր հաստատման հղում է ուղարկվել գրանցման ժամանակ նշված էլ. փոստի հասցեին։",
@@ -443,5 +457,7 @@
   "Final score": "Վերջնական միավոր",
   "Standard": "Ստանդարտ",
   "Hidden target": "Թաքնված նպատակ",
-  "This explanation has not been generated yet. Ask an admin to generate it.": "Այս բացատրությունը դեռ չի գեներացվել։ Խնդրեք ադմինին գեներացնել այն։"
+  "This explanation has not been generated yet. Ask an admin to generate it.": "Այս բացատրությունը դեռ չի գեներացվել։ Խնդրեք ադմինին գեներացնել այն։",
+  "Done": "Ավարտել",
+  "Edit Drawing": "Խմբագրել նկարը"
 }
