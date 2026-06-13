@@ -9,6 +9,7 @@ declare module 'ziggy-js' {
     "profile.update": [],
     "profile.destroy": [],
     "mathematics.index": [],
+    "mathematics.twoD": [],
     "mathematics.threeD": [],
     "mathematics.integral": [],
     "game.oneplusone": [],

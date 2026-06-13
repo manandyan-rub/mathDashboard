@@ -5,6 +5,8 @@ import FreehandDrawingNodeView from "./FreehandDrawingNodeView.vue";
 
 const BOARD_WIDTH = 500;
 const BOARD_HEIGHT = 250;
+const PAPER_STYLES = ["grid", "lined", "blank"] as const;
+type PaperStyle = (typeof PAPER_STYLES)[number];
 
 function normalizeStrokeSize(value: unknown): number {
   const size = Number(value);
@@ -29,6 +31,13 @@ function normalizeLines(value: unknown): FreehandDrawingLine[] {
       return { id, path, color, size } as FreehandDrawingLine;
     })
     .filter((line): line is FreehandDrawingLine => !!line);
+}
+
+function normalizePaperStyle(value: unknown): PaperStyle {
+  const style = String(value ?? "").trim();
+  return PAPER_STYLES.includes(style as PaperStyle)
+    ? (style as PaperStyle)
+    : "grid";
 }
 
 function lineDomSpec(line: FreehandDrawingLine) {
@@ -80,6 +89,14 @@ const FreehandDrawingNode = Node.create({
           "data-locked": attributes.locked ? "true" : "false",
         }),
       },
+      paperStyle: {
+        default: "grid",
+        parseHTML: (element: HTMLElement) =>
+          normalizePaperStyle(element.getAttribute("data-paper-style")),
+        renderHTML: (attributes: Record<string, unknown>) => ({
+          "data-paper-style": normalizePaperStyle(attributes.paperStyle),
+        }),
+      },
     };
   },
 
@@ -90,8 +107,33 @@ const FreehandDrawingNode = Node.create({
   renderHTML({ HTMLAttributes }) {
     const attrs = { ...HTMLAttributes } as Record<string, unknown>;
     const lines = normalizeLines(attrs.lines);
+    const paperStyle = normalizePaperStyle(attrs.paperStyle);
     delete attrs.lines;
     delete attrs.locked;
+    delete attrs.paperStyle;
+
+    const paperPattern =
+      paperStyle === "grid"
+        ? [
+            "path",
+            {
+              d: "M 20 0 L 0 0 0 20",
+              fill: "none",
+              stroke: "#dbeafe",
+              "stroke-width": "0.7",
+            },
+          ]
+        : paperStyle === "lined"
+          ? [
+              "path",
+              {
+                d: "M 0 24 L 500 24",
+                fill: "none",
+                stroke: "#dbeafe",
+                "stroke-width": "0.7",
+              },
+            ]
+          : null;
 
     return [
       "div",
@@ -111,6 +153,32 @@ const FreehandDrawingNode = Node.create({
             "background:var(--card);border:1px solid var(--border);border-radius:10px;",
           "aria-label": "Freehand drawing",
         },
+        ["rect", { width: BOARD_WIDTH, height: BOARD_HEIGHT, fill: "#ffffff" }],
+        ...(paperPattern
+          ? [
+              [
+                "defs",
+                [
+                  "pattern",
+                  {
+                    id: `freehand-${paperStyle}`,
+                    width: "20",
+                    height: paperStyle === "grid" ? "20" : "24",
+                    patternUnits: "userSpaceOnUse",
+                  },
+                  paperPattern,
+                ],
+              ],
+              [
+                "rect",
+                {
+                  width: BOARD_WIDTH,
+                  height: BOARD_HEIGHT,
+                  fill: `url(#freehand-${paperStyle})`,
+                },
+              ],
+            ]
+          : []),
         ...lines.map((line) => lineDomSpec(line)),
       ],
     ];
@@ -123,7 +191,7 @@ const FreehandDrawingNode = Node.create({
         ({ commands }) =>
           commands.insertContent({
             type: this.name,
-            attrs: { lines: [], locked: false },
+            attrs: { lines: [], locked: false, paperStyle: "grid" },
           }),
     };
   },

@@ -11,7 +11,7 @@ import {
   ref,
   watch,
 } from "vue";
-import { EditorContent, useEditor } from "@tiptap/vue-3";
+import { EditorContent, useEditor, VueNodeViewRenderer } from "@tiptap/vue-3";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
@@ -22,11 +22,18 @@ import "mathlive";
 import { MathfieldElement } from "mathlive";
 import {
   Download,
+  Eraser,
+  Highlighter,
   ImagePlus,
   IndentDecrease,
   IndentIncrease,
+  ListOrdered,
   Loader2,
+  Minus,
+  Palette,
+  PanelTop,
   PencilLine,
+  Quote,
   Redo2,
   RefreshCw,
   Sparkles,
@@ -35,6 +42,7 @@ import {
   WandSparkles,
 } from "lucide-vue-next";
 import FreehandDrawingNode from "@/Pages/Teacher/partials/editor/FreehandDrawingNode";
+import EditorImageNodeView from "@/Pages/Teacher/partials/editor/EditorImageNodeView.vue";
 import {
   Difficulty,
   StudioStatus,
@@ -63,6 +71,11 @@ declare module "@tiptap/core" {
         src: string;
         alt?: string;
         title?: string;
+        caption?: string;
+        frame?: string;
+        align?: string;
+        width?: string;
+        sourceName?: string;
       }) => ReturnType;
     };
     freehandDrawing: {
@@ -82,6 +95,65 @@ const EDITOR_INDENT_STEP = 2;
 const EDITOR_MAX_INDENT = 12;
 const LINE_HEIGHT_VALUES = ["1", "1.2", "1.5", "2"] as const;
 type LineHeightValue = (typeof LINE_HEIGHT_VALUES)[number];
+const IMAGE_FRAME_VALUES = [
+  "clean",
+  "soft-card",
+  "polaroid",
+  "blueprint",
+  "ink-border",
+  "gallery",
+  "tape",
+  "spotlight",
+] as const;
+const IMAGE_ALIGN_VALUES = ["left", "center", "right", "full"] as const;
+const IMAGE_WIDTH_VALUES = ["35%", "45%", "60%", "75%", "90%", "100%"] as const;
+const BLOCK_FORMAT_VALUES = [
+  "paragraph",
+  "heading-1",
+  "heading-2",
+  "heading-3",
+  "quote",
+] as const;
+const STYLE_COLOR_VALUES = [
+  "default",
+  "ink",
+  "primary",
+  "green",
+  "gold",
+  "red",
+] as const;
+const HIGHLIGHT_VALUES = [
+  "default",
+  "blue-wash",
+  "green-wash",
+  "gold-wash",
+  "rose-wash",
+] as const;
+const QUICK_TEMPLATE_VALUES = [
+  "hint",
+  "answer-space",
+  "worked-steps",
+  "rubric",
+] as const;
+type ImageFrameValue = (typeof IMAGE_FRAME_VALUES)[number];
+type ImageAlignValue = (typeof IMAGE_ALIGN_VALUES)[number];
+type ImageWidthValue = string;
+type BlockFormatValue = (typeof BLOCK_FORMAT_VALUES)[number];
+type StyleColorValue = (typeof STYLE_COLOR_VALUES)[number];
+type HighlightValue = (typeof HIGHLIGHT_VALUES)[number];
+type QuickTemplateValue = (typeof QUICK_TEMPLATE_VALUES)[number];
+type WorksheetPresetValue = "classic" | "focus" | "atelier";
+
+type EditorImageAttrs = {
+  src: string;
+  alt?: string;
+  title?: string;
+  caption?: string;
+  frame?: ImageFrameValue;
+  align?: ImageAlignValue;
+  width?: ImageWidthValue;
+  sourceName?: string;
+};
 
 function parseIndentFromStyle(styleValue: string | null | undefined): number {
   if (!styleValue) return 0;
@@ -110,6 +182,49 @@ function normalizeLineHeight(value: unknown): string | null {
   return LINE_HEIGHT_VALUES.includes(normalized as LineHeightValue)
     ? normalized
     : null;
+}
+
+function normalizeImageFrame(value: unknown): ImageFrameValue {
+  const normalized = String(value ?? "").trim();
+  return IMAGE_FRAME_VALUES.includes(normalized as ImageFrameValue)
+    ? (normalized as ImageFrameValue)
+    : "soft-card";
+}
+
+function normalizeImageAlign(value: unknown): ImageAlignValue {
+  const normalized = String(value ?? "").trim();
+  return IMAGE_ALIGN_VALUES.includes(normalized as ImageAlignValue)
+    ? (normalized as ImageAlignValue)
+    : "center";
+}
+
+function normalizeImageWidth(value: unknown): ImageWidthValue {
+  const normalized = String(value ?? "").trim();
+  const match = normalized.match(/^([0-9]+(?:\.[0-9]+)?)%$/);
+  if (!match) return "75%";
+
+  const width = Number(match[1]);
+  if (!Number.isFinite(width)) return "75%";
+
+  return `${Math.max(20, Math.min(100, Math.round(width)))}%`;
+}
+
+function imageFigureStyle(
+  align: ImageAlignValue,
+  width: ImageWidthValue,
+): string {
+  if (align === "full") {
+    return "width:100%;max-width:100%;margin:14px 0;";
+  }
+
+  const margin =
+    align === "left"
+      ? "14px auto 14px 0"
+      : align === "right"
+        ? "14px 0 14px auto"
+        : "14px auto";
+
+  return `width:${width};max-width:100%;margin:${margin};`;
 }
 
 function updateBlockAttributes(
@@ -148,22 +263,110 @@ const ImageBlockNode = Node.create({
   atom: true,
   addAttributes() {
     return {
-      src: { default: null },
-      alt: { default: null },
-      title: { default: null },
+      src: {
+        default: null,
+        parseHTML: (element: HTMLElement) => {
+          const image =
+            element instanceof HTMLImageElement
+              ? element
+              : element.querySelector("img");
+          return image?.getAttribute("src") ?? null;
+        },
+      },
+      alt: {
+        default: null,
+        parseHTML: (element: HTMLElement) => {
+          const image =
+            element instanceof HTMLImageElement
+              ? element
+              : element.querySelector("img");
+          return image?.getAttribute("alt") ?? null;
+        },
+      },
+      title: {
+        default: null,
+        parseHTML: (element: HTMLElement) => {
+          const image =
+            element instanceof HTMLImageElement
+              ? element
+              : element.querySelector("img");
+          return image?.getAttribute("title") ?? null;
+        },
+      },
+      caption: {
+        default: null,
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute("data-caption") ??
+          element.querySelector("figcaption")?.textContent?.trim() ??
+          null,
+      },
+      frame: {
+        default: "soft-card",
+        parseHTML: (element: HTMLElement) =>
+          normalizeImageFrame(element.getAttribute("data-editor-image-frame")),
+      },
+      align: {
+        default: "center",
+        parseHTML: (element: HTMLElement) =>
+          normalizeImageAlign(element.getAttribute("data-editor-image-align")),
+      },
+      width: {
+        default: "75%",
+        parseHTML: (element: HTMLElement) =>
+          normalizeImageWidth(element.getAttribute("data-editor-image-width")),
+      },
+      sourceName: {
+        default: null,
+        parseHTML: (element: HTMLElement) =>
+          element.getAttribute("data-source-name") ?? null,
+      },
     };
   },
   parseHTML() {
-    return [{ tag: "img[src]:not([data-geometry-drawing])" }];
-  },
-  renderHTML({ HTMLAttributes }) {
     return [
-      "img",
-      mergeAttributes(HTMLAttributes, {
-        style:
-          "max-width:100%;height:auto;border-radius:10px;margin:8px 0;border:1px solid var(--border);",
-      }),
+      { tag: "figure[data-editor-image]" },
+      { tag: "img[src]:not([data-geometry-drawing])" },
     ];
+  },
+  renderHTML({ node }) {
+    const attrs = node.attrs as EditorImageAttrs;
+    const frame = normalizeImageFrame(attrs.frame);
+    const align = normalizeImageAlign(attrs.align);
+    const width = normalizeImageWidth(attrs.width);
+    const caption = String(attrs.caption ?? "").trim();
+    const sourceName = String(attrs.sourceName ?? "").trim();
+    const title = String(attrs.title ?? sourceName).trim();
+    const figureAttrs = mergeAttributes(
+      {
+        "data-editor-image": "true",
+        "data-editor-image-frame": frame,
+        "data-editor-image-align": align,
+        "data-editor-image-width": width,
+        class: `editor-image-frame editor-image-frame--${frame} editor-image-align--${align}`,
+        style: imageFigureStyle(align, width),
+      },
+      caption ? { "data-caption": caption } : {},
+      sourceName ? { "data-source-name": sourceName } : {},
+    );
+    const imageAttrs = mergeAttributes(
+      {
+        src: String(attrs.src ?? ""),
+        alt: String(attrs.alt ?? ""),
+        loading: "lazy",
+      },
+      title ? { title } : {},
+    );
+    const content: unknown[] = ["figure", figureAttrs, ["img", imageAttrs]];
+
+    if (caption) {
+      content.push([
+        "figcaption",
+        { "data-editor-image-caption": "true" },
+        caption,
+      ]);
+    }
+
+    return content;
   },
   addCommands() {
     return {
@@ -175,6 +378,9 @@ const ImageBlockNode = Node.create({
             attrs: options,
           }),
     };
+  },
+  addNodeView() {
+    return VueNodeViewRenderer(EditorImageNodeView);
   },
 });
 
@@ -364,6 +570,15 @@ const InlineStyleMark = Mark.create({
         default: null,
         parseHTML: (element) => (element as HTMLElement).style.fontSize || null,
       },
+      color: {
+        default: null,
+        parseHTML: (element) => (element as HTMLElement).style.color || null,
+      },
+      backgroundColor: {
+        default: null,
+        parseHTML: (element) =>
+          (element as HTMLElement).style.backgroundColor || null,
+      },
     };
   },
 
@@ -384,9 +599,19 @@ const InlineStyleMark = Mark.create({
     if (attrs.fontSize) {
       styleParts.push(`font-size:${attrs.fontSize}`);
     }
+    if (attrs.color) {
+      styleParts.push(`color:${attrs.color}`);
+    }
+    if (attrs.backgroundColor) {
+      styleParts.push(`background-color:${attrs.backgroundColor}`);
+      styleParts.push("border-radius:0.35em");
+      styleParts.push("padding:0.02em 0.18em");
+    }
 
     delete attrs.fontFamily;
     delete attrs.fontSize;
+    delete attrs.color;
+    delete attrs.backgroundColor;
     if (styleParts.length > 0) {
       attrs.style = styleParts.join("; ");
     } else {
@@ -409,11 +634,22 @@ const selectedGeometryKey = ref("square");
 const selectedFontFamily = ref("default");
 const selectedFontSize = ref("16px");
 const selectedLineHeight = ref<LineHeightValue | "default">("default");
+const selectedBlockFormat = ref<BlockFormatValue>("paragraph");
+const selectedTextColor = ref<StyleColorValue>("default");
+const selectedHighlight = ref<HighlightValue>("default");
+const selectedWorksheetPreset = ref<WorksheetPresetValue>("focus");
+const selectedImageFrame = ref<ImageFrameValue>("soft-card");
+const selectedImageAlign = ref<ImageAlignValue>("center");
+const selectedImageWidth = ref<ImageWidthValue>("75%");
+const imageCaption = ref("");
+const imageAltText = ref("");
 const formulaInput = ref("\\int_0^1 x^2\\,dx");
 const formulaFieldRef = ref<MathfieldLike | null>(null);
 const imageInputRef = ref<HTMLInputElement | null>(null);
+const showImagePanel = ref(false);
 const showMathPanel = ref(false);
 const showCanvasPanel = ref(false);
+const showTemplatePanel = ref(false);
 
 const fontFamilyOptions = [
   { value: "default", label: "Default" },
@@ -439,6 +675,132 @@ const lineHeightOptions: Array<{ value: LineHeightValue; label: string }> = [
   { value: "1.2", label: "1.2" },
   { value: "1.5", label: "1.5" },
   { value: "2", label: "2.0" },
+];
+
+const blockFormatOptions: Array<{ value: BlockFormatValue; label: string }> = [
+  { value: "paragraph", label: "Paragraph" },
+  { value: "heading-1", label: "Heading 1" },
+  { value: "heading-2", label: "Heading 2" },
+  { value: "heading-3", label: "Heading 3" },
+  { value: "quote", label: "Quote" },
+];
+
+const textColorOptions: Array<{
+  value: StyleColorValue;
+  label: string;
+  color: string | null;
+  swatch: string;
+}> = [
+  { value: "default", label: "Default", color: null, swatch: "var(--card)" },
+  {
+    value: "ink",
+    label: "Ink",
+    color: "var(--foreground)",
+    swatch: "var(--foreground)",
+  },
+  {
+    value: "primary",
+    label: "Indigo",
+    color: "var(--primary)",
+    swatch: "var(--primary)",
+  },
+  {
+    value: "green",
+    label: "Green",
+    color: "var(--chart-2, #059669)",
+    swatch: "var(--chart-2, #059669)",
+  },
+  {
+    value: "gold",
+    label: "Gold",
+    color: "var(--chart-4, #ca8a04)",
+    swatch: "var(--chart-4, #ca8a04)",
+  },
+  {
+    value: "red",
+    label: "Red",
+    color: "var(--destructive)",
+    swatch: "var(--destructive)",
+  },
+];
+
+const highlightOptions: Array<{
+  value: HighlightValue;
+  label: string;
+  color: string | null;
+  swatch: string;
+}> = [
+  { value: "default", label: "None", color: null, swatch: "transparent" },
+  {
+    value: "blue-wash",
+    label: "Blue Wash",
+    color: "color-mix(in srgb, var(--primary) 16%, transparent)",
+    swatch: "color-mix(in srgb, var(--primary) 30%, transparent)",
+  },
+  {
+    value: "green-wash",
+    label: "Green Wash",
+    color: "color-mix(in srgb, var(--chart-2, #059669) 18%, transparent)",
+    swatch: "color-mix(in srgb, var(--chart-2, #059669) 34%, transparent)",
+  },
+  {
+    value: "gold-wash",
+    label: "Gold Wash",
+    color: "color-mix(in srgb, var(--chart-4, #ca8a04) 20%, transparent)",
+    swatch: "color-mix(in srgb, var(--chart-4, #ca8a04) 38%, transparent)",
+  },
+  {
+    value: "rose-wash",
+    label: "Rose Wash",
+    color: "color-mix(in srgb, var(--destructive) 14%, transparent)",
+    swatch: "color-mix(in srgb, var(--destructive) 30%, transparent)",
+  },
+];
+
+const worksheetPresetOptions: Array<{
+  value: WorksheetPresetValue;
+  label: string;
+}> = [
+  { value: "focus", label: "Focus" },
+  { value: "classic", label: "Classic" },
+  { value: "atelier", label: "Atelier" },
+];
+
+const imageFrameOptions: Array<{ value: ImageFrameValue; label: string }> = [
+  { value: "soft-card", label: "Study Card" },
+  { value: "clean", label: "Clean" },
+  { value: "polaroid", label: "Polaroid" },
+  { value: "blueprint", label: "Blueprint" },
+  { value: "ink-border", label: "Ink Border" },
+  { value: "gallery", label: "Gallery" },
+  { value: "tape", label: "Tape" },
+  { value: "spotlight", label: "Spotlight" },
+];
+
+const imageAlignOptions: Array<{ value: ImageAlignValue; label: string }> = [
+  { value: "center", label: "Center" },
+  { value: "left", label: "Left" },
+  { value: "right", label: "Right" },
+  { value: "full", label: "Full" },
+];
+
+const imageWidthOptions: Array<{ value: ImageWidthValue; label: string }> = [
+  { value: "35%", label: "35%" },
+  { value: "45%", label: "45%" },
+  { value: "60%", label: "60%" },
+  { value: "75%", label: "75%" },
+  { value: "90%", label: "90%" },
+  { value: "100%", label: "100%" },
+];
+
+const quickTemplateOptions: Array<{
+  value: QuickTemplateValue;
+  label: string;
+}> = [
+  { value: "hint", label: "Hint" },
+  { value: "answer-space", label: "Answer Space" },
+  { value: "worked-steps", label: "Worked Steps" },
+  { value: "rubric", label: "Rubric" },
 ];
 
 const geometryTemplates: GeometryTemplate[] = [
@@ -584,6 +946,9 @@ const canGenerate = computed(
 const canSave = computed(() => !saving.value && !!editor.value);
 const canPublish = computed(() => !!documentId.value && !publishing.value);
 const canDownloadPdf = computed(() => !!editor.value && !downloadingPdf.value);
+const editorStageClass = computed(
+  () => `editor-stage--${selectedWorksheetPreset.value}`,
+);
 const twoDGeometryTemplates = computed(() =>
   geometryTemplates.filter((item) => item.category === "2d"),
 );
@@ -658,16 +1023,26 @@ const editor = useEditor({
       class:
         "exercise-studio-editor rounded-xl border border-border bg-card text-sm leading-7 text-muted-foreground focus:outline-none dark:border-border dark:bg-card/50 dark:text-foreground",
     },
+    handleDOMEvents: {
+      drop: (_view, event) => handleEditorImageDrop(event as DragEvent),
+      paste: (_view, event) => handleEditorImagePaste(event as ClipboardEvent),
+    },
   },
   onCreate: () => {
     syncLineHeightSelection();
+    syncBlockFormatSelection();
+    syncInlineStyleSelection();
   },
   onSelectionUpdate: () => {
     syncLineHeightSelection();
+    syncBlockFormatSelection();
+    syncInlineStyleSelection();
   },
   onUpdate: () => {
     dirty.value = true;
     syncLineHeightSelection();
+    syncBlockFormatSelection();
+    syncInlineStyleSelection();
   },
 });
 
@@ -948,17 +1323,14 @@ async function regenerateItem(item: ExerciseItem) {
   try {
     const response = await axios.post<{
       item?: ExerciseItem;
-    }>(
-      "/api/teacher/exercises/regenerate-item",
-      {
-        document_id: documentId.value,
-        item_id: item.id,
-        topic: topic.value.trim() || stripHtml(item.question) || item.question,
-        difficulty: difficulty.value,
-        language: language.value,
-        instructions: instructions.value.trim() || null,
-      },
-    );
+    }>("/api/teacher/exercises/regenerate-item", {
+      document_id: documentId.value,
+      item_id: item.id,
+      topic: topic.value.trim() || stripHtml(item.question) || item.question,
+      difficulty: difficulty.value,
+      language: language.value,
+      instructions: instructions.value.trim() || null,
+    });
 
     const next = response.data?.item as ExerciseItem;
     const index = items.value.findIndex((current) => current.id === item.id);
@@ -1216,7 +1588,9 @@ function renderExercisePreviewHtml(value: string | null | undefined): string {
   if (source === "") return "";
 
   const wrapPlainText = !looksLikeHtml(source);
-  const html = wrapPlainText ? `<span>${escapeHtmlText(source)}</span>` : source;
+  const html = wrapPlainText
+    ? `<span>${escapeHtmlText(source)}</span>`
+    : source;
   const mathRegex =
     /\$\$([\s\S]+?)\$\$|\$([^$]+)\$|\\\((.+?)\\\)|\\\[(.+?)\\\]|\\begin\{cases\}[\s\S]+?\\end\{cases\}/g;
 
@@ -1491,6 +1865,57 @@ function isTextAlignActive(alignment: "left" | "center" | "right" | "justify") {
   return !!editor.value?.isActive({ textAlign: alignment });
 }
 
+function syncBlockFormatSelection() {
+  if (!editor.value) {
+    selectedBlockFormat.value = "paragraph";
+    return;
+  }
+
+  if (editor.value.isActive("blockquote")) {
+    selectedBlockFormat.value = "quote";
+    return;
+  }
+
+  if (editor.value.isActive("heading", { level: 1 })) {
+    selectedBlockFormat.value = "heading-1";
+    return;
+  }
+
+  if (editor.value.isActive("heading", { level: 2 })) {
+    selectedBlockFormat.value = "heading-2";
+    return;
+  }
+
+  if (editor.value.isActive("heading", { level: 3 })) {
+    selectedBlockFormat.value = "heading-3";
+    return;
+  }
+
+  selectedBlockFormat.value = "paragraph";
+}
+
+function syncInlineStyleSelection() {
+  if (!editor.value) {
+    selectedTextColor.value = "default";
+    selectedHighlight.value = "default";
+    return;
+  }
+
+  const attrs = (editor.value.getAttributes("inlineStyle") ?? {}) as {
+    color?: string | null;
+    backgroundColor?: string | null;
+  };
+  const colorOption = textColorOptions.find(
+    (option) => option.color === attrs.color,
+  );
+  const highlightOption = highlightOptions.find(
+    (option) => option.color === attrs.backgroundColor,
+  );
+
+  selectedTextColor.value = colorOption?.value ?? "default";
+  selectedHighlight.value = highlightOption?.value ?? "default";
+}
+
 function syncLineHeightSelection() {
   if (!editor.value) {
     selectedLineHeight.value = "default";
@@ -1524,18 +1949,79 @@ function applySelectedLineHeight() {
   editor.value.chain().focus().setLineHeight(selectedLineHeight.value).run();
 }
 
+function applySelectedBlockFormat() {
+  if (!editor.value) return;
+
+  const chain = editor.value.chain().focus();
+  if (
+    selectedBlockFormat.value !== "quote" &&
+    editor.value.isActive("blockquote")
+  ) {
+    chain.toggleBlockquote();
+  }
+
+  if (selectedBlockFormat.value === "paragraph") {
+    chain.setParagraph().run();
+    return;
+  }
+
+  if (selectedBlockFormat.value === "heading-1") {
+    chain.setHeading({ level: 1 }).run();
+    return;
+  }
+
+  if (selectedBlockFormat.value === "heading-2") {
+    chain.setHeading({ level: 2 }).run();
+    return;
+  }
+
+  if (selectedBlockFormat.value === "heading-3") {
+    chain.setHeading({ level: 3 }).run();
+    return;
+  }
+
+  if (
+    selectedBlockFormat.value === "quote" &&
+    !editor.value.isActive("blockquote")
+  ) {
+    chain.toggleBlockquote().run();
+  }
+}
+
 function toggleMathPanel() {
   showMathPanel.value = !showMathPanel.value;
   if (showMathPanel.value) {
+    showImagePanel.value = false;
     showCanvasPanel.value = false;
+    showTemplatePanel.value = false;
     nextTick(mountFormulaInput);
+  }
+}
+
+function toggleImagePanel() {
+  showImagePanel.value = !showImagePanel.value;
+  if (showImagePanel.value) {
+    showMathPanel.value = false;
+    showCanvasPanel.value = false;
+    showTemplatePanel.value = false;
   }
 }
 
 function toggleCanvasPanel() {
   showCanvasPanel.value = !showCanvasPanel.value;
   if (showCanvasPanel.value) {
+    showImagePanel.value = false;
     showMathPanel.value = false;
+    showTemplatePanel.value = false;
+  }
+}
+
+function toggleTemplatePanel() {
+  showTemplatePanel.value = !showTemplatePanel.value;
+  if (showTemplatePanel.value) {
+    showImagePanel.value = false;
+    showMathPanel.value = false;
+    showCanvasPanel.value = false;
   }
 }
 
@@ -1548,13 +2034,69 @@ function insertFreehandDrawing() {
     return;
   }
 
+  showImagePanel.value = false;
   showMathPanel.value = false;
   showCanvasPanel.value = false;
+  showTemplatePanel.value = false;
   dirty.value = true;
 }
 
 function openImagePicker() {
+  showImagePanel.value = true;
+  showMathPanel.value = false;
+  showCanvasPanel.value = false;
+  showTemplatePanel.value = false;
   imageInputRef.value?.click();
+}
+
+function extractImageFiles(files: FileList | null | undefined): File[] {
+  return Array.from(files ?? []).filter(
+    (file) =>
+      file.type.startsWith("image/") ||
+      /\.(gif|jpe?g|png|svg|webp)$/i.test(file.name),
+  );
+}
+
+function handleEditorImageDrop(event: DragEvent): boolean {
+  const files = extractImageFiles(event.dataTransfer?.files);
+  if (files.length === 0) return false;
+
+  event.preventDefault();
+  void handleEditorImageFiles(files);
+  return true;
+}
+
+function handleEditorImagePaste(event: ClipboardEvent): boolean {
+  const files = extractImageFiles(event.clipboardData?.files);
+  if (files.length === 0) return false;
+
+  event.preventDefault();
+  void handleEditorImageFiles(files);
+  return true;
+}
+
+async function handleEditorImageFiles(files: File[]) {
+  for (const file of files) {
+    await uploadAndInsertImage(file);
+  }
+}
+
+function buildImageAttrs(file: File, uploadedUrl: string): EditorImageAttrs {
+  const explicitCaption = imageCaption.value.trim();
+  const explicitAlt = imageAltText.value.trim();
+  const sourceName = file.name || __("Uploaded image");
+
+  return {
+    src: uploadedUrl,
+    alt: explicitAlt || explicitCaption || sourceName,
+    title: sourceName,
+    caption: explicitCaption || undefined,
+    frame: selectedImageFrame.value,
+    align: selectedImageAlign.value,
+    width:
+      selectedImageAlign.value === "full" ? "100%" : selectedImageWidth.value,
+    sourceName,
+  };
 }
 
 async function uploadAndInsertImage(file: File) {
@@ -1579,10 +2121,7 @@ async function uploadAndInsertImage(file: File) {
 
     const inserted = insertEditorContent({
       type: "image",
-      attrs: {
-        src: uploadedUrl,
-        alt: file.name || __("Uploaded image"),
-      },
+      attrs: buildImageAttrs(file, uploadedUrl),
     });
 
     if (!inserted) {
@@ -1602,14 +2141,14 @@ async function uploadAndInsertImage(file: File) {
 
 async function onImageFileChange(event: Event) {
   const target = event.target as HTMLInputElement | null;
-  const file = target?.files?.[0];
+  const files = extractImageFiles(target?.files);
 
   if (target) {
     target.value = "";
   }
 
-  if (!file) return;
-  await uploadAndInsertImage(file);
+  if (files.length === 0) return;
+  await handleEditorImageFiles(files);
 }
 
 function runEditorCommand(action: () => void) {
@@ -1640,12 +2179,16 @@ function insertEditorContent(content: Content): boolean {
 function applyInlineStyle(partial: {
   fontFamily?: string | null;
   fontSize?: string | null;
+  color?: string | null;
+  backgroundColor?: string | null;
 }) {
   if (!editor.value) return;
 
   const current = (editor.value.getAttributes("inlineStyle") ?? {}) as {
     fontFamily?: string | null;
     fontSize?: string | null;
+    color?: string | null;
+    backgroundColor?: string | null;
   };
 
   const next = {
@@ -1657,9 +2200,20 @@ function applyInlineStyle(partial: {
       partial.fontSize !== undefined
         ? partial.fontSize
         : (current.fontSize ?? null),
+    color:
+      partial.color !== undefined ? partial.color : (current.color ?? null),
+    backgroundColor:
+      partial.backgroundColor !== undefined
+        ? partial.backgroundColor
+        : (current.backgroundColor ?? null),
   };
 
-  if (!next.fontFamily && !next.fontSize) {
+  if (
+    !next.fontFamily &&
+    !next.fontSize &&
+    !next.color &&
+    !next.backgroundColor
+  ) {
     editor.value.chain().focus().unsetMark("inlineStyle").run();
     return;
   }
@@ -1678,6 +2232,127 @@ function applySelectedFontFamily() {
 
 function applySelectedFontSize() {
   applyInlineStyle({ fontSize: selectedFontSize.value });
+}
+
+function applyTextColor(option: (typeof textColorOptions)[number]) {
+  selectedTextColor.value = option.value;
+  applyInlineStyle({ color: option.color });
+}
+
+function applyHighlight(option: (typeof highlightOptions)[number]) {
+  selectedHighlight.value = option.value;
+  applyInlineStyle({ backgroundColor: option.color });
+}
+
+function clearInlineFormatting() {
+  selectedFontFamily.value = "default";
+  selectedFontSize.value = "16px";
+  selectedTextColor.value = "default";
+  selectedHighlight.value = "default";
+  editor.value?.chain().focus().unsetMark("inlineStyle").unsetAllMarks().run();
+}
+
+function insertHorizontalRule() {
+  if (!editor.value) return;
+  editor.value.chain().focus().setHorizontalRule().run();
+  dirty.value = true;
+}
+
+function insertQuickTemplate(template: QuickTemplateValue) {
+  const templateContent: Record<QuickTemplateValue, Content> = {
+    hint: {
+      type: "blockquote",
+      content: [
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              marks: [{ type: "bold" }],
+              text: `${__("Hint")}: `,
+            },
+            { type: "text", text: __("Write a useful hint here.") },
+          ],
+        },
+      ],
+    },
+    "answer-space": [
+      {
+        type: "heading",
+        attrs: { level: 3 },
+        content: [{ type: "text", text: __("Answer Space") }],
+      },
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: __("Leave room for the final answer.") },
+        ],
+      },
+      { type: "paragraph" },
+      { type: "paragraph" },
+    ],
+    "worked-steps": {
+      type: "orderedList",
+      content: [
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [{ type: "text", text: __("Step 1") }],
+            },
+          ],
+        },
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [{ type: "text", text: __("Step 2") }],
+            },
+          ],
+        },
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [{ type: "text", text: __("Step 3") }],
+            },
+          ],
+        },
+      ],
+    },
+    rubric: {
+      type: "bulletList",
+      content: [
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: __("List success criteria here.") },
+              ],
+            },
+          ],
+        },
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [{ type: "text", text: __("Show the main work here.") }],
+            },
+          ],
+        },
+      ],
+    },
+  };
+
+  const inserted = insertEditorContent(templateContent[template]);
+  if (!inserted) return;
+  dirty.value = true;
 }
 
 function mountAutosave() {
@@ -2120,7 +2795,9 @@ onUpdated(() => {
           <WandSparkles :size="18" />
         </div>
         <div>
-          <h1 class="text-2xl font-semibold text-foreground dark:text-primary-foreground">
+          <h1
+            class="text-2xl font-semibold text-foreground dark:text-primary-foreground"
+          >
             {{ __("Teacher Exercise Studio") }}
           </h1>
           <p class="text-sm text-muted-foreground dark:text-muted-foreground">
@@ -2174,8 +2851,11 @@ onUpdated(() => {
     <div class="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)_340px]">
       <section
         class="space-y-4 overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-border/60 dark:bg-card/60"
+        :class="editorStageClass"
       >
-        <h2 class="text-base font-semibold text-foreground dark:text-primary-foreground">
+        <h2
+          class="text-base font-semibold text-foreground dark:text-primary-foreground"
+        >
           {{ __("Generate with AI") }}
         </h2>
 
@@ -2317,236 +2997,520 @@ onUpdated(() => {
       <section
         class="space-y-4 overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-border/60 dark:bg-card/60"
       >
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h2 class="text-base font-semibold text-foreground dark:text-primary-foreground">
-            {{ __("Editor") }}
-          </h2>
-          <div class="flex flex-wrap items-center gap-1">
+        <div class="editor-toolbar-panel" :aria-label="__('Editor toolbar')">
+          <div class="editor-toolbar">
+            <div class="editor-toolbar__group">
+              <span class="editor-toolbar__label">{{ __("Document") }}</span>
+              <div class="editor-toolbar__row">
+                <div
+                  class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
+                >
+                  <PanelTop :size="13" />
+                  <select
+                    v-model="selectedWorksheetPreset"
+                    class="bg-transparent text-xs font-semibold outline-none"
+                  >
+                    <option
+                      v-for="option in worksheetPresetOptions"
+                      :key="option.value"
+                      :value="option.value"
+                    >
+                      {{ __(option.label) }}
+                    </option>
+                  </select>
+                </div>
+                <select
+                  v-model="selectedBlockFormat"
+                  class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
+                  @change="applySelectedBlockFormat"
+                >
+                  <option
+                    v-for="option in blockFormatOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ __(option.label) }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="editor-toolbar__group editor-toolbar__group--wide">
+              <span class="editor-toolbar__label">
+                {{ __("Type & color") }}
+              </span>
+              <div class="editor-toolbar__row">
+                <select
+                  v-model="selectedFontFamily"
+                  class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
+                  @change="applySelectedFontFamily"
+                >
+                  <option
+                    v-for="option in fontFamilyOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select>
+                <select
+                  v-model="selectedFontSize"
+                  class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
+                  @change="applySelectedFontSize"
+                >
+                  <option
+                    v-for="option in fontSizeOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select>
+                <select
+                  v-model="selectedLineHeight"
+                  class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
+                  @change="applySelectedLineHeight"
+                >
+                  <option value="default">{{ __("Line") }}</option>
+                  <option
+                    v-for="option in lineHeightOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select>
+                <div
+                  class="inline-flex items-center gap-1 rounded border border-border bg-card px-1.5 py-1 dark:border-border dark:bg-card"
+                  :title="__('Text color')"
+                >
+                  <Palette :size="13" class="text-muted-foreground" />
+                  <button
+                    v-for="option in textColorOptions"
+                    :key="option.value"
+                    type="button"
+                    class="h-5 w-5 rounded-full border transition"
+                    :class="
+                      selectedTextColor === option.value
+                        ? 'border-primary ring-2 ring-primary/25'
+                        : 'border-border'
+                    "
+                    :style="{ background: option.swatch }"
+                    :title="__(option.label)"
+                    @click="applyTextColor(option)"
+                  ></button>
+                </div>
+                <div
+                  class="inline-flex items-center gap-1 rounded border border-border bg-card px-1.5 py-1 dark:border-border dark:bg-card"
+                  :title="__('Highlight')"
+                >
+                  <Highlighter :size="13" class="text-muted-foreground" />
+                  <button
+                    v-for="option in highlightOptions"
+                    :key="option.value"
+                    type="button"
+                    class="h-5 w-5 rounded border transition"
+                    :class="
+                      selectedHighlight === option.value
+                        ? 'border-primary ring-2 ring-primary/25'
+                        : 'border-border'
+                    "
+                    :style="{ background: option.swatch }"
+                    :title="__(option.label)"
+                    @click="applyHighlight(option)"
+                  ></button>
+                </div>
+                <button
+                  type="button"
+                  class="rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    isEditorActive('bold')
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().toggleBold().run(),
+                    )
+                  "
+                >
+                  B
+                </button>
+                <button
+                  type="button"
+                  class="rounded border px-2 py-1 text-xs font-semibold italic font-serif"
+                  :class="
+                    isEditorActive('italic')
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().toggleItalic().run(),
+                    )
+                  "
+                >
+                  I
+                </button>
+                <button
+                  type="button"
+                  class="rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    isEditorActive('underline')
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().toggleUnderline().run(),
+                    )
+                  "
+                >
+                  <UnderlineIcon :size="13" />
+                </button>
+              </div>
+            </div>
+
+            <div class="editor-toolbar__group editor-toolbar__group--wide">
+              <span class="editor-toolbar__label">{{ __("Paragraph") }}</span>
+              <div class="editor-toolbar__row">
+                <button
+                  type="button"
+                  class="rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    isEditorActive('bulletList')
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().toggleBulletList().run(),
+                    )
+                  "
+                >
+                  {{ __("List") }}
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    isEditorActive('orderedList')
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().toggleOrderedList().run(),
+                    )
+                  "
+                >
+                  <ListOrdered :size="13" />
+                  {{ __("Numbered") }}
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    isEditorActive('blockquote')
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().toggleBlockquote().run(),
+                    )
+                  "
+                >
+                  <Quote :size="13" />
+                  {{ __("Quote") }}
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground"
+                  @click="insertHorizontalRule"
+                >
+                  <Minus :size="13" />
+                  {{ __("Rule") }}
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground"
+                  @click="clearInlineFormatting"
+                >
+                  <Eraser :size="13" />
+                  {{ __("Clear Format") }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    isTextAlignActive('left')
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().setTextAlign('left').run(),
+                    )
+                  "
+                >
+                  {{ __("Left") }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    isTextAlignActive('center')
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().setTextAlign('center').run(),
+                    )
+                  "
+                >
+                  {{ __("Center") }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
+                  :disabled="!canOutdent"
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().outdent().run(),
+                    )
+                  "
+                >
+                  <IndentDecrease :size="14" />
+                </button>
+                <button
+                  type="button"
+                  class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
+                  :disabled="!canIndent"
+                  @click="
+                    runEditorCommand(() =>
+                      editor?.chain().focus().indent().run(),
+                    )
+                  "
+                >
+                  <IndentIncrease :size="14" />
+                </button>
+              </div>
+            </div>
+
+            <div class="editor-toolbar__group">
+              <span class="editor-toolbar__label">{{ __("History") }}</span>
+              <div class="editor-toolbar__row">
+                <button
+                  type="button"
+                  class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
+                  :disabled="!canUndo"
+                  @click="
+                    runEditorCommand(() => editor?.chain().focus().undo().run())
+                  "
+                >
+                  <Undo2 :size="14" />
+                </button>
+                <button
+                  type="button"
+                  class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
+                  :disabled="!canRedo"
+                  @click="
+                    runEditorCommand(() => editor?.chain().focus().redo().run())
+                  "
+                >
+                  <Redo2 :size="14" />
+                </button>
+              </div>
+            </div>
+
+            <div class="editor-toolbar__group editor-toolbar__group--wide">
+              <span class="editor-toolbar__label">{{ __("Insert") }}</span>
+              <div class="editor-toolbar__row">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                  :class="
+                    showImagePanel
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  :disabled="uploadingImage"
+                  @click="toggleImagePanel"
+                >
+                  <Loader2
+                    v-if="uploadingImage"
+                    :size="13"
+                    class="animate-spin"
+                  />
+                  <ImagePlus v-else :size="13" />
+                  {{ __("Image") }}
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    showTemplatePanel
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="toggleTemplatePanel"
+                >
+                  <Sparkles :size="13" />
+                  {{ __("Templates") }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    showMathPanel
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="toggleMathPanel"
+                >
+                  {{ __("Math") }}
+                </button>
+                <button
+                  type="button"
+                  class="rounded border px-2 py-1 text-xs font-semibold"
+                  :class="
+                    showCanvasPanel
+                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                  "
+                  @click="toggleCanvasPanel"
+                >
+                  {{ __("Canvas") }}
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground"
+                  @click="insertFreehandDrawing"
+                >
+                  <PencilLine :size="13" />
+                  {{ __("Drawing") }}
+                </button>
+                <input
+                  ref="imageInputRef"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                  multiple
+                  class="hidden"
+                  @change="onImageFileChange"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="showTemplatePanel"
+          class="grid gap-2 rounded-xl border border-border bg-muted p-3 dark:border-border dark:bg-card/50 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <button
+            v-for="option in quickTemplateOptions"
+            :key="option.value"
+            type="button"
+            class="rounded-lg border border-border bg-card px-3 py-2 text-left text-xs font-semibold text-foreground transition hover:border-primary hover:text-primary dark:border-border dark:bg-background"
+            @click="insertQuickTemplate(option.value)"
+          >
+            {{ __(option.label) }}
+          </button>
+        </div>
+
+        <div
+          v-if="showImagePanel"
+          class="grid gap-3 rounded-xl border border-border bg-muted p-3 dark:border-border dark:bg-card/50 md:grid-cols-3"
+        >
+          <div class="flex items-center gap-2 md:col-span-3">
+            <Palette :size="14" class="text-primary" />
+            <span class="text-xs font-semibold text-muted-foreground">
+              {{ __("Image Composer") }}
+            </span>
+          </div>
+
+          <label class="space-y-1 text-xs font-semibold text-muted-foreground">
+            <span>{{ __("Frame") }}</span>
             <select
-              v-model="selectedFontFamily"
-              class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
-              @change="applySelectedFontFamily"
+              v-model="selectedImageFrame"
+              class="w-full rounded border border-border bg-card px-2 py-2 text-sm text-foreground dark:border-border dark:bg-background"
             >
               <option
-                v-for="option in fontFamilyOptions"
+                v-for="option in imageFrameOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ __(option.label) }}
+              </option>
+            </select>
+          </label>
+
+          <label class="space-y-1 text-xs font-semibold text-muted-foreground">
+            <span>{{ __("Align") }}</span>
+            <select
+              v-model="selectedImageAlign"
+              class="w-full rounded border border-border bg-card px-2 py-2 text-sm text-foreground dark:border-border dark:bg-background"
+            >
+              <option
+                v-for="option in imageAlignOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ __(option.label) }}
+              </option>
+            </select>
+          </label>
+
+          <label class="space-y-1 text-xs font-semibold text-muted-foreground">
+            <span>{{ __("Width") }}</span>
+            <select
+              v-model="selectedImageWidth"
+              class="w-full rounded border border-border bg-card px-2 py-2 text-sm text-foreground disabled:opacity-50 dark:border-border dark:bg-background"
+              :disabled="selectedImageAlign === 'full'"
+            >
+              <option
+                v-for="option in imageWidthOptions"
                 :key="option.value"
                 :value="option.value"
               >
                 {{ option.label }}
               </option>
             </select>
-            <select
-              v-model="selectedFontSize"
-              class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
-              @change="applySelectedFontSize"
-            >
-              <option
-                v-for="option in fontSizeOptions"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ option.label }}
-              </option>
-            </select>
-            <select
-              v-model="selectedLineHeight"
-              class="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground dark:border-border dark:bg-card dark:text-foreground"
-              @change="applySelectedLineHeight"
-            >
-              <option value="default">{{ __("Line") }}</option>
-              <option
-                v-for="option in lineHeightOptions"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ option.label }}
-              </option>
-            </select>
+          </label>
+
+          <label class="space-y-1 text-xs font-semibold text-muted-foreground">
+            <span>{{ __("Alt text") }}</span>
+            <input
+              v-model="imageAltText"
+              type="text"
+              class="w-full rounded border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground dark:border-border dark:bg-background"
+              :placeholder="__('Uploaded image')"
+            />
+          </label>
+
+          <label class="space-y-1 text-xs font-semibold text-muted-foreground">
+            <span>{{ __("Caption") }}</span>
+            <input
+              v-model="imageCaption"
+              type="text"
+              class="w-full rounded border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground dark:border-border dark:bg-background"
+              :placeholder="__('Figure note')"
+            />
+          </label>
+
+          <div class="flex items-end">
             <button
               type="button"
-              class="rounded border px-2 py-1 text-xs font-semibold"
-              :class="
-                isEditorActive('bold')
-                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-              "
-              @click="
-                runEditorCommand(() =>
-                  editor?.chain().focus().toggleBold().run(),
-                )
-              "
-            >
-              B
-            </button>
-            <button
-              type="button"
-              class="rounded border px-2 py-1 text-xs font-semibold italic font-serif"
-              :class="
-                isEditorActive('italic')
-                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-              "
-              @click="
-                runEditorCommand(() =>
-                  editor?.chain().focus().toggleItalic().run(),
-                )
-              "
-            >
-              I
-            </button>
-            <button
-              type="button"
-              class="rounded border px-2 py-1 text-xs font-semibold"
-              :class="
-                isEditorActive('underline')
-                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-              "
-              @click="
-                runEditorCommand(() =>
-                  editor?.chain().focus().toggleUnderline().run(),
-                )
-              "
-            >
-              <UnderlineIcon :size="13" />
-            </button>
-            <button
-              type="button"
-              class="rounded border px-2 py-1 text-xs font-semibold"
-              :class="
-                isEditorActive('bulletList')
-                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-              "
-              @click="
-                runEditorCommand(() =>
-                  editor?.chain().focus().toggleBulletList().run(),
-                )
-              "
-            >
-              {{ __("List") }}
-            </button>
-            <button
-              type="button"
-              class="rounded border px-2 py-1 text-xs font-semibold"
-              :class="
-                isTextAlignActive('left')
-                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-              "
-              @click="
-                runEditorCommand(() =>
-                  editor?.chain().focus().setTextAlign('left').run(),
-                )
-              "
-            >
-              {{ __("Left") }}
-            </button>
-            <button
-              type="button"
-              class="rounded border px-2 py-1 text-xs font-semibold"
-              :class="
-                isTextAlignActive('center')
-                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-              "
-              @click="
-                runEditorCommand(() =>
-                  editor?.chain().focus().setTextAlign('center').run(),
-                )
-              "
-            >
-              {{ __("Center") }}
-            </button>
-            <button
-              type="button"
-              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
-              :disabled="!canOutdent"
-              @click="
-                runEditorCommand(() => editor?.chain().focus().outdent().run())
-              "
-            >
-              <IndentDecrease :size="14" />
-            </button>
-            <button
-              type="button"
-              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
-              :disabled="!canIndent"
-              @click="
-                runEditorCommand(() => editor?.chain().focus().indent().run())
-              "
-            >
-              <IndentIncrease :size="14" />
-            </button>
-            <button
-              type="button"
-              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
-              :disabled="!canUndo"
-              @click="
-                runEditorCommand(() => editor?.chain().focus().undo().run())
-              "
-            >
-              <Undo2 :size="14" />
-            </button>
-            <button
-              type="button"
-              class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
-              :disabled="!canRedo"
-              @click="
-                runEditorCommand(() => editor?.chain().focus().redo().run())
-              "
-            >
-              <Redo2 :size="14" />
-            </button>
-            <button
-              type="button"
-              class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
+              class="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
               :disabled="uploadingImage"
               @click="openImagePicker"
             >
-              <Loader2 v-if="uploadingImage" :size="13" class="animate-spin" />
-              <ImagePlus v-else :size="13" />
-              {{ __("Image") }}
+              <Loader2 v-if="uploadingImage" :size="15" class="animate-spin" />
+              <ImagePlus v-else :size="15" />
+              {{ uploadingImage ? __("Uploading...") : __("Choose Image") }}
             </button>
-            <button
-              type="button"
-              class="rounded border px-2 py-1 text-xs font-semibold"
-              :class="
-                showMathPanel
-                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-              "
-              @click="toggleMathPanel"
-            >
-              {{ __("Math") }}
-            </button>
-            <button
-              type="button"
-              class="rounded border px-2 py-1 text-xs font-semibold"
-              :class="
-                showCanvasPanel
-                  ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                  : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-              "
-              @click="toggleCanvasPanel"
-            >
-              {{ __("Canvas") }}
-            </button>
-            <button
-              type="button"
-              class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground"
-              @click="insertFreehandDrawing"
-            >
-              <PencilLine :size="13" />
-              {{ __("Drawing") }}
-            </button>
-            <input
-              ref="imageInputRef"
-              type="file"
-              accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
-              class="hidden"
-              @change="onImageFileChange"
-            />
           </div>
         </div>
 
@@ -2677,9 +3641,10 @@ onUpdated(() => {
               v-if="selectedShapeIsUniform"
               class="grid grid-cols-[1fr_72px] items-center gap-2"
             >
-              <label class="text-xs text-muted-foreground dark:text-muted-foreground">{{
-                __("Size")
-              }}</label>
+              <label
+                class="text-xs text-muted-foreground dark:text-muted-foreground"
+                >{{ __("Size") }}</label
+              >
               <input
                 type="number"
                 min="30"
@@ -2699,9 +3664,10 @@ onUpdated(() => {
             </div>
 
             <div v-else class="grid grid-cols-[1fr_72px] items-center gap-2">
-              <label class="text-xs text-muted-foreground dark:text-muted-foreground">{{
-                __("Width")
-              }}</label>
+              <label
+                class="text-xs text-muted-foreground dark:text-muted-foreground"
+                >{{ __("Width") }}</label
+              >
               <input
                 type="number"
                 min="30"
@@ -2719,9 +3685,10 @@ onUpdated(() => {
                 @input="onSelectedWidthInput"
               />
 
-              <label class="text-xs text-muted-foreground dark:text-muted-foreground">{{
-                __("Height")
-              }}</label>
+              <label
+                class="text-xs text-muted-foreground dark:text-muted-foreground"
+                >{{ __("Height") }}</label
+              >
               <input
                 type="number"
                 min="30"
@@ -3042,7 +4009,9 @@ onUpdated(() => {
       <section
         class="space-y-3 overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-border/60 dark:bg-card/60"
       >
-        <h2 class="text-base font-semibold text-foreground dark:text-primary-foreground">
+        <h2
+          class="text-base font-semibold text-foreground dark:text-primary-foreground"
+        >
           {{ __("Generated Items") }}
         </h2>
 
@@ -3084,7 +4053,9 @@ onUpdated(() => {
             </div>
             <div
               class="text-sm text-muted-foreground dark:text-foreground"
-              v-html="renderExercisePreviewHtml(item.question_html ?? item.question)"
+              v-html="
+                renderExercisePreviewHtml(item.question_html ?? item.question)
+              "
             ></div>
             <ul
               class="mt-2 space-y-1 text-xs text-muted-foreground dark:text-muted-foreground"
@@ -3109,7 +4080,9 @@ onUpdated(() => {
             >
               {{ __("Answer") }}:
               <span
-                v-html="renderExercisePreviewHtml(item.answer_html ?? item.answer)"
+                v-html="
+                  renderExercisePreviewHtml(item.answer_html ?? item.answer)
+                "
               ></span>
             </p>
           </article>
@@ -3120,6 +4093,102 @@ onUpdated(() => {
 </template>
 
 <style scoped>
+.editor-toolbar-panel {
+  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  border-radius: 1rem;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--muted) 58%, transparent),
+      color-mix(in srgb, var(--muted) 26%, transparent)
+    ),
+    var(--card);
+  padding: 1rem;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--card) 80%, transparent),
+    0 14px 30px color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.editor-toolbar__group {
+  display: flex;
+  min-width: fit-content;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: 0.55rem;
+  background: var(--card);
+  padding: 0.35rem 0.5rem;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+
+.editor-toolbar__group--wide {
+  max-width: min(100%, 42rem);
+}
+
+.editor-toolbar__label {
+  flex: 0 0 auto;
+  color: var(--muted-foreground);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.075em;
+  line-height: 1;
+  padding-inline: 0.15rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.editor-toolbar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.editor-toolbar select {
+  min-height: 1.75rem;
+  cursor: pointer;
+  border-color: color-mix(in srgb, var(--border) 88%, transparent);
+  border-radius: 0.35rem;
+  background-color: color-mix(in srgb, var(--card) 92%, var(--muted));
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.editor-toolbar button {
+  min-height: 1.75rem;
+  border-radius: 0.35rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.editor-toolbar button:hover,
+.editor-toolbar select:hover {
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--border));
+}
+
+.editor-toolbar svg {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 960px) {
+  .editor-toolbar {
+    justify-content: flex-start;
+  }
+
+  .editor-toolbar__group {
+    width: 100%;
+  }
+}
+
 :deep(.exercise-studio-editor) {
   box-sizing: border-box;
   width: min(210mm, 100%);
@@ -3144,6 +4213,49 @@ onUpdated(() => {
 
 :deep(.exercise-studio-editor li) {
   margin: 0.2rem 0;
+}
+
+:deep(.exercise-studio-editor h1) {
+  margin: 0.35rem 0 0.9rem;
+  color: var(--foreground);
+  font-size: 1.85rem;
+  font-weight: 800;
+  line-height: 1.12;
+}
+
+:deep(.exercise-studio-editor h2) {
+  margin: 0.9rem 0 0.45rem;
+  color: var(--foreground);
+  font-size: 1.38rem;
+  font-weight: 800;
+  line-height: 1.18;
+}
+
+:deep(.exercise-studio-editor h3) {
+  margin: 0.8rem 0 0.35rem;
+  color: var(--foreground);
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+:deep(.exercise-studio-editor blockquote) {
+  margin: 1rem 0;
+  border-left: 4px solid var(--primary);
+  border-radius: 0 14px 14px 0;
+  background: color-mix(in srgb, var(--accent) 58%, transparent);
+  color: var(--foreground);
+  padding: 0.75rem 1rem;
+}
+
+:deep(.exercise-studio-editor blockquote p) {
+  margin: 0.2rem 0;
+}
+
+:deep(.exercise-studio-editor hr) {
+  margin: 1.2rem 0;
+  border: 0;
+  border-top: 1px solid var(--border);
 }
 
 :deep(.exercise-studio-editor [data-line-height="1"]) {
@@ -3199,6 +4311,164 @@ onUpdated(() => {
   margin-left: 24em;
 }
 
+.editor-stage--classic :deep(.exercise-studio-editor) {
+  background: var(--card);
+}
+
+.editor-stage--focus :deep(.exercise-studio-editor) {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--card) 96%, var(--accent)),
+      var(--card) 34%
+    ),
+    var(--card);
+}
+
+.editor-stage--atelier :deep(.exercise-studio-editor) {
+  border-top: 5px solid var(--primary);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 42%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 100% 0,
+      color-mix(in srgb, var(--chart-3, var(--primary)) 18%, transparent),
+      transparent 28%
+    ),
+    var(--card);
+}
+
+:deep(.exercise-studio-editor figure[data-editor-image]) {
+  box-sizing: border-box;
+  clear: both;
+  break-inside: avoid;
+  position: relative;
+}
+
+:deep(.exercise-studio-editor figure[data-editor-image] img) {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: inherit;
+}
+
+:deep(.exercise-studio-editor figure[data-editor-image] figcaption) {
+  margin-top: 0.55rem;
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-align: center;
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--clean) {
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  padding: 0;
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--soft-card) {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--muted) 46%, var(--card));
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--foreground) 8%, transparent);
+  padding: 0.65rem;
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--polaroid) {
+  border: 1px solid color-mix(in srgb, var(--border) 85%, var(--primary));
+  border-radius: 6px;
+  background: var(--card);
+  box-shadow: 0 16px 26px color-mix(in srgb, var(--foreground) 12%, transparent);
+  padding: 0.7rem 0.7rem 1rem;
+  transform: rotate(-0.35deg);
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--blueprint) {
+  border: 1px solid color-mix(in srgb, var(--primary) 48%, var(--border));
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--primary) 12%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--primary) 12%, transparent) 1px,
+      transparent 1px
+    ),
+    color-mix(in srgb, var(--accent) 72%, var(--card));
+  background-size: 18px 18px;
+  padding: 0.65rem;
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--ink-border) {
+  border: 2px solid var(--foreground);
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--foreground) 12%, transparent);
+  padding: 0.65rem;
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--gallery) {
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow:
+    0 18px 42px color-mix(in srgb, var(--foreground) 10%, transparent),
+    inset 0 0 0 8px color-mix(in srgb, var(--muted) 72%, transparent);
+  padding: 1.1rem;
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--tape) {
+  border: 1px solid color-mix(in srgb, var(--border) 88%, var(--primary));
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 14px 26px color-mix(in srgb, var(--foreground) 10%, transparent);
+  padding: 0.7rem;
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--tape)::before,
+:deep(.exercise-studio-editor .editor-image-frame--tape)::after {
+  content: "";
+  position: absolute;
+  top: -0.7rem;
+  width: 4.2rem;
+  height: 1.35rem;
+  border: 1px solid color-mix(in srgb, var(--chart-4, #ca8a04) 22%, transparent);
+  background: color-mix(in srgb, var(--chart-4, #ca8a04) 18%, var(--card));
+  opacity: 0.86;
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--tape)::before {
+  left: 1.1rem;
+  transform: rotate(-4deg);
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--tape)::after {
+  right: 1.1rem;
+  transform: rotate(4deg);
+}
+
+:deep(.exercise-studio-editor .editor-image-frame--spotlight) {
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--border));
+  border-radius: 999px;
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      color-mix(in srgb, var(--primary) 12%, transparent),
+      transparent 62%
+    ),
+    var(--card);
+  box-shadow: 0 20px 46px color-mix(in srgb, var(--primary) 15%, transparent);
+  padding: 0.85rem;
+}
+
 @media (max-width: 960px) {
   :deep(.exercise-studio-editor) {
     width: 100%;
@@ -3211,7 +4481,11 @@ onUpdated(() => {
 :deep(.editor-math-field) {
   --caret-color: var(--foreground);
   --primary: var(--ring);
-  --selection-background-color: color-mix(in srgb, var(--ring) 20%, transparent);
+  --selection-background-color: color-mix(
+    in srgb,
+    var(--ring) 20%,
+    transparent
+  );
   --keyboard-zindex: 50;
 }
 </style>

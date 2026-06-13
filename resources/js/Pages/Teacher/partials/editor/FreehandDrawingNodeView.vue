@@ -15,7 +15,10 @@ const DEFAULT_COLORS = [
   "#10b981",
   "#f59e0b",
   "#a855f7",
+  "#0f172a",
 ];
+const PAPER_STYLES = ["grid", "lined", "blank"] as const;
+type PaperStyle = (typeof PAPER_STYLES)[number];
 
 const svgRef = ref<SVGSVGElement | null>(null);
 const color = ref(
@@ -58,10 +61,21 @@ function normalizeLines(value: unknown): FreehandDrawingLine[] {
     .filter((line): line is FreehandDrawingLine => !!line);
 }
 
+function normalizePaperStyle(value: unknown): PaperStyle {
+  const style = String(value ?? "").trim();
+  return PAPER_STYLES.includes(style as PaperStyle)
+    ? (style as PaperStyle)
+    : "grid";
+}
+
 const lines = computed<FreehandDrawingLine[]>(() =>
   normalizeLines(props.node.attrs.lines),
 );
 const locked = computed(() => props.node.attrs.locked === true);
+const paperStyle = computed<PaperStyle>({
+  get: () => normalizePaperStyle(props.node.attrs.paperStyle),
+  set: (value) => props.updateAttributes({ paperStyle: value }),
+});
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -88,12 +102,22 @@ function pointsToPath(rawPoints: Array<[number, number]>): string {
     return `M ${startX} ${startY} L ${startX + 0.01} ${startY + 0.01}`;
   }
 
-  const segments = rawPoints
-    .slice(1)
-    .map(([x, y]) => `L ${x} ${y}`)
-    .join(" ");
+  if (rawPoints.length === 2) {
+    const [endX, endY] = rawPoints[1];
+    return `M ${startX} ${startY} L ${endX} ${endY}`;
+  }
 
-  return `M ${startX} ${startY} ${segments}`;
+  let path = `M ${startX} ${startY}`;
+  for (let index = 1; index < rawPoints.length - 1; index++) {
+    const [currentX, currentY] = rawPoints[index];
+    const [nextX, nextY] = rawPoints[index + 1];
+    const midX = (currentX + nextX) / 2;
+    const midY = (currentY + nextY) / 2;
+    path += ` Q ${currentX} ${currentY} ${midX} ${midY}`;
+  }
+
+  const [endX, endY] = rawPoints[rawPoints.length - 1];
+  return `${path} L ${endX} ${endY}`;
 }
 
 function createLineId(): string {
@@ -196,6 +220,11 @@ function clearLines() {
   props.updateAttributes({ lines: [] });
 }
 
+function undoLastLine() {
+  if (lines.value.length === 0) return;
+  props.updateAttributes({ lines: lines.value.slice(0, -1) });
+}
+
 function finishEditing() {
   finishDrawing();
   props.updateAttributes({ locked: true });
@@ -215,13 +244,39 @@ function editDrawing() {
     <div v-if="!locked" class="freehand-controls">
       <label class="freehand-label">{{ __("Stroke") }}</label>
       <input v-model="color" class="freehand-color" type="color" />
+      <div class="freehand-swatches">
+        <button
+          v-for="preset in DEFAULT_COLORS"
+          :key="preset"
+          type="button"
+          class="freehand-swatch"
+          :class="{ 'freehand-swatch--active': color === preset }"
+          :style="{ backgroundColor: preset }"
+          @click="color = preset"
+        ></button>
+      </div>
+      <input
+        v-model.number="size"
+        class="freehand-range"
+        type="range"
+        min="1"
+        max="18"
+      />
       <input
         v-model.number="size"
         class="freehand-size"
         type="number"
         min="1"
-        max="12"
+        max="18"
       />
+      <select v-model="paperStyle" class="freehand-paper">
+        <option value="grid">{{ __("Grid") }}</option>
+        <option value="lined">{{ __("Lined") }}</option>
+        <option value="blank">{{ __("Blank") }}</option>
+      </select>
+      <button type="button" class="freehand-clear-btn" @click="undoLastLine">
+        {{ __("Undo stroke") }}
+      </button>
       <button type="button" class="freehand-clear-btn" @click="clearLines">
         {{ __("Clear Drawing") }}
       </button>
@@ -248,6 +303,49 @@ function editDrawing() {
       @pointercancel="onPointerCancel"
       @lostpointercapture="onPointerCancel"
     >
+      <defs>
+        <pattern
+          id="freehand-grid"
+          width="20"
+          height="20"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M 20 0 L 0 0 0 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="0.6"
+          />
+        </pattern>
+        <pattern
+          id="freehand-lines"
+          width="20"
+          height="24"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M 0 23 L 500 23"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="0.7"
+          />
+        </pattern>
+      </defs>
+      <rect width="500" height="250" class="freehand-paper-base" />
+      <rect
+        v-if="paperStyle === 'grid'"
+        width="500"
+        height="250"
+        class="freehand-paper-pattern"
+        fill="url(#freehand-grid)"
+      />
+      <rect
+        v-if="paperStyle === 'lined'"
+        width="500"
+        height="250"
+        class="freehand-paper-pattern"
+        fill="url(#freehand-lines)"
+      />
       <path
         v-for="line in lines"
         :key="line.id"
@@ -304,6 +402,30 @@ function editDrawing() {
   padding: 2px;
 }
 
+.freehand-swatches {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.freehand-swatch {
+  width: 1.35rem;
+  height: 1.35rem;
+  border: 1px solid color-mix(in srgb, var(--border) 85%, var(--foreground));
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.freehand-swatch--active {
+  outline: 2px solid color-mix(in srgb, var(--primary) 32%, transparent);
+  outline-offset: 2px;
+}
+
+.freehand-range {
+  width: min(8rem, 30vw);
+  accent-color: var(--primary);
+}
+
 .freehand-size {
   width: 3.25rem;
   border: 1px solid var(--border);
@@ -314,6 +436,17 @@ function editDrawing() {
   font-weight: 600;
   line-height: 1.25rem;
   padding: 0.25rem 0.4rem;
+}
+
+.freehand-paper {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--input);
+  color: var(--foreground);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  padding: 0.32rem 0.45rem;
 }
 
 .freehand-clear-btn {
@@ -352,6 +485,7 @@ function editDrawing() {
 .freehand-canvas {
   width: 100%;
   min-height: 220px;
+  color: color-mix(in srgb, var(--primary) 20%, transparent);
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -366,5 +500,13 @@ function editDrawing() {
 .freehand-placeholder {
   fill: var(--muted-foreground);
   font-size: 14px;
+}
+
+.freehand-paper-base {
+  fill: var(--card);
+}
+
+.freehand-paper-pattern {
+  color: color-mix(in srgb, var(--primary) 24%, transparent);
 }
 </style>

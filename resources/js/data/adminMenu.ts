@@ -7,6 +7,7 @@
   NotebookPen,
   Pi,
   Sigma,
+  Square,
   Trophy,
   UserRound,
 } from "lucide-vue-next";
@@ -57,6 +58,11 @@ export const adminMenu: MenuItem[] = [
   {
     title: "Calculators",
     children: [
+      {
+        title: "2D Geometry",
+        route: "mathematics.twoD",
+        icon: Square,
+      },
       {
         title: "3D Geometry",
         route: "mathematics.threeD",

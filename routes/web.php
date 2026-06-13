@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('mathematics', [MathematicsControlller::class, 'index'])->name('mathematics.index');
+    Route::get('mathematics/twoD', [MathematicsControlller::class, 'twoD'])->name('mathematics.twoD');
     Route::get('mathematics/threeD', [MathematicsControlller::class, 'threeD'])->name('mathematics.threeD');
     Route::get('mathematics/integral', [MathematicsControlller::class, 'integral'])->name('mathematics.integral');
     Route::get('game/oneplusone', [GameController::class, 'oneplusone'])->name('game.oneplusone');

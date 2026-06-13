@@ -16,6 +16,10 @@ class MathematicsControlller extends Controller
         return Inertia::render('Mathematics/ThreeD');
     }
 
+    public function twoD(){
+        return Inertia::render('Mathematics/TwoD');
+    }
+
     public function integral(){
         return Inertia::render('Mathematics/Integral');
     }

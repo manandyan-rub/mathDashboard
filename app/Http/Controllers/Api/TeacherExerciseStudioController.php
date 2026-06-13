@@ -237,7 +237,7 @@ class TeacherExerciseStudioController extends Controller
             ], 422);
         }
 
-        $contentHtml = $this->normalizePdfHtmlForEnvironment($contentHtml);
+        $contentHtml = $this->normalizeEditorHtmlForPdf($contentHtml);
         $contentHtml = $this->renderLatexForPdf($contentHtml);
 
         if (!class_exists('\\Barryvdh\\DomPDF\\Facade\\Pdf')) {
@@ -254,7 +254,9 @@ class TeacherExerciseStudioController extends Controller
                 'language' => (string) ($data['language'] ?? ($document?->language ?? 'en')),
             ])
                 ->setPaper('a4')
-                ->setOption('defaultFont', 'DejaVu Sans');
+                ->setOption('defaultFont', 'DejaVu Sans')
+                ->setOption('isRemoteEnabled', true)
+                ->setOption('chroot', public_path());
 
             return $pdf->download($this->safePdfFilename($title));
         } catch (Throwable $e) {
@@ -532,23 +534,40 @@ class TeacherExerciseStudioController extends Controller
             return $html;
         }
 
-        $replace = function (array $match): string {
-            $latex = (string) ($match[1] ?? '');
-            $text = $this->latexToReadableText($latex);
-            if ($text === '') {
-                return '';
-            }
+        $html = preg_replace_callback(
+            '/<span\b(?=[^>]*data-editor-math)[^>]*>.*?<\/span>/isu',
+            function (array $match): string {
+                $tag = (string) ($match[0] ?? '');
+                $latex = $this->extractHtmlAttribute($tag, 'data-latex');
 
-            return '<span class="math-inline">' . e($text) . '</span>';
+                return $this->latexToPdfMath((string) $latex);
+            },
+            $html
+        ) ?? $html;
+
+        $html = preg_replace_callback(
+            '/<math-field\b[^>]*>([\s\S]*?)<\/math-field>/iu',
+            fn (array $match): string => $this->latexToPdfMath((string) ($match[1] ?? '')),
+            $html
+        ) ?? $html;
+
+        $replaceInline = function (array $match): string {
+            $latex = (string) ($match[1] ?? '');
+            return $this->latexToPdfMath($latex);
+        };
+
+        $replaceDisplay = function (array $match): string {
+            $latex = (string) ($match[1] ?? '');
+            return $this->latexToPdfMath($latex, true);
         };
 
         // Display math first.
-        $html = preg_replace_callback('/\$\$([\s\S]+?)\$\$/u', $replace, $html) ?? $html;
-        $html = preg_replace_callback('/\\\\\[(.+?)\\\\\]/u', $replace, $html) ?? $html;
+        $html = preg_replace_callback('/\$\$([\s\S]+?)\$\$/u', $replaceDisplay, $html) ?? $html;
+        $html = preg_replace_callback('/\\\\\[([\s\S]+?)\\\\\]/u', $replaceDisplay, $html) ?? $html;
 
         // Inline math.
-        $html = preg_replace_callback('/\\\\\((.+?)\\\\\)/u', $replace, $html) ?? $html;
-        $html = preg_replace_callback('/(?<!\$)\$([^$\n]+?)\$(?!\$)/u', $replace, $html) ?? $html;
+        $html = preg_replace_callback('/\\\\\(([\s\S]+?)\\\\\)/u', $replaceInline, $html) ?? $html;
+        $html = preg_replace_callback('/(?<!\$)\$([^$\n]+?)\$(?!\$)/u', $replaceInline, $html) ?? $html;
 
         // Ensure no raw dollar delimiters are visible in exported PDF.
         $html = str_replace('$', '', $html);
@@ -556,19 +575,29 @@ class TeacherExerciseStudioController extends Controller
         return $html;
     }
 
-    private function normalizePdfHtmlForEnvironment(string $html): string
+    private function normalizeEditorHtmlForPdf(string $html): string
     {
         if (trim($html) === '') {
             return $html;
         }
+
+        $html = $this->normalizeFreehandDrawingsForPdf($html);
+        $html = $this->normalizeGeometryDrawingsForPdf($html);
+        $html = $this->normalizePdfImageSources($html);
 
         if (extension_loaded('gd')) {
             return $html;
         }
 
         // Without GD, DomPDF fails on raster images (<img ...>).
-        // We keep geometry drawings by decoding their embedded SVG payload
-        // and turning them into inline <svg> markup.
+        // Inline SVG drawings are kept.
+        $html = preg_replace('/<img\b(?![^>]*src=(["\'])data:image\/svg\+xml)[^>]*>/iu', '', $html) ?? $html;
+
+        return $html;
+    }
+
+    private function normalizeGeometryDrawingsForPdf(string $html): string
+    {
         $html = preg_replace_callback(
             '/<img\b[^>]*data-geometry-drawing[^>]*>/iu',
             function (array $match): string {
@@ -586,11 +615,404 @@ class TeacherExerciseStudioController extends Controller
             $html
         ) ?? $html;
 
-        // Remove remaining regular images in no-GD environments
-        // to avoid runtime 500 exceptions.
-        $html = preg_replace('/<img\b[^>]*>/iu', '', $html) ?? $html;
-
         return $html;
+    }
+
+    private function normalizeFreehandDrawingsForPdf(string $html): string
+    {
+        return preg_replace_callback(
+            '/<div\b(?=[^>]*data-type=(["\'])freehand-drawing\1)[^>]*>[\s\S]*?<\/div>/iu',
+            function (array $match): string {
+                $tag = (string) ($match[0] ?? '');
+                $lines = $this->extractFreehandLinesFromTag($tag);
+                $paperStyle = $this->safePaperStyle($this->extractHtmlAttribute($tag, 'data-paper-style') ?? 'grid');
+
+                if ($lines === []) {
+                    return '<div class="pdf-freehand-drawing pdf-freehand-drawing--empty">'
+                        . e(__('Drawing'))
+                        . '</div>';
+                }
+
+                $paths = '';
+                foreach ($lines as $line) {
+                    $path = trim((string) ($line['path'] ?? ''));
+                    if ($path === '') {
+                        continue;
+                    }
+
+                    $paths .= '<path d="' . e($path) . '" stroke="' . e($this->safeSvgColor($line['color'] ?? '#4f46e5')) . '" stroke-width="' . e((string) $this->safeStrokeSize($line['size'] ?? 3)) . '" fill="none" stroke-linecap="round" stroke-linejoin="round" />';
+                }
+
+                if ($paths === '') {
+                    return '<div class="pdf-freehand-drawing pdf-freehand-drawing--empty">'
+                        . e(__('Drawing'))
+                        . '</div>';
+                }
+
+                return '<div class="pdf-freehand-drawing"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 250" width="500" height="250" aria-label="' . e(__('Drawing')) . '"><rect width="500" height="250" fill="#ffffff" />' . $this->freehandPaperPatternSvg($paperStyle) . $paths . '</svg></div>';
+            },
+            $html
+        ) ?? $html;
+    }
+
+    private function normalizePdfImageSources(string $html): string
+    {
+        return preg_replace_callback(
+            '/<img\b[^>]*>/iu',
+            function (array $match): string {
+                $tag = (string) ($match[0] ?? '');
+                $src = $this->extractHtmlAttribute($tag, 'src');
+                if ($src === null || $src === '' || str_starts_with($src, 'data:')) {
+                    return $tag;
+                }
+
+                if (str_starts_with($src, '/')) {
+                    $path = public_path(ltrim($src, '/'));
+                    if (is_file($path)) {
+                        return $this->replaceHtmlAttribute($tag, 'src', $this->fileUri($path));
+                    }
+                }
+
+                return $tag;
+            },
+            $html
+        ) ?? $html;
+    }
+
+    private function latexToPdfMath(string $latex, bool $display = false): string
+    {
+        $math = $this->latexToPdfHtml($latex);
+        if ($math === '') {
+            return '';
+        }
+
+        $class = $display ? 'math-display' : 'math-inline';
+        $tag = $display ? 'div' : 'span';
+
+        return '<' . $tag . ' class="' . $class . '">' . $math . '</' . $tag . '>';
+    }
+
+    private function latexToPdfHtml(string $latex): string
+    {
+        $value = trim(html_entity_decode(strip_tags($latex), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        if ($value === '') {
+            return '';
+        }
+
+        $tokens = [];
+        $value = preg_replace('/\\\\(?:displaystyle|textstyle|scriptstyle|scriptscriptstyle)\b/u', '', $value) ?? $value;
+        $value = str_replace(['\\left', '\\right'], '', $value);
+
+        $value = $this->replaceLatexCommandGroups($value, 'text', 1, function (array $args): string {
+            return e((string) ($args[0] ?? ''));
+        }, $tokens);
+
+        $value = $this->replaceLatexCommandGroups($value, 'frac', 2, function (array $args): string {
+            return '<span class="math-frac"><span class="math-num">'
+                . $this->latexToPdfHtml((string) ($args[0] ?? ''))
+                . '</span><span class="math-den">'
+                . $this->latexToPdfHtml((string) ($args[1] ?? ''))
+                . '</span></span>';
+        }, $tokens);
+
+        $value = $this->replaceLatexCommandGroups($value, 'sqrt', 1, function (array $args): string {
+            return '<span class="math-root"><span class="math-root-symbol">√</span><span class="math-root-body">'
+                . $this->latexToPdfHtml((string) ($args[0] ?? ''))
+                . '</span></span>';
+        }, $tokens);
+
+        $value = $this->replaceLatexScripts($value, $tokens);
+
+        $replacements = [
+            '\cdot' => '·',
+            '\times' => '×',
+            '\div' => '÷',
+            '\pm' => '±',
+            '\mp' => '∓',
+            '\leq' => '≤',
+            '\le' => '≤',
+            '\geq' => '≥',
+            '\ge' => '≥',
+            '\neq' => '≠',
+            '\ne' => '≠',
+            '\approx' => '≈',
+            '\infty' => '∞',
+            '\int' => '∫',
+            '\sum' => '∑',
+            '\prod' => '∏',
+            '\lim' => 'lim',
+            '\pi' => 'π',
+            '\alpha' => 'α',
+            '\beta' => 'β',
+            '\gamma' => 'γ',
+            '\delta' => 'δ',
+            '\theta' => 'θ',
+            '\lambda' => 'λ',
+            '\mu' => 'μ',
+            '\sigma' => 'σ',
+            '\phi' => 'φ',
+            '\omega' => 'ω',
+            '\Delta' => 'Δ',
+            '\Omega' => 'Ω',
+            '\sin' => 'sin',
+            '\cos' => 'cos',
+            '\tan' => 'tan',
+            '\cot' => 'cot',
+            '\log' => 'log',
+            '\ln' => 'ln',
+            '\,' => ' ',
+            '\;' => ' ',
+            '\:' => ' ',
+            '\!' => '',
+            '\\\\' => ' ',
+        ];
+
+        $value = strtr($value, $replacements);
+        $value = preg_replace('/\\\\([a-zA-Z]+)/u', '$1', $value) ?? $value;
+        $value = str_replace(['{', '}'], '', $value);
+        $value = preg_replace('/\s+/u', ' ', $value) ?? $value;
+
+        $html = e(trim($value));
+        foreach ($tokens as $token => $replacement) {
+            $html = str_replace($token, $replacement, $html);
+        }
+
+        return trim($html);
+    }
+
+    /**
+     * @param callable(array<int, string>): string $renderer
+     * @param array<string, string> $tokens
+     */
+    private function replaceLatexCommandGroups(
+        string $value,
+        string $command,
+        int $groupCount,
+        callable $renderer,
+        array &$tokens
+    ): string {
+        $needle = '\\' . $command;
+        $length = strlen($value);
+        $result = '';
+
+        for ($i = 0; $i < $length;) {
+            if (substr($value, $i, strlen($needle)) !== $needle) {
+                $result .= $value[$i];
+                $i++;
+                continue;
+            }
+
+            $cursor = $i + strlen($needle);
+            $groups = [];
+            $matched = true;
+
+            for ($group = 0; $group < $groupCount; $group++) {
+                $parsed = $this->readLatexGroup($value, $cursor);
+                if ($parsed === null) {
+                    $matched = false;
+                    break;
+                }
+
+                $groups[] = $parsed[0];
+                $cursor = $parsed[1];
+            }
+
+            if (!$matched) {
+                $result .= $value[$i];
+                $i++;
+                continue;
+            }
+
+            $result .= $this->storeMathToken($tokens, $renderer($groups));
+            $i = $cursor;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array{0: string, 1: int}|null
+     */
+    private function readLatexGroup(string $value, int $offset): ?array
+    {
+        $length = strlen($value);
+        while ($offset < $length && ctype_space($value[$offset])) {
+            $offset++;
+        }
+
+        if ($offset >= $length || $value[$offset] !== '{') {
+            return null;
+        }
+
+        $depth = 0;
+        $start = $offset + 1;
+        for ($i = $offset; $i < $length; $i++) {
+            if ($value[$i] === '{') {
+                $depth++;
+            } elseif ($value[$i] === '}') {
+                $depth--;
+                if ($depth === 0) {
+                    return [substr($value, $start, $i - $start), $i + 1];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<string, string> $tokens
+     */
+    private function replaceLatexScripts(string $value, array &$tokens): string
+    {
+        $length = strlen($value);
+        $result = '';
+
+        for ($i = 0; $i < $length;) {
+            $char = $value[$i];
+            if ($char !== '^' && $char !== '_') {
+                $result .= $char;
+                $i++;
+                continue;
+            }
+
+            $parsed = $this->readLatexScriptArgument($value, $i + 1);
+            if ($parsed === null) {
+                $result .= $char;
+                $i++;
+                continue;
+            }
+
+            [$argument, $nextOffset] = $parsed;
+            $tag = $char === '^' ? 'sup' : 'sub';
+            $result .= $this->storeMathToken(
+                $tokens,
+                '<' . $tag . '>' . $this->latexToPdfHtml($argument) . '</' . $tag . '>'
+            );
+            $i = $nextOffset;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array{0: string, 1: int}|null
+     */
+    private function readLatexScriptArgument(string $value, int $offset): ?array
+    {
+        $length = strlen($value);
+        while ($offset < $length && ctype_space($value[$offset])) {
+            $offset++;
+        }
+
+        if ($offset >= $length) {
+            return null;
+        }
+
+        if ($value[$offset] === '{') {
+            return $this->readLatexGroup($value, $offset);
+        }
+
+        if ($value[$offset] === '\\') {
+            $end = $offset + 1;
+            while ($end < $length && preg_match('/[a-zA-Z]/', $value[$end]) === 1) {
+                $end++;
+            }
+
+            return [substr($value, $offset, max(1, $end - $offset)), $end];
+        }
+
+        return [$value[$offset], $offset + 1];
+    }
+
+    /**
+     * @param array<string, string> $tokens
+     */
+    private function storeMathToken(array &$tokens, string $html): string
+    {
+        $token = '@@MATHHTML' . count($tokens) . '@@';
+        $tokens[$token] = $html;
+
+        return $token;
+    }
+
+    /**
+     * @return array<int, array{path?: string, color?: string, size?: mixed}>
+     */
+    private function extractFreehandLinesFromTag(string $tag): array
+    {
+        $raw = $this->extractHtmlAttribute($tag, 'data-lines');
+        if ($raw === null || trim($raw) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_filter($decoded, fn ($line) => is_array($line)));
+    }
+
+    private function safeSvgColor(mixed $value): string
+    {
+        $color = trim((string) $value);
+        if (preg_match('/^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/iu', $color) === 1) {
+            return $color;
+        }
+
+        if (preg_match('/^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/iu', $color) === 1) {
+            return $color;
+        }
+
+        return '#4f46e5';
+    }
+
+    private function safeStrokeSize(mixed $value): int
+    {
+        $size = (int) round((float) $value);
+        return max(1, min(18, $size));
+    }
+
+    private function safePaperStyle(string $style): string
+    {
+        return in_array($style, ['grid', 'lined', 'blank'], true) ? $style : 'grid';
+    }
+
+    private function freehandPaperPatternSvg(string $paperStyle): string
+    {
+        return match ($paperStyle) {
+            'grid' => '<defs><pattern id="pdf-freehand-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#dbeafe" stroke-width="0.7" /></pattern></defs><rect width="500" height="250" fill="url(#pdf-freehand-grid)" />',
+            'lined' => '<defs><pattern id="pdf-freehand-lines" width="20" height="24" patternUnits="userSpaceOnUse"><path d="M 0 23 L 500 23" fill="none" stroke="#dbeafe" stroke-width="0.7" /></pattern></defs><rect width="500" height="250" fill="url(#pdf-freehand-lines)" />',
+            default => '',
+        };
+    }
+
+    private function extractHtmlAttribute(string $tag, string $attribute): ?string
+    {
+        $pattern = '/\s' . preg_quote($attribute, '/') . '\s*=\s*(["\'])(.*?)\1/isu';
+        if (preg_match($pattern, $tag, $match) !== 1) {
+            return null;
+        }
+
+        return html_entity_decode((string) ($match[2] ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    private function replaceHtmlAttribute(string $tag, string $attribute, string $value): string
+    {
+        $replacement = ' ' . $attribute . '="' . e($value) . '"';
+        $pattern = '/\s' . preg_quote($attribute, '/') . '\s*=\s*(["\']).*?\1/isu';
+
+        if (preg_match($pattern, $tag) === 1) {
+            return preg_replace($pattern, $replacement, $tag, 1) ?? $tag;
+        }
+
+        return preg_replace('/>$/', $replacement . '>', $tag, 1) ?? $tag;
+    }
+
+    private function fileUri(string $path): string
+    {
+        return 'file:///' . ltrim(str_replace('\\', '/', $path), '/');
     }
 
     private function extractSvgFromGeometryImageTag(string $tag): ?string
