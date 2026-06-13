@@ -7,24 +7,8 @@ import DropdownLink from "@/components/DropdownLink.vue";
 import { useTheme } from "@/composables/useTheme";
 import { getLanguage, setLanguage } from "@/lib/i18n";
 import type { LocaleCode } from "@/lib/i18n";
-import {
-  Activity,
-  Box,
-  Calculator,
-  ChartLine,
-  Layers,
-  Lock,
-  Moon,
-  Sun,
-} from "lucide-vue-next";
+import { Moon, Sun } from "lucide-vue-next";
 import { route } from "ziggy-js";
-
-const comingSoonModules = [
-  { icon: ChartLine, label: "2D Graphing" },
-  { icon: Calculator, label: "Algebra Engine" },
-  { icon: Activity, label: "Calculus Steps" },
-  { icon: Layers, label: "Matrices & Vectors" },
-];
 
 const page = usePage();
 const user = computed(() => (page.props as any).auth?.user);
@@ -106,28 +90,6 @@ function changeLanguage(event: Event) {
 
           <nav class="space-y-1">
             <slot name="sidebar" />
-          </nav>
-
-          <p
-            class="mb-4 mt-8 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-          >
-            {{ __("Coming Soon") }}
-          </p>
-          <nav class="space-y-1">
-            <div
-              v-for="item in comingSoonModules"
-              :key="item.label"
-              class="group flex cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-muted-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            >
-              <div class="flex items-center gap-3">
-                <component :is="item.icon" :size="18" />
-                <span class="text-sm font-medium">{{ __(item.label) }}</span>
-              </div>
-              <Lock
-                :size="12"
-                class="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-              />
-            </div>
           </nav>
         </div>
       </aside>

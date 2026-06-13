@@ -1,59 +1,214 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MathDash
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+MathDash is a multilingual math learning platform built with Laravel, Inertia, and Vue.
+It combines student practice, teacher tooling, analytics, formulas, games, and visual math tools in one workspace.
 
-## About Laravel
+## What it includes
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Local and global analytics dashboards with charts and date filtering
+- Math levels with XP, progress, rewards, and a student-only Hall of Fame
+- Interactive games such as `1 + 1` and `Equilibrium`
+- 2D and 3D geometry calculators and previews
+- Integral calculator with Wolfram verification and AI-generated step support
+- Formula library with multilingual content and animated explanations
+- Teacher Exercise Studio with:
+  - AI exercise generation
+  - rich Tiptap-based editing
+  - image upload and image resizing
+  - freehand drawing blocks
+  - math input via MathLive
+  - PDF export
+- Role-based access for `student`, `lecturer`, and `admin`
+- UI translations for `en`, `hy`, `fr`, and `ru`
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Backend: Laravel 12, PHP 8.2
+- Frontend: Vue 3, Inertia.js, TypeScript, Vite
+- Styling: Tailwind CSS 4
+- Charts and visuals: ECharts, Unovis, Three.js, TresJS, Konva
+- Editor: Tiptap, MathLive
+- PDF export: DomPDF
+- AI integrations:
+  - Gemini for teacher exercises, formula steps, math levels, and AI-assisted solving
+  - Wolfram Alpha for integral verification
 
-## Learning Laravel
+## Product areas
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Student experience
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Practice through math levels, games, calculators, and formulas
+- Earn XP and move through progress-based content
+- View rewards and leaderboard-style ranking
 
-## Laravel Sponsors
+### Lecturer experience
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Access the Teacher Exercise Studio
+- Generate, edit, save, publish, and export classroom-ready content
+- Upload images, insert formulas, add drawings, and build printable worksheets
 
-### Premium Partners
+### Admin experience
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- Full lecturer capabilities
+- Intended for platform management, content oversight, and privileged workflows
 
-## Contributing
+## Roles
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+MathDash uses three roles:
 
-## Code of Conduct
+- `student`: learner-facing experience only
+- `lecturer`: can use the Teacher Exercise Studio
+- `admin`: full access
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Route protection is enforced both in web routes and API routes.
 
-## Security Vulnerabilities
+## Demo data
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The seeders create a default admin account and realistic dashboard/demo users.
+
+Default admin login:
+
+- Email: `admin@example.com`
+- Password: `password`
+
+Dashboard demo users are also seeded with the password `password`.
+
+## Local setup
+
+### 1. Install dependencies
+
+```bash
+composer install
+npm install
+```
+
+### 2. Create environment file
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+php artisan key:generate
+```
+
+### 3. Configure database
+
+The app works well with SQLite for local development.
+
+```bash
+php artisan migrate --seed
+```
+
+### 4. Create storage symlink
+
+```bash
+php artisan storage:link
+```
+
+### 5. Start the app
+
+Recommended all-in-one dev command:
+
+```bash
+composer run dev
+```
+
+That starts:
+
+- Laravel server
+- queue listener
+- Laravel Pail logs
+- Vite dev server
+
+If you want the frontend and backend separately:
+
+```bash
+php artisan serve
+npm run dev
+```
+
+## Environment variables
+
+The app can run without all AI features enabled, but these services unlock the full experience.
+
+### Required for AI features
+
+```env
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-flash-latest
+GEMINI_FALLBACK_MODEL=gemini-2.5-flash-lite
+```
+
+### Required for integral verification
+
+```env
+WOLFRAM_APP_ID=
+```
+
+### Useful local values
+
+```env
+APP_URL=http://127.0.0.1:8000
+QUEUE_CONNECTION=database
+FILESYSTEM_DISK=public
+```
+
+## Tests
+
+Run the full Laravel test suite:
+
+```bash
+composer test
+```
+
+There are feature tests for important teacher-editor behavior, including:
+
+- role restrictions
+- image upload validation
+- draft saving
+- PDF export
+- document ownership checks
+
+## Notable implementation details
+
+- Sidebar, dashboards, calculators, formulas, and levels are all rendered through Inertia/Vue pages
+- The editor supports rich content blocks, custom image node views, freehand drawings, inline math, and PDF-friendly HTML normalization
+- Formula content and explanations are locale-aware
+- Hall of Fame and analytics logic already filter student-facing data appropriately
+- Vite is configured with manual chunking for heavier frontend modules like charts, 3D, editor tooling, and MathLive
+
+## Main routes
+
+Authenticated app areas include:
+
+- `/dashboard/local`
+- `/dashboard/global`
+- `/math-levels`
+- `/math-levels/rewards`
+- `/mathematics/twoD`
+- `/mathematics/threeD`
+- `/mathematics/integral`
+- `/game/oneplusone`
+- `/game/equilibrium`
+- `/fomula`
+- `/teacher/exercises/studio`
+
+## Project status
+
+This is no longer a starter Laravel app. It is a feature-rich education product with:
+
+- custom student workflows
+- teacher authoring tools
+- multilingual content
+- analytics
+- AI-assisted generation
+- printable lesson output
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project currently inherits the repository's existing MIT license setup unless you decide to relicense it for commercial distribution.
