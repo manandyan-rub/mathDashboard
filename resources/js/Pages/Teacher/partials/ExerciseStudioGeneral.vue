@@ -1275,12 +1275,17 @@ async function downloadPdf() {
   generationError.value = null;
 
   try {
+    const editorHtml = editor.value.getHTML();
+    const contentHtml = hasMeaningfulEditorHtml(editorHtml)
+      ? editorHtml
+      : buildEditorHtmlFromItems();
+
     const response = await axios.post<Blob>(
       "/api/teacher/exercises/pdf",
       {
         document_id: documentId.value,
         title: topic.value.trim() || __("Exercise Document"),
-        content_html: editor.value.getHTML(),
+        content_html: contentHtml,
         language: language.value,
         show_answers: showCorrectAnswers.value,
       },
@@ -1453,6 +1458,25 @@ function buildEditorHtmlFromItems(): string {
     });
 
   return htmlParts.join("");
+}
+
+function hasMeaningfulEditorHtml(html: string): boolean {
+  const normalized = String(html ?? "").trim();
+  if (normalized === "") return false;
+
+  if (
+    /<(img|svg|figure|table|blockquote|ol|ul|hr)\b/i.test(normalized) ||
+    /data-type=(["'])freehand-drawing\1/i.test(normalized)
+  ) {
+    return true;
+  }
+
+  const text = normalized
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .trim();
+
+  return text !== "";
 }
 
 function applyDocument(documentPayload: ExerciseDocument) {

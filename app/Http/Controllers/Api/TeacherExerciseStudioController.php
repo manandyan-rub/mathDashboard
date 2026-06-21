@@ -221,6 +221,10 @@ class TeacherExerciseStudioController extends Controller
             $contentHtml = trim((string) ($document?->content_html ?? ''));
         }
 
+        if ($document && !$this->hasMeaningfulPdfContent($contentHtml)) {
+            $contentHtml = $this->buildHtmlFromItems($document, $showAnswers);
+        }
+
         if (!$showAnswers && $contentHtml !== '') {
             // Keep edited document content, remove answer/explanation blocks only.
             $contentHtml = $this->stripAnswersFromHtml($contentHtml);
@@ -491,7 +495,7 @@ class TeacherExerciseStudioController extends Controller
 
     private function renderBlockHtml(string $value): string
     {
-        $content = trim($value);
+        $content = trim($this->decodeStoredRichHtml($value));
         if ($content === '') {
             return '<p></p>';
         }
@@ -505,7 +509,7 @@ class TeacherExerciseStudioController extends Controller
 
     private function renderInlineHtml(string $value): string
     {
-        $content = trim($value);
+        $content = trim($this->decodeStoredRichHtml($value));
         if ($content === '') {
             return '';
         }
@@ -581,8 +585,10 @@ class TeacherExerciseStudioController extends Controller
             return $html;
         }
 
+        $html = $this->decodeStoredRichHtml($html);
         $html = $this->normalizeFreehandDrawingsForPdf($html);
         $html = $this->normalizeGeometryDrawingsForPdf($html);
+        $html = $this->normalizeImageFiguresForPdf($html);
         $html = $this->normalizePdfImageSources($html);
 
         if (extension_loaded('gd')) {
@@ -594,6 +600,55 @@ class TeacherExerciseStudioController extends Controller
         $html = preg_replace('/<img\b(?![^>]*src=(["\'])data:image\/svg\+xml)[^>]*>/iu', '', $html) ?? $html;
 
         return $html;
+    }
+
+    private function normalizeImageFiguresForPdf(string $html): string
+    {
+        $html = preg_replace_callback(
+            '/<figure\b(?=[^>]*data-editor-image)[^>]*>/iu',
+            function (array $match): string {
+                $tag = (string) ($match[0] ?? '');
+                $width = trim((string) $this->extractHtmlAttribute($tag, 'data-editor-image-width'));
+                $align = trim((string) $this->extractHtmlAttribute($tag, 'data-editor-image-align'));
+                $style = trim((string) $this->extractHtmlAttribute($tag, 'style'));
+
+                if ($width !== '' && preg_match('/^\d+(?:\.\d+)?%$/', $width) === 1) {
+                    $style .= ($style !== '' ? ';' : '') . 'width:' . $width . ';max-width:100%';
+                }
+
+                if ($align === 'left') {
+                    $style .= ($style !== '' ? ';' : '') . 'margin:14px auto 14px 0';
+                } elseif ($align === 'right') {
+                    $style .= ($style !== '' ? ';' : '') . 'margin:14px 0 14px auto';
+                } else {
+                    $style .= ($style !== '' ? ';' : '') . 'margin:14px auto';
+                }
+
+                return $this->replaceHtmlAttribute($tag, 'style', trim($style, ';'));
+            },
+            $html
+        ) ?? $html;
+
+        return preg_replace_callback(
+            '/<img\b[^>]*>/iu',
+            function (array $match): string {
+                $tag = (string) ($match[0] ?? '');
+                $style = trim((string) $this->extractHtmlAttribute($tag, 'style'));
+
+                if (!str_contains($style, 'display:')) {
+                    $style .= ($style !== '' ? ';' : '') . 'display:block';
+                }
+                if (!str_contains($style, 'max-width:')) {
+                    $style .= ($style !== '' ? ';' : '') . 'max-width:100%';
+                }
+                if (!str_contains($style, 'height:')) {
+                    $style .= ($style !== '' ? ';' : '') . 'height:auto';
+                }
+
+                return $this->replaceHtmlAttribute($tag, 'style', trim($style, ';'));
+            },
+            $html
+        ) ?? $html;
     }
 
     private function normalizeGeometryDrawingsForPdf(string $html): string
@@ -1131,5 +1186,30 @@ class TeacherExerciseStudioController extends Controller
         $value = preg_replace('/\s+/u', ' ', $value) ?? $value;
 
         return trim($value);
+    }
+
+    private function decodeStoredRichHtml(string $value): string
+    {
+        $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return $decoded === '' ? $value : $decoded;
+    }
+
+    private function hasMeaningfulPdfContent(string $html): bool
+    {
+        $decoded = trim($this->decodeStoredRichHtml($html));
+        if ($decoded === '') {
+            return false;
+        }
+
+        if (preg_match('/<(img|svg|figure|table|blockquote|ol|ul|hr)\b/iu', $decoded) === 1) {
+            return true;
+        }
+
+        if (preg_match('/data-type=(["\'])freehand-drawing\1/iu', $decoded) === 1) {
+            return true;
+        }
+
+        $text = trim(strip_tags($decoded));
+        return $text !== '';
     }
 }

@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Smalot\PdfParser\Parser;
 use Tests\TestCase;
 
 class TeacherExerciseStudioTest extends TestCase
@@ -118,6 +119,50 @@ class TeacherExerciseStudioTest extends TestCase
         $response->assertOk();
         $this->assertStringContainsString('application/pdf', (string) $response->headers->get('content-type'));
         $this->assertStringStartsWith('%PDF', (string) $response->getContent());
+    }
+
+    public function test_pdf_export_falls_back_to_items_and_decodes_stored_html_entities(): void
+    {
+        $lecturer = User::factory()->create(['role' => User::ROLE_LECTURER]);
+        $document = ExerciseDocument::query()->create([
+            'user_id' => $lecturer->id,
+            'title' => 'Entity Export Test',
+            'status' => 'draft',
+            'language' => 'en',
+            'content_html' => '<p></p>',
+        ]);
+
+        ExerciseItem::query()->create([
+            'document_id' => $document->id,
+            'item_order' => 1,
+            'type' => 'mcq',
+            'question' => '&lt;p&gt;Find &lt;strong&gt;x&lt;/strong&gt;.&lt;/p&gt;',
+            'options' => ['&lt;span&gt;4&lt;/span&gt;', '&lt;span&gt;7&lt;/span&gt;'],
+            'answer' => '&lt;strong&gt;7&lt;/strong&gt;',
+            'explanation' => '&lt;p&gt;Subtract 3 from 10.&lt;/p&gt;',
+            'difficulty' => 'easy',
+            'points' => 2,
+            'source' => 'manual',
+        ]);
+
+        $response = $this->actingAs($lecturer)->post('/api/teacher/exercises/pdf', [
+            'document_id' => $document->id,
+            'title' => $document->title,
+            'content_html' => '<p></p>',
+            'language' => 'en',
+            'show_answers' => true,
+        ]);
+
+        $response->assertOk();
+
+        $pdfText = (new Parser())->parseContent((string) $response->getContent())->getText();
+
+        $this->assertStringContainsString('Entity Export Test', $pdfText);
+        $this->assertStringContainsString('Find x.', $pdfText);
+        $this->assertStringContainsString('7', $pdfText);
+        $this->assertStringContainsString('Subtract 3 from 10.', $pdfText);
+        $this->assertStringNotContainsString('<p>', $pdfText);
+        $this->assertStringNotContainsString('<strong>', $pdfText);
     }
 
     public function test_lecturer_cannot_update_another_teachers_document(): void
