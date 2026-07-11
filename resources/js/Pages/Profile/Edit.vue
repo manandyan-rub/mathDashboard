@@ -9,6 +9,7 @@ import { Head, Link } from "@inertiajs/vue3";
 import { Bell, LogOut, Shield, User } from "lucide-vue-next";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import DeleteUserForm from "./Partials/DeleteUserForm.vue";
+import TwoFactorSettingsForm from "./Partials/TwoFactorSettingsForm.vue";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm.vue";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm.vue";
 
@@ -164,6 +165,8 @@ onBeforeUnmount(() => {
           />
 
           <div v-else-if="activeSection === 'security'" class="space-y-8">
+            <TwoFactorSettingsForm />
+
             <UpdatePasswordForm />
 
             <div

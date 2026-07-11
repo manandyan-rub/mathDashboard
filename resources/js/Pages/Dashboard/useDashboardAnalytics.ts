@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import type { DateRange } from "reka-ui";
 import type {
   ActivityHeatmap,
+  CountryDistributionPoint,
   FunnelStep,
   InsightCard,
   XpAnalytics,
@@ -21,6 +22,9 @@ export function useDashboardAnalytics() {
   const sourcePoints = computed(() => analytics.value?.sources ?? []);
   const popularModePoints = computed(
     () => analytics.value?.popular_modes ?? [],
+  );
+  const countryDistribution = computed<CountryDistributionPoint[]>(
+    () => analytics.value?.country_distribution ?? [],
   );
   const userLevelPoints = computed(
     () => analytics.value?.user_level_distribution ?? [],
@@ -305,6 +309,7 @@ export function useDashboardAnalytics() {
     popularModeLabels,
     popularModeClaimValues,
     popularModeXpValues,
+    countryDistribution,
     userLevelLabels,
     userLevelUserValues,
     userLevelXpValues,

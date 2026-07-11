@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Country;
 use App\Models\MathLevel;
 use App\Models\MathUserLevelProgress;
 use App\Models\MathUserProfile;
@@ -19,18 +20,22 @@ class DashboardDemoSeeder extends Seeder
      */
     public function run(): void
     {
+        if (!Country::query()->exists()) {
+            $this->call(CountrySeeder::class);
+        }
+
         $users = [
-            ['name' => 'Admin', 'email' => 'admin@example.com', 'role' => User::ROLE_ADMIN, 'completed' => 8, 'modes' => ['student', 'einstein', 'middle']],
-            ['name' => 'Emma Johnson', 'email' => 'emma.johnson@example.com', 'legacy_email' => 'ani.sargsyan@example.com', 'completed' => 6, 'modes' => ['student', 'middle', 'easy']],
-            ['name' => 'Noah Williams', 'email' => 'noah.williams@example.com', 'legacy_email' => 'narek.petrosyan@example.com', 'completed' => 5, 'modes' => ['middle', 'student', 'easy']],
-            ['name' => 'Olivia Brown', 'email' => 'olivia.brown@example.com', 'legacy_email' => 'mariam.hakobyan@example.com', 'completed' => 7, 'modes' => ['student', 'einstein', 'middle']],
-            ['name' => 'Liam Miller', 'email' => 'liam.miller@example.com', 'legacy_email' => 'aram.grigoryan@example.com', 'completed' => 3, 'modes' => ['easy', 'child', 'scholastic']],
-            ['name' => 'Ava Davis', 'email' => 'ava.davis@example.com', 'legacy_email' => 'lilit.karapetyan@example.com', 'completed' => 4, 'modes' => ['middle', 'easy', 'student']],
-            ['name' => 'Ethan Wilson', 'email' => 'ethan.wilson@example.com', 'legacy_email' => 'gor.vardanyan@example.com', 'completed' => 2, 'modes' => ['child', 'easy', 'scholastic']],
-            ['name' => 'Mia Anderson', 'email' => 'mia.anderson@example.com', 'legacy_email' => 'sona.avetisyan@example.com', 'completed' => 9, 'modes' => ['einstein', 'student', 'middle']],
-            ['name' => 'Lucas Thompson', 'email' => 'lucas.thompson@example.com', 'legacy_email' => 'hayk.martirosyan@example.com', 'completed' => 5, 'modes' => ['middle', 'student', 'easy']],
-            ['name' => 'Sophia Martinez', 'email' => 'sophia.martinez@example.com', 'legacy_email' => 'eva.hovhannisyan@example.com', 'completed' => 1, 'modes' => ['child', 'scholastic', 'easy']],
-            ['name' => 'Jackson Taylor', 'email' => 'jackson.taylor@example.com', 'legacy_email' => 'tigran.manukyan@example.com', 'completed' => 6, 'modes' => ['student', 'middle', 'einstein']],
+            ['name' => 'Admin', 'email' => 'admin@example.com', 'role' => User::ROLE_ADMIN, 'country' => 'AM', 'completed' => 8, 'modes' => ['student', 'einstein', 'middle']],
+            ['name' => 'Emma Johnson', 'email' => 'emma.johnson@example.com', 'legacy_email' => 'ani.sargsyan@example.com', 'country' => 'FR', 'completed' => 6, 'modes' => ['student', 'middle', 'easy']],
+            ['name' => 'Noah Williams', 'email' => 'noah.williams@example.com', 'legacy_email' => 'narek.petrosyan@example.com', 'country' => 'US', 'completed' => 5, 'modes' => ['middle', 'student', 'easy']],
+            ['name' => 'Olivia Brown', 'email' => 'olivia.brown@example.com', 'legacy_email' => 'mariam.hakobyan@example.com', 'country' => 'AM', 'completed' => 7, 'modes' => ['student', 'einstein', 'middle']],
+            ['name' => 'Liam Miller', 'email' => 'liam.miller@example.com', 'legacy_email' => 'aram.grigoryan@example.com', 'country' => 'CA', 'completed' => 3, 'modes' => ['easy', 'child', 'scholastic']],
+            ['name' => 'Ava Davis', 'email' => 'ava.davis@example.com', 'legacy_email' => 'lilit.karapetyan@example.com', 'country' => 'DE', 'completed' => 4, 'modes' => ['middle', 'easy', 'student']],
+            ['name' => 'Ethan Wilson', 'email' => 'ethan.wilson@example.com', 'legacy_email' => 'gor.vardanyan@example.com', 'country' => 'AM', 'completed' => 2, 'modes' => ['child', 'easy', 'scholastic']],
+            ['name' => 'Mia Anderson', 'email' => 'mia.anderson@example.com', 'legacy_email' => 'sona.avetisyan@example.com', 'country' => 'FR', 'completed' => 9, 'modes' => ['einstein', 'student', 'middle']],
+            ['name' => 'Lucas Thompson', 'email' => 'lucas.thompson@example.com', 'legacy_email' => 'hayk.martirosyan@example.com', 'country' => 'US', 'completed' => 5, 'modes' => ['middle', 'student', 'easy']],
+            ['name' => 'Sophia Martinez', 'email' => 'sophia.martinez@example.com', 'legacy_email' => 'eva.hovhannisyan@example.com', 'country' => 'JP', 'completed' => 1, 'modes' => ['child', 'scholastic', 'easy']],
+            ['name' => 'Jackson Taylor', 'email' => 'jackson.taylor@example.com', 'legacy_email' => 'tigran.manukyan@example.com', 'country' => 'BR', 'completed' => 6, 'modes' => ['student', 'middle', 'einstein']],
         ];
 
         $levels = MathLevel::query()
@@ -40,6 +45,7 @@ class DashboardDemoSeeder extends Seeder
             ->get();
 
         DB::transaction(function () use ($users, $levels) {
+            $countryIds = Country::query()->pluck('id', 'iso_code');
             $emails = collect($users)
                 ->flatMap(fn (array $user) => array_filter([$user['email'], $user['legacy_email'] ?? null]))
                 ->unique()
@@ -68,6 +74,7 @@ class DashboardDemoSeeder extends Seeder
                     'name' => $demoUser['name'],
                     'email' => $demoUser['email'],
                     'role' => $demoUser['role'] ?? User::ROLE_STUDENT,
+                    'country_id' => $countryIds->get($demoUser['country'] ?? ''),
                     'password' => Hash::make('password'),
                 ])->save();
                 $user->forceFill(['email_verified_at' => now()])->save();

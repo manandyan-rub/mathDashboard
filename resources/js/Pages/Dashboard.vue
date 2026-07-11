@@ -1,5 +1,6 @@
 <script setup>
 import BarChart from "@/charts/BarChart.vue";
+import CountryMapChart from "@/charts/CountryMapChart.vue";
 import DonutChart from "@/charts/DonutChart.vue";
 import HeatmapChart from "@/charts/HeatmapChart.vue";
 import LineChart from "@/charts/LineChart.vue";
@@ -63,6 +64,7 @@ const {
   popularModeLabels,
   popularModeClaimValues,
   popularModeXpValues,
+  countryDistribution,
   userLevelLabels,
   userLevelUserValues,
   userLevelXpValues,
@@ -415,6 +417,21 @@ onMounted(loadAnalytics);
           </p>
         </article>
       </div>
+
+      <CountryMapChart
+        :title="__('Global learner map')"
+        :description="__('Active learners by country in the selected period')"
+        :points="countryDistribution"
+        :users-label="__('Learners')"
+        :claims-label="__('Claims')"
+        :xp-label="__('Combined XP')"
+        :loading="loading"
+        :empty-text="__('No country activity yet')"
+      >
+        <template #icon>
+          <Globe2 :size="18" class="text-primary" />
+        </template>
+      </CountryMapChart>
 
       <section class="grid gap-4 xl:grid-cols-2">
         <BarChart

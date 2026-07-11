@@ -26,6 +26,8 @@ class User extends Authenticatable
         'name',
         'email',
         'role',
+        'must_enable_2fa',
+        'country_id',
         'password',
     ];
 
@@ -50,7 +52,14 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => 'string',
+            'must_enable_2fa' => 'boolean',
+            'country_id' => 'integer',
         ];
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
     }
 
     public function isAdmin(): bool

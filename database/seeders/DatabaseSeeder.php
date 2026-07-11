@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         );
         $admin->forceFill(['email_verified_at' => now()])->save();
 
+        $this->call(CountrySeeder::class);
         $this->call(FormulaSeeder::class);
         $this->call(MathLevelsSeeder::class);
         $this->call(DashboardDemoSeeder::class);

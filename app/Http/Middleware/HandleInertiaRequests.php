@@ -39,6 +39,7 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $user->role,
+                    'must_enable_2fa' => (bool) $user->must_enable_2fa,
                     'profile_photo_url' => $user->profile_photo_url ?? null,
                 ] : null,
                 'permissions' => [

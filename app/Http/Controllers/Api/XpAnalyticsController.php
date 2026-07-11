@@ -98,6 +98,41 @@ class XpAnalyticsController extends Controller
             ->sortByDesc('claims')
             ->values();
 
+        $countryDistribution = MathUserXpEvent::query()
+            ->join('users', 'math_user_xp_events.user_id', '=', 'users.id')
+            ->join('countries', 'users.country_id', '=', 'countries.id')
+            ->whereBetween('math_user_xp_events.earned_at', [$from, $to])
+            ->selectRaw('
+                countries.id as country_id,
+                countries.name,
+                countries.iso_code,
+                countries.latitude,
+                countries.longitude,
+                COUNT(DISTINCT math_user_xp_events.user_id) as learners_count,
+                COUNT(*) as claims_count,
+                SUM(math_user_xp_events.amount) as xp_total
+            ')
+            ->groupBy(
+                'countries.id',
+                'countries.name',
+                'countries.iso_code',
+                'countries.latitude',
+                'countries.longitude'
+            )
+            ->get()
+            ->map(fn ($row) => [
+                'country_id' => (int) $row->country_id,
+                'name' => (string) $row->name,
+                'iso_code' => (string) $row->iso_code,
+                'latitude' => (float) $row->latitude,
+                'longitude' => (float) $row->longitude,
+                'users' => (int) $row->learners_count,
+                'claims' => (int) $row->claims_count,
+                'xp' => (int) $row->xp_total,
+            ])
+            ->sortByDesc('users')
+            ->values();
+
         $userLevelDistribution = MathUserProfile::query()
             ->get()
             ->groupBy(fn (MathUserProfile $profile) => max(1, (int) floor(((int) $profile->total_xp) / 150) + 1))
@@ -149,6 +184,7 @@ class XpAnalyticsController extends Controller
             'daily' => $daily,
             'sources' => $sources,
             'popular_modes' => $popularModes,
+            'country_distribution' => $countryDistribution,
             'user_level_distribution' => $userLevelDistribution,
             'completed_level_distribution' => $completedLevelDistribution,
             'activity_heatmap' => $this->activityHeatmap($periodEvents),

@@ -7,6 +7,7 @@ declare module 'ziggy-js' {
     "dashboard.global": [],
     "profile.edit": [],
     "profile.update": [],
+    "profile.two-factor.update": [],
     "profile.destroy": [],
     "mathematics.index": [],
     "mathematics.twoD": [],

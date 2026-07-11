@@ -10,6 +10,7 @@ export type NavigationMenus = CmsflyConfig extends { menus: string }
 
 export interface AuthUser extends UserModel {
   role: UserRole;
+  must_enable_2fa?: boolean;
   profile_photo_url?: string | null;
   unread_notifications_count: number;
   active_workspace: CmsflyConfig extends { workspaces: true }

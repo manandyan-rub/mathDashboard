@@ -28,6 +28,17 @@ export type ModePopularity = {
   claims: number;
 };
 
+export type CountryDistributionPoint = {
+  country_id: number;
+  name: string;
+  iso_code: string;
+  latitude: number;
+  longitude: number;
+  users: number;
+  claims: number;
+  xp: number;
+};
+
 export type UserLevelDistribution = {
   level: number;
   label: string;
@@ -68,6 +79,7 @@ export type XpAnalytics = {
   daily: DailyXpPoint[];
   sources: XpSource[];
   popular_modes: ModePopularity[];
+  country_distribution: CountryDistributionPoint[];
   user_level_distribution: UserLevelDistribution[];
   completed_level_distribution: CompletedLevelDistribution[];
   activity_heatmap: ActivityHeatmap;

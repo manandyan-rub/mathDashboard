@@ -541,4 +541,16 @@
   "Parallelogram": "Զուգահեռագիծ",
   "Enter valid dimensions first.": "Նախ մուտքագրեք վավեր չափեր:",
   "Those side lengths cannot form a triangle.": "Այդ կողմերի երկարություններով եռանկյուն չի ստացվում:"
+  ,
+  "Two-factor authentication": "Two-factor authentication",
+  "Require an extra verification step for this account. When enabled, the database stores 1. When disabled, it stores 0.": "Require an extra verification step for this account. When enabled, the database stores 1. When disabled, it stores 0.",
+  "Enabled": "Enabled",
+  "Disabled": "Disabled",
+  "Enable 2FA requirement": "Enable 2FA requirement",
+  "Turn this on if this user must pass two-factor authentication before account access is considered complete.": "Turn this on if this user must pass two-factor authentication before account access is considered complete.",
+  "Two-factor setting saved.": "Two-factor setting saved.",
+  "Save 2FA settings": "Save 2FA settings",
+  "Global learner map": "Գլոբալ սովորողների քարտեզ",
+  "Active learners by country in the selected period": "Ակտիվ սովորողներ ըստ երկրի ընտրված ժամանակահատվածում",
+  "No country activity yet": "Երկրային ակտիվություն դեռ չկա"
 }

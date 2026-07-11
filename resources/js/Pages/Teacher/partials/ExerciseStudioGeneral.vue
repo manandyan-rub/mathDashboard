@@ -3021,9 +3021,14 @@ onUpdated(() => {
       <section
         class="space-y-4 overflow-y-auto rounded-2xl border border-border/70 bg-card p-5 shadow-sm xl:h-[calc(297mm+140px)] dark:border-border/60 dark:bg-card/60"
       >
-        <div class="editor-toolbar-panel" :aria-label="__('Editor toolbar')">
-          <div class="editor-toolbar">
-            <div class="editor-toolbar__group">
+        <div class="studio-editor-header">
+          <h2
+            class="text-base font-semibold text-foreground dark:text-primary-foreground"
+          >
+            {{ __("Editor") }}
+          </h2>
+          <div class="studio-editor-header__actions">
+            <div class="editor-toolbar__group editor-toolbar__group--document">
               <span class="editor-toolbar__label">{{ __("Document") }}</span>
               <div class="editor-toolbar__row">
                 <div
@@ -3058,8 +3063,13 @@ onUpdated(() => {
                 </select>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div class="editor-toolbar__group editor-toolbar__group--wide">
+        <div class="editor-toolbar-panel" :aria-label="__('Editor toolbar')">
+          <div class="editor-toolbar-stack">
+            <div class="editor-toolbar-strip">
+              <div class="editor-toolbar__group editor-toolbar__group--wide">
               <span class="editor-toolbar__label">
                 {{ __("Type & color") }}
               </span>
@@ -3194,8 +3204,10 @@ onUpdated(() => {
                 </button>
               </div>
             </div>
+            </div>
 
-            <div class="editor-toolbar__group editor-toolbar__group--wide">
+            <div class="editor-toolbar-strip">
+              <div class="editor-toolbar__group editor-toolbar__group--wide">
               <span class="editor-toolbar__label">{{ __("Paragraph") }}</span>
               <div class="editor-toolbar__row">
                 <button
@@ -3322,108 +3334,115 @@ onUpdated(() => {
                 </button>
               </div>
             </div>
-
-            <div class="editor-toolbar__group">
-              <span class="editor-toolbar__label">{{ __("History") }}</span>
-              <div class="editor-toolbar__row">
-                <button
-                  type="button"
-                  class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
-                  :disabled="!canUndo"
-                  @click="
-                    runEditorCommand(() => editor?.chain().focus().undo().run())
-                  "
-                >
-                  <Undo2 :size="14" />
-                </button>
-                <button
-                  type="button"
-                  class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
-                  :disabled="!canRedo"
-                  @click="
-                    runEditorCommand(() => editor?.chain().focus().redo().run())
-                  "
-                >
-                  <Redo2 :size="14" />
-                </button>
-              </div>
             </div>
 
-            <div class="editor-toolbar__group editor-toolbar__group--wide">
-              <span class="editor-toolbar__label">{{ __("Insert") }}</span>
-              <div class="editor-toolbar__row">
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-                  :class="
-                    showImagePanel
-                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                      : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground'
-                  "
-                  :disabled="uploadingImage"
-                  @click="toggleImagePanel"
-                >
-                  <Loader2
-                    v-if="uploadingImage"
-                    :size="13"
-                    class="animate-spin"
+            <div class="editor-toolbar-strip editor-toolbar-strip--split">
+              <div class="editor-toolbar__group">
+                <span class="editor-toolbar__label">{{ __("History") }}</span>
+                <div class="editor-toolbar__row">
+                  <button
+                    type="button"
+                    class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
+                    :disabled="!canUndo"
+                    @click="
+                      runEditorCommand(() =>
+                        editor?.chain().focus().undo().run(),
+                      )
+                    "
+                  >
+                    <Undo2 :size="14" />
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:border-border dark:bg-card dark:text-muted-foreground"
+                    :disabled="!canRedo"
+                    @click="
+                      runEditorCommand(() =>
+                        editor?.chain().focus().redo().run(),
+                      )
+                    "
+                  >
+                    <Redo2 :size="14" />
+                  </button>
+                </div>
+              </div>
+
+              <div class="editor-toolbar__group editor-toolbar__group--wide">
+                <span class="editor-toolbar__label">{{ __("Insert") }}</span>
+                <div class="editor-toolbar__row">
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+                    :class="
+                      showImagePanel
+                        ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                        : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground'
+                    "
+                    :disabled="uploadingImage"
+                    @click="toggleImagePanel"
+                  >
+                    <Loader2
+                      v-if="uploadingImage"
+                      :size="13"
+                      class="animate-spin"
+                    />
+                    <ImagePlus v-else :size="13" />
+                    {{ __("Image") }}
+                  </button>
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-semibold"
+                    :class="
+                      showTemplatePanel
+                        ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                        : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground'
+                    "
+                    @click="toggleTemplatePanel"
+                  >
+                    <Sparkles :size="13" />
+                    {{ __("Templates") }}
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded border px-2 py-1 text-xs font-semibold"
+                    :class="
+                      showMathPanel
+                        ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                        : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                    "
+                    @click="toggleMathPanel"
+                  >
+                    {{ __("Math") }}
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded border px-2 py-1 text-xs font-semibold"
+                    :class="
+                      showCanvasPanel
+                        ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
+                        : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
+                    "
+                    @click="toggleCanvasPanel"
+                  >
+                    {{ __("Canvas") }}
+                  </button>
+                  <button
+                    type="button"
+                    class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground"
+                    @click="insertFreehandDrawing"
+                  >
+                    <PencilLine :size="13" />
+                    {{ __("Drawing") }}
+                  </button>
+                  <input
+                    ref="imageInputRef"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                    multiple
+                    class="hidden"
+                    @change="onImageFileChange"
                   />
-                  <ImagePlus v-else :size="13" />
-                  {{ __("Image") }}
-                </button>
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-semibold"
-                  :class="
-                    showTemplatePanel
-                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                      : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground'
-                  "
-                  @click="toggleTemplatePanel"
-                >
-                  <Sparkles :size="13" />
-                  {{ __("Templates") }}
-                </button>
-                <button
-                  type="button"
-                  class="rounded border px-2 py-1 text-xs font-semibold"
-                  :class="
-                    showMathPanel
-                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-                  "
-                  @click="toggleMathPanel"
-                >
-                  {{ __("Math") }}
-                </button>
-                <button
-                  type="button"
-                  class="rounded border px-2 py-1 text-xs font-semibold"
-                  :class="
-                    showCanvasPanel
-                      ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                      : 'border-border bg-card text-muted-foreground dark:border-border dark:bg-card dark:text-muted-foreground'
-                  "
-                  @click="toggleCanvasPanel"
-                >
-                  {{ __("Canvas") }}
-                </button>
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary dark:border-border dark:bg-card dark:text-muted-foreground"
-                  @click="insertFreehandDrawing"
-                >
-                  <PencilLine :size="13" />
-                  {{ __("Drawing") }}
-                </button>
-                <input
-                  ref="imageInputRef"
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
-                  multiple
-                  class="hidden"
-                  @change="onImageFileChange"
-                />
+                </div>
               </div>
             </div>
           </div>
@@ -4117,28 +4136,51 @@ onUpdated(() => {
 </template>
 
 <style scoped>
+.studio-editor-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.studio-editor-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
 .editor-toolbar-panel {
   border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
-  border-radius: 1rem;
+  border-radius: 1.15rem;
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--muted) 58%, transparent),
-      color-mix(in srgb, var(--muted) 26%, transparent)
+      color-mix(in srgb, var(--muted) 52%, transparent),
+      color-mix(in srgb, var(--card) 76%, var(--muted))
     ),
     var(--card);
-  padding: 1rem;
+  padding: 1rem 1rem 1.1rem;
   box-shadow:
     inset 0 1px 0 color-mix(in srgb, var(--card) 80%, transparent),
     0 14px 30px color-mix(in srgb, var(--foreground) 4%, transparent);
 }
 
-.editor-toolbar {
+.editor-toolbar-stack {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.editor-toolbar-strip {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
+  gap: 0.7rem;
+}
+
+.editor-toolbar-strip--split {
   justify-content: space-between;
-  gap: 0.75rem;
 }
 
 .editor-toolbar__group {
@@ -4147,14 +4189,18 @@ onUpdated(() => {
   align-items: center;
   gap: 0.4rem;
   border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
-  border-radius: 0.55rem;
+  border-radius: 0.8rem;
   background: var(--card);
-  padding: 0.35rem 0.5rem;
+  padding: 0.45rem 0.6rem;
   box-shadow: 0 8px 18px color-mix(in srgb, var(--foreground) 5%, transparent);
 }
 
 .editor-toolbar__group--wide {
-  max-width: min(100%, 42rem);
+  max-width: min(100%, 100%);
+}
+
+.editor-toolbar__group--document {
+  max-width: min(100%, 22rem);
 }
 
 .editor-toolbar__label {
@@ -4173,7 +4219,7 @@ onUpdated(() => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.3rem;
 }
 
 .editor-toolbar select {
@@ -4205,6 +4251,21 @@ onUpdated(() => {
 
 @media (max-width: 960px) {
   .editor-toolbar {
+    justify-content: flex-start;
+  }
+
+  .studio-editor-header {
+    align-items: flex-start;
+  }
+
+  .studio-editor-header__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .editor-toolbar-strip,
+  .editor-toolbar-strip--split {
+    flex-direction: column;
     justify-content: flex-start;
   }
 

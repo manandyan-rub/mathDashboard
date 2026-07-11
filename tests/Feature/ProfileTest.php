@@ -96,4 +96,42 @@ class ProfileTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+
+    public function test_user_can_enable_two_factor_requirement_flag(): void
+    {
+        $user = User::factory()->create([
+            'must_enable_2fa' => false,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile/two-factor', [
+                'must_enable_2fa' => true,
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertTrue((bool) $user->refresh()->must_enable_2fa);
+    }
+
+    public function test_user_can_disable_two_factor_requirement_flag(): void
+    {
+        $user = User::factory()->create([
+            'must_enable_2fa' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile/two-factor', [
+                'must_enable_2fa' => false,
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertFalse((bool) $user->refresh()->must_enable_2fa);
+    }
 }

@@ -542,5 +542,16 @@
   "Semiperimeter": "Semiperimeter",
   "Parallelogram": "Parallelogram",
   "Enter valid dimensions first.": "Enter valid dimensions first.",
-  "Those side lengths cannot form a triangle.": "Those side lengths cannot form a triangle."
+  "Those side lengths cannot form a triangle.": "Those side lengths cannot form a triangle.",
+  "Two-factor authentication": "Two-factor authentication",
+  "Require an extra verification step for this account. When enabled, the database stores 1. When disabled, it stores 0.": "Require an extra verification step for this account. When enabled, the database stores 1. When disabled, it stores 0.",
+  "Enabled": "Enabled",
+  "Disabled": "Disabled",
+  "Enable 2FA requirement": "Enable 2FA requirement",
+  "Turn this on if this user must pass two-factor authentication before account access is considered complete.": "Turn this on if this user must pass two-factor authentication before account access is considered complete.",
+  "Two-factor setting saved.": "Two-factor setting saved.",
+  "Save 2FA settings": "Save 2FA settings",
+  "Global learner map": "Global learner map",
+  "Active learners by country in the selected period": "Active learners by country in the selected period",
+  "No country activity yet": "No country activity yet"
 }
