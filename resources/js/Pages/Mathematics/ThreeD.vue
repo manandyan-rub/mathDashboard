@@ -2,7 +2,6 @@
 import { computed, ref, type Component } from "vue";
 import { TresCanvas } from "@tresjs/core";
 import { OrbitControls } from "@tresjs/cientos";
-import * as THREE from "three";
 import AdminFormLayout from "@/Layouts/AdminFormLayout.vue";
 import { useTheme } from "@/composables/useTheme";
 import { cmsTranslate as __ } from "@/lib/i18n";
@@ -93,7 +92,6 @@ const activeShape = computed(
 );
 
 const formDimensions = ref<Dimensions>({ length: 4, width: 3, height: 2 });
-const submittedDimensions = ref<Dimensions>({ length: 4, width: 3, height: 2 });
 const stairInput = ref<StairInput>({
   steps: 8,
   stepWidth: 1.2,
@@ -115,10 +113,143 @@ const toPositive = (value: NullableNumber, fallback = 1) => {
 };
 
 const renderBox = computed(() => ({
-  length: toPositive(submittedDimensions.value.length, 4),
-  width: toPositive(submittedDimensions.value.width, 3),
-  height: toPositive(submittedDimensions.value.height, 2),
+  length: toPositive(formDimensions.value.length, 4),
+  width: toPositive(formDimensions.value.width, 3),
+  height: toPositive(formDimensions.value.height, 2),
 }));
+
+const cubeCameraPosition = computed<[number, number, number]>(() => {
+  const maxDimension = Math.max(
+    renderBox.value.length,
+    renderBox.value.width,
+    renderBox.value.height,
+  );
+  const distance = Math.max(8, maxDimension * 2.2);
+
+  return [
+    distance,
+    Math.max(6, renderBox.value.height * 2.1),
+    distance * 1.15,
+  ];
+});
+
+const cubeLookAt = computed<[number, number, number]>(() => [
+  0,
+  renderBox.value.height / 2,
+  0,
+]);
+
+const sphereCameraPosition = computed<[number, number, number]>(() => {
+  const radius = renderSphereRadius.value;
+  const distance = Math.max(7, radius * 3.2);
+
+  return [distance * 0.55, Math.max(4, radius * 1.35), distance];
+});
+
+const sphereLookAt = computed<[number, number, number]>(() => [
+  0,
+  renderSphereRadius.value,
+  0,
+]);
+
+const coneCameraPosition = computed<[number, number, number]>(() => {
+  const radius = renderConeRadius.value;
+  const height = renderConeHeight.value;
+  const maxDimension = Math.max(radius * 2, height);
+  const distance = Math.max(7, maxDimension * 2.3);
+
+  return [distance * 0.76, Math.max(4.5, height * 1.15), distance];
+});
+
+const coneLookAt = computed<[number, number, number]>(() => [
+  0,
+  renderConeHeight.value / 2,
+  0,
+]);
+
+const cylinderCameraPosition = computed<[number, number, number]>(() => {
+  const radius = renderCylinderRadius.value;
+  const height = renderCylinderHeight.value;
+  const maxDimension = Math.max(radius * 2, height);
+  const distance = Math.max(7, maxDimension * 2.2);
+
+  return [distance * 0.78, Math.max(4.5, height * 1.1), distance];
+});
+
+const cylinderLookAt = computed<[number, number, number]>(() => [
+  0,
+  renderCylinderHeight.value / 2,
+  0,
+]);
+
+const stairCameraPosition = computed<[number, number, number]>(() => {
+  const maxDimension = Math.max(
+    renderStair.value.totalGoing,
+    renderStair.value.totalRise,
+    renderStair.value.stepWidth,
+  );
+  const distance = Math.max(7, maxDimension * 1.8);
+
+  return [
+    distance * 0.92,
+    Math.max(5, renderStair.value.totalRise * 1.25),
+    distance * 1.08,
+  ];
+});
+
+const stairLookAt = computed<[number, number, number]>(() => [
+  0,
+  renderStair.value.totalRise / 2,
+  0,
+]);
+
+const activeCameraPosition = computed<[number, number, number]>(() => {
+  if (shape.value === "cuboid") {
+    return cubeCameraPosition.value;
+  }
+
+  if (shape.value === "sphere") {
+    return sphereCameraPosition.value;
+  }
+
+  if (shape.value === "cone") {
+    return coneCameraPosition.value;
+  }
+
+  if (shape.value === "cylinder") {
+    return cylinderCameraPosition.value;
+  }
+
+  if (shape.value === "stairs") {
+    return stairCameraPosition.value;
+  }
+
+  return [8, 6, 10];
+});
+
+const activeLookAt = computed<[number, number, number]>(() => {
+  if (shape.value === "cuboid") {
+    return cubeLookAt.value;
+  }
+
+  if (shape.value === "sphere") {
+    return sphereLookAt.value;
+  }
+
+  if (shape.value === "cone") {
+    return coneLookAt.value;
+  }
+
+  if (shape.value === "cylinder") {
+    return cylinderLookAt.value;
+  }
+
+  if (shape.value === "stairs") {
+    return stairLookAt.value;
+  }
+
+  return [0, 0, 0];
+});
 
 const renderSphereRadius = computed(() => toPositive(sphereRadius.value, 1.4));
 const renderConeRadius = computed(() => toPositive(coneRadius.value, 1.2));
@@ -131,79 +262,45 @@ const renderCylinderHeight = computed(() =>
 );
 
 const renderStair = computed(() => {
-  const steps = Math.max(2, Math.round(toPositive(stairInput.value.steps, 8)));
+  const risers = Math.max(2, Math.round(toPositive(stairInput.value.steps, 8)));
+  const treads = Math.max(1, risers - 1);
   const stepWidth = toPositive(stairInput.value.stepWidth, 1.2);
   const rise = toPositive(stairInput.value.rise, 0.18);
   const run = toPositive(stairInput.value.run, 0.28);
-  const depth = toPositive(stairInput.value.depth, 0.15);
-
-  const innerRadius = 0.45;
-  const outerRadius = innerRadius + stepWidth;
-  const meanRadius = (innerRadius + outerRadius) / 2;
-  const angleStep = Math.max(0.2, Math.min(1.2, run / meanRadius));
+  const depth = toPositive(stairInput.value.depth, 0.05);
 
   return {
-    steps,
+    risers,
+    treads,
+    stepWidth,
     rise,
+    run,
     depth,
-    innerRadius,
-    outerRadius,
-    angleStep,
+    totalRise: risers * rise,
+    totalGoing: treads * run,
   };
 });
 
 function handleCuboidSubmit(value: Dimensions) {
-  submittedDimensions.value = { ...value };
+  formDimensions.value = { ...value };
 }
 
 function handleStairUpdate(value: StairInput) {
   stairInput.value = { ...value };
 }
 
-function createStepShape(
-  startAngle: number,
-  endAngle: number,
-  innerRadius: number,
-  outerRadius: number,
-) {
-  const shape = new THREE.Shape();
-
-  const x1 = Math.cos(startAngle) * innerRadius;
-  const y1 = Math.sin(startAngle) * innerRadius;
-
-  const x2 = Math.cos(startAngle) * outerRadius;
-  const y2 = Math.sin(startAngle) * outerRadius;
-
-  const x3 = Math.cos(endAngle) * outerRadius;
-  const y3 = Math.sin(endAngle) * outerRadius;
-
-  const x4 = Math.cos(endAngle) * innerRadius;
-  const y4 = Math.sin(endAngle) * innerRadius;
-
-  shape.moveTo(x1, y1);
-  shape.lineTo(x2, y2);
-  shape.lineTo(x3, y3);
-  shape.lineTo(x4, y4);
-  shape.lineTo(x1, y1);
-
-  return shape;
-}
-
 const steps = computed(() =>
-  Array.from({ length: renderStair.value.steps }, (_, i) => {
-    const startAngle = i * renderStair.value.angleStep;
-    const endAngle = startAngle + renderStair.value.angleStep;
+  Array.from({ length: renderStair.value.treads }, (_, i) => {
+    const x =
+      -renderStair.value.totalGoing / 2 +
+      renderStair.value.run / 2 +
+      i * renderStair.value.run;
+    const y = (i + 1) * renderStair.value.rise - renderStair.value.depth / 2;
 
     return {
       id: i,
-      y: i * renderStair.value.rise,
-      depth: renderStair.value.depth,
-      shape: createStepShape(
-        startAngle,
-        endAngle,
-        renderStair.value.innerRadius,
-        renderStair.value.outerRadius,
-      ),
+      x,
+      y,
     };
   }),
 );
@@ -215,9 +312,9 @@ const sceneColors = computed(() => {
     background: themeColor("--background"),
     cuboid: themeColor("--chart-4"),
     sphere: themeColor("--chart-2"),
-    stairs: themeColor("--chart-3"),
+    stairs: themeColor("--primary"),
     cone: themeColor("--chart-3"),
-    cylinder: themeColor("--destructive"),
+    cylinder: themeColor("--chart-5"),
   };
 });
 </script>
@@ -284,74 +381,195 @@ const sceneColors = computed(() => {
           <div class="geometry-canvas-shell">
             <div class="geometry-canvas-glow" />
             <TresCanvas :clear-color="sceneColors.background">
-              <TresPerspectiveCamera :position="[8, 6, 10]" :look-at="[0, 0, 0]" />
+              <TresPerspectiveCamera
+                :position="activeCameraPosition"
+                :look-at="activeLookAt"
+              />
               <OrbitControls />
               <TresAmbientLight :intensity="1.5" />
               <TresDirectionalLight :position="[3, 5, 3]" :intensity="1.5" />
               <TresGridHelper :args="[20, 20]" />
 
-              <TresMesh
-                v-if="shape === 'cuboid'"
-                :position="[0, renderBox.height / 2, 0]"
-              >
-                <TresBoxGeometry
-                  :args="[renderBox.length, renderBox.height, renderBox.width]"
-                />
-                <TresMeshStandardMaterial :color="sceneColors.cuboid" />
-              </TresMesh>
+              <template v-if="shape === 'cuboid'">
+                <TresMesh :position="[0, renderBox.height / 2, 0]">
+                  <TresBoxGeometry
+                    :args="[renderBox.length, renderBox.height, renderBox.width]"
+                  />
+                  <TresMeshStandardMaterial
+                    :color="sceneColors.cuboid"
+                    :metalness="0.08"
+                    :roughness="0.34"
+                  />
+                </TresMesh>
 
-              <TresMesh
-                v-else-if="shape === 'sphere'"
-                :position="[0, renderSphereRadius, 0]"
-              >
-                <TresSphereGeometry :args="[renderSphereRadius, 32, 32]" />
-                <TresMeshStandardMaterial :color="sceneColors.sphere" />
-              </TresMesh>
+                <TresMesh
+                  :position="[0, renderBox.height / 2, 0]"
+                  :scale="[1.003, 1.003, 1.003]"
+                >
+                  <TresBoxGeometry
+                    :args="[renderBox.length, renderBox.height, renderBox.width]"
+                  />
+                  <TresMeshBasicMaterial
+                    color="#ffffff"
+                    :wireframe="true"
+                    :transparent="true"
+                    :opacity="0.24"
+                  />
+                </TresMesh>
+              </template>
+
+              <template v-else-if="shape === 'sphere'">
+                <TresMesh :position="[0, renderSphereRadius, 0]">
+                  <TresSphereGeometry :args="[renderSphereRadius, 32, 32]" />
+                  <TresMeshStandardMaterial
+                    :color="sceneColors.sphere"
+                    :metalness="0.08"
+                    :roughness="0.28"
+                  />
+                </TresMesh>
+
+                <TresMesh
+                  :position="[0, renderSphereRadius, 0]"
+                  :scale="[1.002, 1.002, 1.002]"
+                >
+                  <TresSphereGeometry :args="[renderSphereRadius, 32, 32]" />
+                  <TresMeshBasicMaterial
+                    color="#ffffff"
+                    :wireframe="true"
+                    :transparent="true"
+                    :opacity="0.18"
+                  />
+                </TresMesh>
+              </template>
 
               <template v-else-if="shape === 'stairs'">
                 <TresMesh
                   v-for="step in steps"
                   :key="step.id"
-                  :position="[0, step.y, 0]"
-                  :rotation="[-Math.PI / 2, 0, 0]"
+                  :position="[step.x, step.y, 0]"
                 >
-                  <TresExtrudeGeometry
+                  <TresBoxGeometry
                     :args="[
-                      step.shape,
-                      {
-                        depth: step.depth,
-                        bevelEnabled: false,
-                      },
+                      renderStair.run,
+                      renderStair.depth,
+                      renderStair.stepWidth,
                     ]"
                   />
-                  <TresMeshStandardMaterial :color="sceneColors.stairs" />
+                  <TresMeshStandardMaterial
+                    :color="sceneColors.stairs"
+                    :metalness="0.08"
+                    :roughness="0.32"
+                  />
+                </TresMesh>
+
+                <TresMesh
+                  v-for="step in steps"
+                  :key="`wire-${step.id}`"
+                  :position="[step.x, step.y, 0]"
+                  :scale="[1.002, 1.002, 1.002]"
+                >
+                  <TresBoxGeometry
+                    :args="[
+                      renderStair.run,
+                      renderStair.depth,
+                      renderStair.stepWidth,
+                    ]"
+                  />
+                  <TresMeshBasicMaterial
+                    color="#ffffff"
+                    :wireframe="true"
+                    :transparent="true"
+                    :opacity="0.16"
+                  />
+                </TresMesh>
+
+                <TresMesh
+                  :position="[
+                    renderStair.totalGoing / 2,
+                    renderStair.totalRise - renderStair.rise / 2,
+                    0,
+                  ]"
+                >
+                  <TresBoxGeometry
+                    :args="[
+                      Math.max(0.04, renderStair.run * 0.08),
+                      renderStair.rise,
+                      renderStair.stepWidth,
+                    ]"
+                  />
+                  <TresMeshStandardMaterial
+                    :color="sceneColors.stairs"
+                    :metalness="0.08"
+                    :roughness="0.36"
+                  />
                 </TresMesh>
               </template>
 
-              <TresMesh
-                v-else-if="shape === 'cone'"
-                :position="[0, renderConeHeight / 2, 0]"
-              >
-                <TresConeGeometry
-                  :args="[renderConeRadius, renderConeHeight, 32]"
-                />
-                <TresMeshStandardMaterial :color="sceneColors.cone" />
-              </TresMesh>
+              <template v-else-if="shape === 'cone'">
+                <TresMesh :position="[0, renderConeHeight / 2, 0]">
+                  <TresConeGeometry
+                    :args="[renderConeRadius, renderConeHeight, 48]"
+                  />
+                  <TresMeshStandardMaterial
+                    :color="sceneColors.cone"
+                    :metalness="0.08"
+                    :roughness="0.3"
+                  />
+                </TresMesh>
 
-              <TresMesh
-                v-else-if="shape === 'cylinder'"
-                :position="[0, renderCylinderHeight / 2, 0]"
-              >
-                <TresCylinderGeometry
-                  :args="[
-                    renderCylinderRadius,
-                    renderCylinderRadius,
-                    renderCylinderHeight,
-                    32,
-                  ]"
-                />
-                <TresMeshStandardMaterial :color="sceneColors.cylinder" />
-              </TresMesh>
+                <TresMesh
+                  :position="[0, renderConeHeight / 2, 0]"
+                  :scale="[1.002, 1.002, 1.002]"
+                >
+                  <TresConeGeometry
+                    :args="[renderConeRadius, renderConeHeight, 48]"
+                  />
+                  <TresMeshBasicMaterial
+                    color="#ffffff"
+                    :wireframe="true"
+                    :transparent="true"
+                    :opacity="0.18"
+                  />
+                </TresMesh>
+              </template>
+
+              <template v-else-if="shape === 'cylinder'">
+                <TresMesh :position="[0, renderCylinderHeight / 2, 0]">
+                  <TresCylinderGeometry
+                    :args="[
+                      renderCylinderRadius,
+                      renderCylinderRadius,
+                      renderCylinderHeight,
+                      48,
+                    ]"
+                  />
+                  <TresMeshStandardMaterial
+                    :color="sceneColors.cylinder"
+                    :metalness="0.08"
+                    :roughness="0.3"
+                  />
+                </TresMesh>
+
+                <TresMesh
+                  :position="[0, renderCylinderHeight / 2, 0]"
+                  :scale="[1.002, 1.002, 1.002]"
+                >
+                  <TresCylinderGeometry
+                    :args="[
+                      renderCylinderRadius,
+                      renderCylinderRadius,
+                      renderCylinderHeight,
+                      48,
+                    ]"
+                  />
+                  <TresMeshBasicMaterial
+                    color="#ffffff"
+                    :wireframe="true"
+                    :transparent="true"
+                    :opacity="0.18"
+                  />
+                </TresMesh>
+              </template>
             </TresCanvas>
           </div>
         </div>
