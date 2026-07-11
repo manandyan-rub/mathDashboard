@@ -62,6 +62,11 @@ class User extends Authenticatable
         return $this->belongsTo(Country::class);
     }
 
+    public function profile()
+    {
+        return $this->hasOne(MathUserProfile::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
