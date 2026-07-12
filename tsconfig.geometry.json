@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": false,
+    "noEmit": true
+  },
+  "include": [
+    "resources/js/lib/geometry/**/*.ts",
+    "resources/js/types/twoDGeometry.ts"
+  ]
+}

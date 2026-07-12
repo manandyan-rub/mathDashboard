@@ -20,15 +20,10 @@ import { themeColor, themeColorAlpha } from "@/lib/themeColors";
 import type {
   NullableNumber,
   NumericLike,
-  TwoDInputs,
-  TwoDShapeKey,
+  TwoDGeometryPreviewProps,
 } from "@/types/twoDGeometry";
 
-const props = defineProps<{
-  shape: TwoDShapeKey;
-  inputs: TwoDInputs;
-  accentColor: string;
-}>();
+const props = defineProps<TwoDGeometryPreviewProps>();
 
 const VIRTUAL_WIDTH = 520;
 const VIRTUAL_HEIGHT = 320;
@@ -114,11 +109,20 @@ const paperLines = computed(() => {
 });
 
 const rectanglePreview = computed(() => {
-  const length = asPositive(props.inputs.rectangle.length) ?? 12;
-  const width = asPositive(props.inputs.rectangle.width) ?? 8;
-  const scale = fitScale([length, width], magnitudeFactor([length, width], 20));
-  const drawWidth = length * scale;
-  const drawHeight = width * scale;
+  const length =
+    asPositive(props.rectangleDimensions?.length) ??
+    asPositive(props.inputs.rectangle.length);
+  const width =
+    asPositive(props.rectangleDimensions?.width) ??
+    asPositive(props.inputs.rectangle.width);
+  const visualLength = length ?? 12;
+  const visualWidth = width ?? 8;
+  const scale = fitScale(
+    [visualLength, visualWidth],
+    magnitudeFactor([visualLength, visualWidth], 20),
+  );
+  const drawWidth = visualLength * scale;
+  const drawHeight = visualWidth * scale;
   const left = (VIRTUAL_WIDTH - drawWidth) / 2;
   const top = (VIRTUAL_HEIGHT - drawHeight) / 2;
   const right = left + drawWidth;
@@ -137,11 +141,19 @@ const rectanglePreview = computed(() => {
 });
 
 const trianglePreview = computed(() => {
-  const sideA = asPositive(props.inputs.triangle.sideA);
-  const sideB = asPositive(props.inputs.triangle.sideB);
-  const sideC = asPositive(props.inputs.triangle.sideC);
+  const sideA =
+    asPositive(props.triangleGeometry?.sideA) ??
+    asPositive(props.inputs.triangle.sideA);
+  const sideB =
+    asPositive(props.triangleGeometry?.sideB) ??
+    asPositive(props.inputs.triangle.sideB);
+  const sideC =
+    asPositive(props.triangleGeometry?.sideC) ??
+    asPositive(props.inputs.triangle.sideC);
   const base = asPositive(props.inputs.triangle.base);
-  const height = asPositive(props.inputs.triangle.height);
+  const height =
+    asPositive(props.triangleGeometry?.height) ??
+    asPositive(props.inputs.triangle.height);
 
   const hasValidSides =
     sideA !== null &&
@@ -157,8 +169,8 @@ const trianglePreview = computed(() => {
 
   if (hasValidSides && sideA !== null && sideB !== null && sideC !== null) {
     rawBase = sideC;
-    apexX = (sideA ** 2 - sideB ** 2 + sideC ** 2) / (2 * sideC);
-    rawHeight = Math.sqrt(Math.max(sideA ** 2 - apexX ** 2, 0));
+    apexX = (sideB ** 2 - sideA ** 2 + sideC ** 2) / (2 * sideC);
+    rawHeight = Math.sqrt(Math.max(sideB ** 2 - apexX ** 2, 0));
   }
 
   const scale = fitScale(
@@ -185,24 +197,27 @@ const trianglePreview = computed(() => {
     leftBase,
     rightBase,
     altitudeFoot,
-    base: base ?? rawBase,
+    base: sideC ?? base ?? rawBase,
     height: height ?? rawHeight,
     sideA,
     sideB,
     sideC: sideC ?? rawBase,
-    angles: hasValidSides && sideA !== null && sideB !== null && sideC !== null
-      ? triangleAngles(sideA, sideB, sideC)
-      : null,
+    angles:
+      hasValidSides && sideA !== null && sideB !== null && sideC !== null
+        ? triangleAngles(sideA, sideB, sideC)
+        : null,
   };
 });
 
 const circlePreview = computed(() => {
   const radius =
+    asPositive(props.circleDimensions?.radius) ??
     asPositive(props.inputs.circle.radius) ??
-    ((asPositive(props.inputs.circle.diameter) ?? 0) > 0
+    (asPositive(props.inputs.circle.diameter) !== null
       ? (asPositive(props.inputs.circle.diameter) ?? 0) / 2
-      : 6);
-  const normalized = magnitudeFactor([radius], 18);
+      : null);
+  const visualRadius = radius ?? 6;
+  const normalized = magnitudeFactor([visualRadius], 18);
   const drawRadius = 42 + normalized * 64;
   const centerX = VIRTUAL_WIDTH / 2;
   const centerY = VIRTUAL_HEIGHT / 2 - 6;
@@ -212,35 +227,55 @@ const circlePreview = computed(() => {
     centerY,
     drawRadius,
     radius,
-    diameter: radius * 2,
+    diameter: radius !== null ? radius * 2 : null,
   };
 });
 
 const trapezoidPreview = computed(() => {
-  const baseA = asPositive(props.inputs.trapezoid.baseA) ?? 10;
-  const baseB = asPositive(props.inputs.trapezoid.baseB) ?? 14;
-  const height = asPositive(props.inputs.trapezoid.height) ?? 6;
-  const sideC = asPositive(props.inputs.trapezoid.sideC);
-  const sideD = asPositive(props.inputs.trapezoid.sideD);
+  const baseA =
+    asPositive(props.trapezoidGeometry?.baseA) ??
+    asPositive(props.inputs.trapezoid.baseA) ??
+    10;
+  const baseB =
+    asPositive(props.trapezoidGeometry?.baseB) ??
+    asPositive(props.inputs.trapezoid.baseB) ??
+    14;
+  const height =
+    asPositive(props.trapezoidGeometry?.height) ??
+    asPositive(props.inputs.trapezoid.height) ??
+    6;
+  const sideC =
+    asPositive(props.trapezoidGeometry?.sideC) ??
+    asPositive(props.inputs.trapezoid.sideC);
+  const sideD =
+    asPositive(props.trapezoidGeometry?.sideD) ??
+    asPositive(props.inputs.trapezoid.sideD);
+  const offset =
+    asFiniteNumber(props.trapezoidGeometry?.offset) ?? (baseB - baseA) / 2;
+  const minimumX = Math.min(0, offset);
+  const maximumX = Math.max(baseB, offset + baseA);
+  const horizontalSpan = maximumX - minimumX;
 
   const scale = fitScale(
-    [Math.max(baseA, baseB), height],
-    magnitudeFactor([baseA, baseB, height], 18),
+    [horizontalSpan, height],
+    magnitudeFactor([baseA, baseB, height, sideC ?? 0, sideD ?? 0], 18),
   );
 
   const topWidth = baseA * scale;
   const bottomWidth = baseB * scale;
   const drawHeight = height * scale;
-  const centerX = VIRTUAL_WIDTH / 2;
+  const originX = (VIRTUAL_WIDTH - horizontalSpan * scale) / 2 - minimumX * scale;
   const bottomY = (VIRTUAL_HEIGHT + drawHeight) / 2;
   const topY = bottomY - drawHeight;
-  const topLeftX = centerX - topWidth / 2;
-  const bottomLeftX = centerX - bottomWidth / 2;
-  const topRightX = centerX + topWidth / 2;
-  const bottomRightX = centerX + bottomWidth / 2;
-  const offset = Math.abs(topLeftX - bottomLeftX);
+  const topLeftX = originX + offset * scale;
+  const bottomLeftX = originX;
+  const topRightX = topLeftX + topWidth;
+  const bottomRightX = bottomLeftX + bottomWidth;
+  const drawOffset = Math.abs(topLeftX - bottomLeftX);
   const angle =
-    offset > 0 ? Math.round((Math.atan2(drawHeight, offset) * 180) / Math.PI) : 90;
+    drawOffset > 0
+      ? Math.round((Math.atan2(drawHeight, drawOffset) * 180) / Math.PI)
+      : 90;
 
   return {
     topLeft: { x: topLeftX, y: topY },
@@ -257,26 +292,43 @@ const trapezoidPreview = computed(() => {
 });
 
 const parallelogramPreview = computed(() => {
-  const base = asPositive(props.inputs.parallelogram.base) ?? 12;
-  const side = asPositive(props.inputs.parallelogram.side) ?? 7;
-  const height = asPositive(props.inputs.parallelogram.height) ?? 4.5;
-  const horizontalOffset =
-    side > height ? Math.sqrt(Math.max(side ** 2 - height ** 2, 0)) : base * 0.18;
+  const base =
+    asPositive(props.parallelogramGeometry?.base) ??
+    asPositive(props.inputs.parallelogram.base) ??
+    12;
+  const side =
+    asPositive(props.parallelogramGeometry?.side) ??
+    asPositive(props.inputs.parallelogram.side) ??
+    7;
+  const suppliedAngle =
+    asPositive(props.parallelogramGeometry?.angle) ??
+    asPositive(props.inputs.parallelogram.angle);
+  const suppliedHeight =
+    asPositive(props.parallelogramGeometry?.height) ??
+    asPositive(props.inputs.parallelogram.height);
+  const angleRadians =
+    suppliedAngle !== null
+      ? (suppliedAngle * Math.PI) / 180
+      : suppliedHeight !== null && suppliedHeight <= side
+        ? Math.asin(suppliedHeight / side)
+        : Math.PI / 3;
+  const height = suppliedHeight ?? side * Math.sin(angleRadians);
+  const horizontalOffset = side * Math.cos(angleRadians);
+  const minimumX = Math.min(0, horizontalOffset);
+  const maximumX = Math.max(base, base + horizontalOffset, horizontalOffset);
+  const horizontalSpan = maximumX - minimumX;
 
   const scale = fitScale(
-    [base + horizontalOffset, height],
+    [horizontalSpan, height],
     magnitudeFactor([base, side, height], 18),
   );
   const drawBase = base * scale;
   const drawHeight = height * scale;
   const drawOffset = horizontalOffset * scale;
-  const left = (VIRTUAL_WIDTH - (drawBase + drawOffset)) / 2;
+  const left = (VIRTUAL_WIDTH - horizontalSpan * scale) / 2 - minimumX * scale;
   const bottom = (VIRTUAL_HEIGHT + drawHeight) / 2;
   const top = bottom - drawHeight;
-  const angle =
-    side > height
-      ? Math.round((Math.asin(Math.min(height / side, 1)) * 180) / Math.PI)
-      : 90;
+  const angle = Math.round((angleRadians * 180) / Math.PI);
 
   return {
     topLeft: { x: left + drawOffset, y: top },
@@ -323,6 +375,12 @@ function asPositive(value: NumericLike): NullableNumber {
   if (value === "" || value === null || value === undefined) return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function asFiniteNumber(value: NumericLike): NullableNumber {
+  if (value === "" || value === null || value === undefined) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -796,7 +854,7 @@ function valueOrDash(value: NullableNumber): string {
                   return labelTextConfig(
                     point.x,
                     point.y,
-                    `a = ${valueOrDash(trianglePreview.sideA)}`,
+                    `b = ${valueOrDash(trianglePreview.sideB)}`,
                     84,
                   );
                 })()
@@ -830,7 +888,7 @@ function valueOrDash(value: NullableNumber): string {
                   return labelTextConfig(
                     point.x,
                     point.y,
-                    `b = ${valueOrDash(trianglePreview.sideB)}`,
+                    `a = ${valueOrDash(trianglePreview.sideA)}`,
                     84,
                   );
                 })()
