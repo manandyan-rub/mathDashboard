@@ -96,18 +96,18 @@ function changeLanguage(event: Event) {
 
       <div class="flex h-screen flex-1 flex-col overflow-hidden">
         <header
-          class="sticky top-0 z-[120] border-b border-border/70 bg-background px-6 py-4 text-foreground"
+          class="sticky top-0 z-[120] border-b border-border/70 bg-background px-4 py-3 text-foreground sm:px-6 sm:py-4"
         >
-          <div class="flex items-center justify-between gap-4">
-            <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2 sm:gap-4">
+            <div class="min-w-0 flex-1 overflow-hidden">
               <slot name="header" />
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex shrink-0 items-center gap-2 sm:gap-3">
               <select
                 :value="language"
                 @change="changeLanguage"
-                class="rounded-lg border border-border bg-input px-3 py-2 text-sm font-medium text-foreground shadow-sm transition hover:border-ring focus:border-ring focus:outline-none"
+                class="max-w-28 rounded-lg border border-border bg-input px-2 py-2 text-sm font-medium text-foreground shadow-sm transition hover:border-ring focus:border-ring focus:outline-none sm:max-w-none sm:px-3"
               >
                 <option
                   v-for="lang in languages"
@@ -124,8 +124,8 @@ function changeLanguage(event: Event) {
                 content-classes="py-1 bg-popover text-popover-foreground"
               >
                 <template #trigger>
-                  <div class="flex items-center justify-center gap-4">
-                    <div>
+                  <div class="flex items-center justify-center gap-2 sm:gap-4">
+                    <div class="hidden md:block">
                       <p class="text-sm">{{ user.name }}</p>
                       <p class="text-sm">{{ user.email }}</p>
                     </div>

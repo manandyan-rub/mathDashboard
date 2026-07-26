@@ -68,5 +68,6 @@
     "Enter any cube property or load the example.": "Saisissez une propriété du cube ou chargez l’exemple.",
     "Solve the side": "Calculer le côté",
     "Enter a valid property to see the calculation path.": "Saisissez une propriété valide pour afficher les étapes du calcul.",
-    "auth.password": "Le mot de passe est incorrect."
+    "auth.password": "Le mot de passe est incorrect.",
+    "Calculation saved.": "Calcul enregistré."
 }

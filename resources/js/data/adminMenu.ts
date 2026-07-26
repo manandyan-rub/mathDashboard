@@ -3,6 +3,7 @@
   Calculator,
   EqualApproximately,
   Globe2,
+  LayoutPanelTop,
   LayoutDashboard,
   NotebookPen,
   Pi,
@@ -48,6 +49,11 @@ export const adminMenu: MenuItem[] = [
     title: "Math Levels",
     route: "math-levels.index",
     icon: Sigma,
+  },
+  {
+    title: "Math Workspace",
+    route: "mathematics.workspace",
+    icon: LayoutPanelTop,
   },
   {
     title: "Teacher Exercise Studio",

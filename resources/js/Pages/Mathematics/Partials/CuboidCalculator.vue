@@ -10,11 +10,40 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { resolveCalculatorFieldStatus } from "@/lib/geometry/calculatorFields";
+import {
+  buildCuboidCalculationSteps,
+  CUBOID_EDITABLE_FIELD_DEFINITIONS,
+  CUBOID_FIELD_DEFINITIONS,
+  cuboidFieldDefinition,
+  solveCuboid,
+} from "@/lib/geometry/cuboid";
+import {
+  fromBaseUnit,
+  LENGTH_UNITS,
+  toBaseUnit,
+  unitLabel,
+} from "@/lib/geometry/units";
 import { cmsTranslate as __ } from "@/lib/i18n";
-import { AlertTriangle, Box, Sparkles } from "lucide-vue-next";
+import type {
+  CalculatorFieldStatus,
+  CuboidCandidate,
+  CuboidEnteredValues,
+  CuboidFieldDefinition,
+  CuboidFieldKey,
+  CuboidPartialCandidate,
+  LengthUnit,
+} from "@/types/geometryCalculator";
+import {
+  AlertTriangle,
+  Box,
+  Calculator,
+  RotateCcw,
+  Sparkles,
+  X,
+} from "lucide-vue-next";
 
 type NullableNumber = number | null;
-type NumericLike = number | string | null | undefined;
 
 type Dimensions = {
   length: NullableNumber;
@@ -22,1300 +51,607 @@ type Dimensions = {
   height: NullableNumber;
 };
 
-type CuboidDraftDimensions = {
-  length: NumericLike;
-  width: NumericLike;
-  height: NumericLike;
-};
-
-type CuboidKnowns = {
-  volume: NumericLike;
-  surfaceArea: NumericLike;
-  spaceDiagonal: NumericLike;
-  radiusOfCircumscribedSphere: NumericLike;
-  faceAreas: {
-    lw: NumericLike;
-    lh: NumericLike;
-    wh: NumericLike;
-  };
-  faceDiagonals: {
-    lw: NumericLike;
-    lh: NumericLike;
-    wh: NumericLike;
-  };
-  facePerimeters: {
-    lw: NumericLike;
-    lh: NumericLike;
-    wh: NumericLike;
-  };
-};
-
-type PartialResult = {
-  length: NullableNumber;
-  width: NullableNumber;
-  height: NullableNumber;
-  volume: NullableNumber;
-  surfaceArea: NullableNumber;
-  lateralSurface: NullableNumber;
-  edgeSum: NullableNumber;
-  spaceDiagonal: NullableNumber;
-  radiusOfCircumscribedSphere: NullableNumber;
-  faceAreas: {
-    lw: NullableNumber;
-    lh: NullableNumber;
-    wh: NullableNumber;
-  };
-  faceDiagonals: {
-    lw: NullableNumber;
-    lh: NullableNumber;
-    wh: NullableNumber;
-  };
-  facePerimeters: {
-    lw: NullableNumber;
-    lh: NullableNumber;
-    wh: NullableNumber;
-  };
-};
-
-type FieldState = {
-  value: NullableNumber;
-  error: string;
-  present: boolean;
-};
-
-type CuboidStep = {
-  title: string;
-  formula: string;
-  detail: string;
-  result: NullableNumber;
-  helper?: string;
-};
-
-type CuboidAnalysis = {
-  resolved: Dimensions;
-  result: PartialResult;
-  fieldErrors: Record<string, string>;
-  errors: string[];
-  warnings: string[];
-  steps: CuboidStep[];
-  hasAnyInput: boolean;
-};
-
-type SolverInputs = {
-  length: NullableNumber;
-  width: NullableNumber;
-  height: NullableNumber;
-  volume: NullableNumber;
-  surfaceArea: NullableNumber;
-  spaceDiagonal: NullableNumber;
-  radiusOfCircumscribedSphere: NullableNumber;
-  faceAreas: {
-    lw: NullableNumber;
-    lh: NullableNumber;
-    wh: NullableNumber;
-  };
-  faceDiagonals: {
-    lw: NullableNumber;
-    lh: NullableNumber;
-    wh: NullableNumber;
-  };
-  facePerimeters: {
-    lw: NullableNumber;
-    lh: NullableNumber;
-    wh: NullableNumber;
-  };
-};
-
 const props = defineProps<{ dimensions: Dimensions }>();
 
 const emit = defineEmits<{
-  (e: "update:dimensions", value: Dimensions): void;
-  (e: "submit", value: Dimensions): void;
+  (event: "update:dimensions", value: Dimensions): void;
+  (event: "submit", value: Dimensions): void;
 }>();
 
-const MAX_SIDE_LENGTH = 1_000_000;
-const MAX_FACE_AREA = MAX_SIDE_LENGTH ** 2;
-const MAX_TOTAL_SURFACE = 6 * MAX_FACE_AREA;
-const MAX_FACE_DIAGONAL = Math.sqrt(2) * MAX_SIDE_LENGTH;
-const MAX_SPACE_DIAGONAL = Math.sqrt(3) * MAX_SIDE_LENGTH;
-const MAX_FACE_PERIMETER = 4 * MAX_SIDE_LENGTH;
-const MAX_CIRCUMSPHERE_RADIUS = MAX_SPACE_DIAGONAL / 2;
-const MAX_VOLUME = MAX_SIDE_LENGTH ** 3;
-const sampleDimensions: Dimensions = {
-  length: props.dimensions.length ?? 4,
-  width: props.dimensions.width ?? 3,
-  height: props.dimensions.height ?? 2,
-};
+const unit = ref<LengthUnit>("cm");
+const precision = ref(4);
+const selectedCandidateIndex = ref(-1);
+const lastEmittedKey = ref("");
+const entered = reactive(
+  Object.fromEntries(
+    CUBOID_EDITABLE_FIELD_DEFINITIONS.map(({ key }) => [key, false]),
+  ) as Record<CuboidFieldKey, boolean>,
+);
+const drafts = reactive(
+  Object.fromEntries(
+    CUBOID_EDITABLE_FIELD_DEFINITIONS.map(({ key }) => [key, ""]),
+  ) as Record<CuboidFieldKey, string>,
+);
 
-const draftDimensions = reactive<CuboidDraftDimensions>({
-  length: props.dimensions.length,
-  width: props.dimensions.width,
-  height: props.dimensions.height,
-});
+for (const key of ["length", "width", "height"] as const) {
+  const value = props.dimensions[key];
+  if (value === null || !Number.isFinite(value) || value <= 0) continue;
+  entered[key] = true;
+  drafts[key] = String(value);
+}
 
-const knowns = reactive<CuboidKnowns>({
-  volume: null,
-  surfaceArea: null,
-  spaceDiagonal: null,
-  radiusOfCircumscribedSphere: null,
-  faceAreas: {
-    lw: null,
-    lh: null,
-    wh: null,
-  },
-  faceDiagonals: {
-    lw: null,
-    lh: null,
-    wh: null,
-  },
-  facePerimeters: {
-    lw: null,
-    lh: null,
-    wh: null,
-  },
-});
+const enteredValues = computed<CuboidEnteredValues>(() => {
+  const values: CuboidEnteredValues = {};
 
-const lastSubmittedKey = ref("");
-
-const analysis = computed<CuboidAnalysis>(() => {
-  const length = numericState(draftDimensions.length, MAX_SIDE_LENGTH);
-  const width = numericState(draftDimensions.width, MAX_SIDE_LENGTH);
-  const height = numericState(draftDimensions.height, MAX_SIDE_LENGTH);
-  const volume = numericState(knowns.volume, MAX_VOLUME);
-  const surfaceArea = numericState(knowns.surfaceArea, MAX_TOTAL_SURFACE);
-  const spaceDiagonal = numericState(knowns.spaceDiagonal, MAX_SPACE_DIAGONAL);
-  const radiusOfCircumscribedSphere = numericState(
-    knowns.radiusOfCircumscribedSphere,
-    MAX_CIRCUMSPHERE_RADIUS,
-  );
-  const areaLw = numericState(knowns.faceAreas.lw, MAX_FACE_AREA);
-  const areaLh = numericState(knowns.faceAreas.lh, MAX_FACE_AREA);
-  const areaWh = numericState(knowns.faceAreas.wh, MAX_FACE_AREA);
-  const diagonalLw = numericState(knowns.faceDiagonals.lw, MAX_FACE_DIAGONAL);
-  const diagonalLh = numericState(knowns.faceDiagonals.lh, MAX_FACE_DIAGONAL);
-  const diagonalWh = numericState(knowns.faceDiagonals.wh, MAX_FACE_DIAGONAL);
-  const perimeterLw = numericState(knowns.facePerimeters.lw, MAX_FACE_PERIMETER);
-  const perimeterLh = numericState(knowns.facePerimeters.lh, MAX_FACE_PERIMETER);
-  const perimeterWh = numericState(knowns.facePerimeters.wh, MAX_FACE_PERIMETER);
-
-  const fieldErrors = {
-    "dimensions.length": length.error,
-    "dimensions.width": width.error,
-    "dimensions.height": height.error,
-    "knowns.volume": volume.error,
-    "knowns.surfaceArea": surfaceArea.error,
-    "knowns.spaceDiagonal": spaceDiagonal.error,
-    "knowns.radiusOfCircumscribedSphere": radiusOfCircumscribedSphere.error,
-    "knowns.faceAreas.lw": areaLw.error,
-    "knowns.faceAreas.lh": areaLh.error,
-    "knowns.faceAreas.wh": areaWh.error,
-    "knowns.faceDiagonals.lw": diagonalLw.error,
-    "knowns.faceDiagonals.lh": diagonalLh.error,
-    "knowns.faceDiagonals.wh": diagonalWh.error,
-    "knowns.facePerimeters.lw": perimeterLw.error,
-    "knowns.facePerimeters.lh": perimeterLh.error,
-    "knowns.facePerimeters.wh": perimeterWh.error,
-  };
-
-  const errors = collectMessages(fieldErrors);
-  const solverInputs: SolverInputs = {
-    length: length.value,
-    width: width.value,
-    height: height.value,
-    volume: volume.value,
-    surfaceArea: surfaceArea.value,
-    spaceDiagonal: spaceDiagonal.value,
-    radiusOfCircumscribedSphere: radiusOfCircumscribedSphere.value,
-    faceAreas: {
-      lw: areaLw.value,
-      lh: areaLh.value,
-      wh: areaWh.value,
-    },
-    faceDiagonals: {
-      lw: diagonalLw.value,
-      lh: diagonalLh.value,
-      wh: diagonalWh.value,
-    },
-    facePerimeters: {
-      lw: perimeterLw.value,
-      lh: perimeterLh.value,
-      wh: perimeterWh.value,
-    },
-  };
-
-  const resolved = runSolver(solverInputs);
-  const result = buildPartialResult(resolved.length, resolved.width, resolved.height, solverInputs);
-  const warnings = collectWarnings(result, solverInputs);
-  const hasAnyInput = [
-    length.present,
-    width.present,
-    height.present,
-    volume.present,
-    surfaceArea.present,
-    spaceDiagonal.present,
-    radiusOfCircumscribedSphere.present,
-    areaLw.present,
-    areaLh.present,
-    areaWh.present,
-    diagonalLw.present,
-    diagonalLh.present,
-    diagonalWh.present,
-    perimeterLw.present,
-    perimeterLh.present,
-    perimeterWh.present,
-  ].some(Boolean);
-
-  if (
-    hasAnyInput &&
-    !errors.length &&
-    (resolved.length === null || resolved.width === null || resolved.height === null)
-  ) {
-    warnings.push(
-      __(
-        "Not enough compatible information is available to solve all three dimensions yet. Any confirmed properties are still shown below.",
-      ),
-    );
+  for (const definition of CUBOID_EDITABLE_FIELD_DEFINITIONS) {
+    if (!entered[definition.key]) continue;
+    const parsed = Number(drafts[definition.key]);
+    values[definition.key] = Number.isFinite(parsed)
+      ? toBaseUnit(parsed, unit.value, definition.dimension)
+      : Number.NaN;
   }
 
-  return {
-    resolved,
-    result,
-    fieldErrors,
-    errors,
-    warnings,
-    steps: buildSteps(result),
-    hasAnyInput,
-  };
+  return values;
 });
 
-const resultHasData = computed(() => {
-  const result = analysis.value.result;
-
-  return [
-    result.length,
-    result.width,
-    result.height,
-    result.volume,
-    result.surfaceArea,
-    result.lateralSurface,
-    result.edgeSum,
-    result.spaceDiagonal,
-    result.radiusOfCircumscribedSphere,
-    result.faceAreas.lw,
-    result.faceAreas.lh,
-    result.faceAreas.wh,
-    result.faceDiagonals.lw,
-    result.faceDiagonals.lh,
-    result.faceDiagonals.wh,
-    result.facePerimeters.lw,
-    result.facePerimeters.lh,
-    result.facePerimeters.wh,
-  ].some((value) => value !== null);
-});
-
-const resolvedCount = computed(
-  () =>
-    [
-      analysis.value.resolved.length,
-      analysis.value.resolved.width,
-      analysis.value.resolved.height,
-    ].filter((value) => value !== null).length,
+const solution = computed(() => solveCuboid(enteredValues.value));
+const candidateOptions = computed<
+  Array<CuboidCandidate | CuboidPartialCandidate>
+>(() =>
+  solution.value.candidates.length
+    ? solution.value.candidates
+    : solution.value.partialCandidates,
 );
-
-const coreResultCards = computed(() => [
-  {
-    label: "Volume",
-    value: analysis.value.result.volume,
-    helper: "cubic units",
-  },
-  {
-    label: "Total surface",
-    value: analysis.value.result.surfaceArea,
-    helper: "square units",
-  },
-  {
-    label: "Lateral surface (lw base)",
-    value: analysis.value.result.lateralSurface,
-    helper: "square units",
-  },
-  {
-    label: "Edge sum",
-    value: analysis.value.result.edgeSum,
-    helper: "units",
-  },
-  {
-    label: "Space diagonal",
-    value: analysis.value.result.spaceDiagonal,
-    helper: "units",
-  },
-  {
-    label: "Circumscribed sphere radius",
-    value: analysis.value.result.radiusOfCircumscribedSphere,
-    helper: "units",
-  },
-]);
-
-const faceAreaCards = computed(() => [
-  {
-    label: "lw face area",
-    value: analysis.value.result.faceAreas.lw,
-    helper: "square units",
-  },
-  {
-    label: "lh face area",
-    value: analysis.value.result.faceAreas.lh,
-    helper: "square units",
-  },
-  {
-    label: "wh face area",
-    value: analysis.value.result.faceAreas.wh,
-    helper: "square units",
-  },
-]);
-
-const faceDiagonalCards = computed(() => [
-  {
-    label: "lw face diagonal",
-    value: analysis.value.result.faceDiagonals.lw,
-    helper: "units",
-  },
-  {
-    label: "lh face diagonal",
-    value: analysis.value.result.faceDiagonals.lh,
-    helper: "units",
-  },
-  {
-    label: "wh face diagonal",
-    value: analysis.value.result.faceDiagonals.wh,
-    helper: "units",
-  },
-]);
-
-const facePerimeterCards = computed(() => [
-  {
-    label: "lw face perimeter",
-    value: analysis.value.result.facePerimeters.lw,
-    helper: "units",
-  },
-  {
-    label: "lh face perimeter",
-    value: analysis.value.result.facePerimeters.lh,
-    helper: "units",
-  },
-  {
-    label: "wh face perimeter",
-    value: analysis.value.result.facePerimeters.wh,
-    helper: "units",
-  },
-]);
-
-watch(
-  () => props.dimensions,
-  (value) => {
-    draftDimensions.length = value.length;
-    draftDimensions.width = value.width;
-    draftDimensions.height = value.height;
-  },
-  { deep: true },
-);
-
-watch(
-  () => analysis.value.resolved,
-  (resolved) => {
-    const next = normalizeDimensions(resolved);
-    const key = JSON.stringify(next);
-
-    if (key === lastSubmittedKey.value) {
-      return;
+const activeSource = computed<CuboidCandidate | CuboidPartialCandidate | null>(
+  () => {
+    if (selectedCandidateIndex.value >= 0) {
+      return candidateOptions.value[selectedCandidateIndex.value] ?? null;
     }
 
-    lastSubmittedKey.value = key;
-    emit("update:dimensions", next);
+    return solution.value.selectedCandidate;
+  },
+);
+const activeValues = computed(() =>
+  activeSource.value?.values ?? solution.value.values,
+);
+const activeConflicts = computed(
+  () => activeSource.value?.conflicts ?? solution.value.conflicts,
+);
+const conflictByField = computed(
+  () =>
+    new Map(
+      activeConflicts.value.map((conflict) => [conflict.field, conflict]),
+    ),
+);
+const fieldGroups = computed(() => {
+  const groups: Array<{
+    key: CuboidFieldDefinition["group"];
+    label: string;
+    fields: ReturnType<typeof fieldRow>[];
+  }> = [
+    { key: "dimensions", label: "Dimensions", fields: [] },
+    { key: "core", label: "Core properties", fields: [] },
+    { key: "face-areas", label: "Face areas", fields: [] },
+    { key: "face-diagonals", label: "Face diagonals", fields: [] },
+    { key: "face-perimeters", label: "Face perimeters", fields: [] },
+  ];
+
+  for (const definition of CUBOID_EDITABLE_FIELD_DEFINITIONS) {
+    groups
+      .find((group) => group.key === definition.group)
+      ?.fields.push(fieldRow(definition));
+  }
+
+  return groups.filter(({ fields }) => fields.length);
+});
+const resultRows = computed(() =>
+  CUBOID_FIELD_DEFINITIONS.flatMap((definition) => {
+    const value = activeValues.value[definition.key];
+    if (value === undefined) return [];
+
+    return [
+      {
+        ...definition,
+        value: formatDisplayValue(
+          fromBaseUnit(value, unit.value, definition.dimension),
+        ),
+        unit: unitLabel(unit.value, definition.dimension),
+      },
+    ];
+  }),
+);
+const calculationSteps = computed(() =>
+  buildCuboidCalculationSteps(activeSource.value, (value, key) => {
+    const definition = cuboidFieldDefinition(key);
+    return `${formatDisplayValue(
+      fromBaseUnit(value, unit.value, definition.dimension),
+    )} ${unitLabel(unit.value, definition.dimension)}`;
+  }),
+);
+const hasEnteredValues = computed(() =>
+  CUBOID_EDITABLE_FIELD_DEFINITIONS.some(({ key }) => entered[key]),
+);
+const resolvedDimensions = computed<Dimensions>(() => {
+  const values = activeValues.value;
+  return {
+    length: values.length ?? null,
+    width: values.width ?? null,
+    height: values.height ?? null,
+  };
+});
+const hasCompleteDimensions = computed(
+  () =>
+    resolvedDimensions.value.length !== null &&
+    resolvedDimensions.value.width !== null &&
+    resolvedDimensions.value.height !== null,
+);
+
+watch(
+  () =>
+    candidateOptions.value.map((candidate) =>
+      "length" in candidate
+        ? [candidate.length, candidate.width, candidate.height]
+        : [
+            candidate.dimensions.length,
+            candidate.dimensions.width,
+            candidate.dimensions.height,
+          ],
+    ),
+  () => {
+    selectedCandidateIndex.value =
+      candidateOptions.value.length === 1 ? 0 : -1;
+  },
+);
+
+watch(
+  resolvedDimensions,
+  (dimensions) => {
+    const displayDimensions: Dimensions = {
+      length:
+        dimensions.length === null
+          ? null
+          : fromBaseUnit(dimensions.length, unit.value, 1),
+      width:
+        dimensions.width === null
+          ? null
+          : fromBaseUnit(dimensions.width, unit.value, 1),
+      height:
+        dimensions.height === null
+          ? null
+          : fromBaseUnit(dimensions.height, unit.value, 1),
+    };
+    const key = JSON.stringify(displayDimensions);
+    if (key === lastEmittedKey.value) return;
+
+    lastEmittedKey.value = key;
+    emit("update:dimensions", displayDimensions);
 
     if (
-      next.length !== null &&
-      next.width !== null &&
-      next.height !== null &&
-      !analysis.value.errors.length
+      hasCompleteDimensions.value &&
+      activeConflicts.value.length === 0 &&
+      solution.value.invalidFields.length === 0
     ) {
-      emit("submit", next);
+      emit("submit", displayDimensions);
     }
   },
   { deep: true, immediate: true },
 );
 
-function numericState(value: NumericLike, max: number): FieldState {
-  if (value === "" || value === null || value === undefined) {
-    return {
-      value: null,
-      error: "",
-      present: false,
-    };
-  }
+watch(unit, (nextUnit, previousUnit) => {
+  for (const definition of CUBOID_EDITABLE_FIELD_DEFINITIONS) {
+    if (!entered[definition.key]) continue;
+    const parsed = Number(drafts[definition.key]);
+    if (!Number.isFinite(parsed)) continue;
 
-  const parsed = Number(value);
-
-  if (!Number.isFinite(parsed)) {
-    return {
-      value: null,
-      error: __("Enter a valid number."),
-      present: true,
-    };
-  }
-
-  if (Math.abs(parsed) > max) {
-    return {
-      value: null,
-      error: __(
-        "Use a value below :max.",
-        {
-          max: new Intl.NumberFormat().format(max),
-        },
-      ),
-      present: true,
-    };
-  }
-
-  if (parsed <= 0) {
-    return {
-      value: null,
-      error: __("Enter a value greater than 0."),
-      present: true,
-    };
-  }
-
-  return {
-    value: parsed,
-    error: "",
-    present: true,
-  };
-}
-
-function collectMessages(fieldErrors: Record<string, string>): string[] {
-  return Object.values(fieldErrors).filter(Boolean);
-}
-
-function isPositiveNumber(value: NullableNumber): value is number {
-  return value !== null && Number.isFinite(value) && value > 0;
-}
-
-function firstPositive(
-  ...values: Array<number | null | undefined>
-): number | null {
-  // TODO(cuboid-solver): replace this legacy priority solve with candidate
-  // enumeration and conflict-aware validation when the cuboid is refactored.
-  for (const value of values) {
-    if (value !== null && value !== undefined && Number.isFinite(value) && value > 0) {
-      return value;
-    }
-  }
-
-  return null;
-}
-
-function sqrtPositive(value: number): NullableNumber {
-  return value >= 0 ? Math.sqrt(value) : null;
-}
-
-function roundTo(value: number, digits = 4): number {
-  return Number(value.toFixed(digits));
-}
-
-function displayNumber(value: NullableNumber): string {
-  if (value === null || !Number.isFinite(value)) {
-    return "-";
-  }
-
-  const abs = Math.abs(value);
-
-  if (abs >= 1_000_000_000) {
-    return value.toExponential(4);
-  }
-
-  const rounded =
-    abs >= 10_000
-      ? Number(value.toFixed(2))
-      : abs >= 100
-        ? Number(value.toFixed(3))
-        : Number(value.toFixed(4));
-
-  return new Intl.NumberFormat(undefined, {
-    maximumFractionDigits: abs >= 10_000 ? 2 : abs >= 100 ? 3 : 4,
-  }).format(rounded);
-}
-
-function normalizeDimensions(value: Dimensions): Dimensions {
-  return {
-    length: value.length !== null ? roundTo(value.length) : null,
-    width: value.width !== null ? roundTo(value.width) : null,
-    height: value.height !== null ? roundTo(value.height) : null,
-  };
-}
-
-function resetSample() {
-  draftDimensions.length = sampleDimensions.length;
-  draftDimensions.width = sampleDimensions.width;
-  draftDimensions.height = sampleDimensions.height;
-
-  knowns.volume = null;
-  knowns.surfaceArea = null;
-  knowns.spaceDiagonal = null;
-  knowns.radiusOfCircumscribedSphere = null;
-  knowns.faceAreas.lw = null;
-  knowns.faceAreas.lh = null;
-  knowns.faceAreas.wh = null;
-  knowns.faceDiagonals.lw = null;
-  knowns.faceDiagonals.lh = null;
-  knowns.faceDiagonals.wh = null;
-  knowns.facePerimeters.lw = null;
-  knowns.facePerimeters.lh = null;
-  knowns.facePerimeters.wh = null;
-}
-
-function clearAll() {
-  draftDimensions.length = null;
-  draftDimensions.width = null;
-  draftDimensions.height = null;
-
-  knowns.volume = null;
-  knowns.surfaceArea = null;
-  knowns.spaceDiagonal = null;
-  knowns.radiusOfCircumscribedSphere = null;
-  knowns.faceAreas.lw = null;
-  knowns.faceAreas.lh = null;
-  knowns.faceAreas.wh = null;
-  knowns.faceDiagonals.lw = null;
-  knowns.faceDiagonals.lh = null;
-  knowns.faceDiagonals.wh = null;
-  knowns.facePerimeters.lw = null;
-  knowns.facePerimeters.lh = null;
-  knowns.facePerimeters.wh = null;
-}
-
-function runSolver(inputs: SolverInputs): Dimensions {
-  let length = inputs.length;
-  let width = inputs.width;
-  let height = inputs.height;
-
-  const volume = inputs.volume;
-  const surfaceArea = inputs.surfaceArea;
-  const spaceDiagonal =
-    inputs.spaceDiagonal ??
-    (isPositiveNumber(inputs.radiusOfCircumscribedSphere)
-      ? inputs.radiusOfCircumscribedSphere * 2
-      : null);
-
-  for (let iteration = 0; iteration < 20; iteration += 1) {
-    let changed = false;
-
-    if (length === null) {
-      const candidate = firstPositive(
-        isPositiveNumber(width) && isPositiveNumber(height) && isPositiveNumber(volume)
-          ? volume / (width * height)
-          : null,
-        isPositiveNumber(width) &&
-          isPositiveNumber(height) &&
-          isPositiveNumber(surfaceArea)
-          ? (surfaceArea / 2 - width * height) / (width + height)
-          : null,
-        isPositiveNumber(width) &&
-          isPositiveNumber(height) &&
-          isPositiveNumber(spaceDiagonal)
-          ? sqrtPositive(spaceDiagonal ** 2 - width ** 2 - height ** 2)
-          : null,
-        isPositiveNumber(width) && isPositiveNumber(inputs.faceAreas.lw)
-          ? inputs.faceAreas.lw / width
-          : null,
-        isPositiveNumber(height) && isPositiveNumber(inputs.faceAreas.lh)
-          ? inputs.faceAreas.lh / height
-          : null,
-        isPositiveNumber(width) && isPositiveNumber(inputs.faceDiagonals.lw)
-          ? sqrtPositive(inputs.faceDiagonals.lw ** 2 - width ** 2)
-          : null,
-        isPositiveNumber(height) && isPositiveNumber(inputs.faceDiagonals.lh)
-          ? sqrtPositive(inputs.faceDiagonals.lh ** 2 - height ** 2)
-          : null,
-        isPositiveNumber(width) && isPositiveNumber(inputs.facePerimeters.lw)
-          ? inputs.facePerimeters.lw / 2 - width
-          : null,
-        isPositiveNumber(height) && isPositiveNumber(inputs.facePerimeters.lh)
-          ? inputs.facePerimeters.lh / 2 - height
-          : null,
-      );
-
-      if (candidate !== null) {
-        length = candidate;
-        changed = true;
-      }
-    }
-
-    if (width === null) {
-      const candidate = firstPositive(
-        isPositiveNumber(length) && isPositiveNumber(height) && isPositiveNumber(volume)
-          ? volume / (length * height)
-          : null,
-        isPositiveNumber(length) &&
-          isPositiveNumber(height) &&
-          isPositiveNumber(surfaceArea)
-          ? (surfaceArea / 2 - length * height) / (length + height)
-          : null,
-        isPositiveNumber(length) &&
-          isPositiveNumber(height) &&
-          isPositiveNumber(spaceDiagonal)
-          ? sqrtPositive(spaceDiagonal ** 2 - length ** 2 - height ** 2)
-          : null,
-        isPositiveNumber(length) && isPositiveNumber(inputs.faceAreas.lw)
-          ? inputs.faceAreas.lw / length
-          : null,
-        isPositiveNumber(height) && isPositiveNumber(inputs.faceAreas.wh)
-          ? inputs.faceAreas.wh / height
-          : null,
-        isPositiveNumber(length) && isPositiveNumber(inputs.faceDiagonals.lw)
-          ? sqrtPositive(inputs.faceDiagonals.lw ** 2 - length ** 2)
-          : null,
-        isPositiveNumber(height) && isPositiveNumber(inputs.faceDiagonals.wh)
-          ? sqrtPositive(inputs.faceDiagonals.wh ** 2 - height ** 2)
-          : null,
-        isPositiveNumber(length) && isPositiveNumber(inputs.facePerimeters.lw)
-          ? inputs.facePerimeters.lw / 2 - length
-          : null,
-        isPositiveNumber(height) && isPositiveNumber(inputs.facePerimeters.wh)
-          ? inputs.facePerimeters.wh / 2 - height
-          : null,
-      );
-
-      if (candidate !== null) {
-        width = candidate;
-        changed = true;
-      }
-    }
-
-    if (height === null) {
-      const candidate = firstPositive(
-        isPositiveNumber(length) && isPositiveNumber(width) && isPositiveNumber(volume)
-          ? volume / (length * width)
-          : null,
-        isPositiveNumber(length) &&
-          isPositiveNumber(width) &&
-          isPositiveNumber(surfaceArea)
-          ? (surfaceArea / 2 - length * width) / (length + width)
-          : null,
-        isPositiveNumber(length) &&
-          isPositiveNumber(width) &&
-          isPositiveNumber(spaceDiagonal)
-          ? sqrtPositive(spaceDiagonal ** 2 - length ** 2 - width ** 2)
-          : null,
-        isPositiveNumber(length) && isPositiveNumber(inputs.faceAreas.lh)
-          ? inputs.faceAreas.lh / length
-          : null,
-        isPositiveNumber(width) && isPositiveNumber(inputs.faceAreas.wh)
-          ? inputs.faceAreas.wh / width
-          : null,
-        isPositiveNumber(length) && isPositiveNumber(inputs.faceDiagonals.lh)
-          ? sqrtPositive(inputs.faceDiagonals.lh ** 2 - length ** 2)
-          : null,
-        isPositiveNumber(width) && isPositiveNumber(inputs.faceDiagonals.wh)
-          ? sqrtPositive(inputs.faceDiagonals.wh ** 2 - width ** 2)
-          : null,
-        isPositiveNumber(length) && isPositiveNumber(inputs.facePerimeters.lh)
-          ? inputs.facePerimeters.lh / 2 - length
-          : null,
-        isPositiveNumber(width) && isPositiveNumber(inputs.facePerimeters.wh)
-          ? inputs.facePerimeters.wh / 2 - width
-          : null,
-      );
-
-      if (candidate !== null) {
-        height = candidate;
-        changed = true;
-      }
-    }
-
-    if (
-      isPositiveNumber(length) &&
-      width === null &&
-      height === null
-    ) {
-      if (isPositiveNumber(inputs.faceAreas.lw) && isPositiveNumber(inputs.faceAreas.lh)) {
-        width = inputs.faceAreas.lw / length;
-        height = inputs.faceAreas.lh / length;
-        changed = true;
-      } else if (
-        isPositiveNumber(inputs.faceAreas.lw) &&
-        isPositiveNumber(volume)
-      ) {
-        width = inputs.faceAreas.lw / length;
-        height = volume / inputs.faceAreas.lw;
-        changed = true;
-      } else if (
-        isPositiveNumber(inputs.faceAreas.lh) &&
-        isPositiveNumber(volume)
-      ) {
-        width = volume / inputs.faceAreas.lh;
-        height = inputs.faceAreas.lh / length;
-        changed = true;
-      } else if (
-        isPositiveNumber(inputs.faceDiagonals.lw) &&
-        isPositiveNumber(inputs.faceDiagonals.lh)
-      ) {
-        const nextWidth = sqrtPositive(inputs.faceDiagonals.lw ** 2 - length ** 2);
-        const nextHeight = sqrtPositive(inputs.faceDiagonals.lh ** 2 - length ** 2);
-
-        if (isPositiveNumber(nextWidth) && isPositiveNumber(nextHeight)) {
-          width = nextWidth;
-          height = nextHeight;
-          changed = true;
-        }
-      } else if (
-        isPositiveNumber(inputs.facePerimeters.lw) &&
-        isPositiveNumber(inputs.facePerimeters.lh)
-      ) {
-        const nextWidth = inputs.facePerimeters.lw / 2 - length;
-        const nextHeight = inputs.facePerimeters.lh / 2 - length;
-
-        if (nextWidth > 0 && nextHeight > 0) {
-          width = nextWidth;
-          height = nextHeight;
-          changed = true;
-        }
-      }
-    }
-
-    if (
-      isPositiveNumber(width) &&
-      length === null &&
-      height === null
-    ) {
-      if (isPositiveNumber(inputs.faceAreas.lw) && isPositiveNumber(inputs.faceAreas.wh)) {
-        length = inputs.faceAreas.lw / width;
-        height = inputs.faceAreas.wh / width;
-        changed = true;
-      } else if (
-        isPositiveNumber(inputs.faceAreas.lw) &&
-        isPositiveNumber(volume)
-      ) {
-        length = inputs.faceAreas.lw / width;
-        height = volume / inputs.faceAreas.lw;
-        changed = true;
-      } else if (
-        isPositiveNumber(inputs.faceAreas.wh) &&
-        isPositiveNumber(volume)
-      ) {
-        length = volume / inputs.faceAreas.wh;
-        height = inputs.faceAreas.wh / width;
-        changed = true;
-      } else if (
-        isPositiveNumber(inputs.faceDiagonals.lw) &&
-        isPositiveNumber(inputs.faceDiagonals.wh)
-      ) {
-        const nextLength = sqrtPositive(inputs.faceDiagonals.lw ** 2 - width ** 2);
-        const nextHeight = sqrtPositive(inputs.faceDiagonals.wh ** 2 - width ** 2);
-
-        if (isPositiveNumber(nextLength) && isPositiveNumber(nextHeight)) {
-          length = nextLength;
-          height = nextHeight;
-          changed = true;
-        }
-      } else if (
-        isPositiveNumber(inputs.facePerimeters.lw) &&
-        isPositiveNumber(inputs.facePerimeters.wh)
-      ) {
-        const nextLength = inputs.facePerimeters.lw / 2 - width;
-        const nextHeight = inputs.facePerimeters.wh / 2 - width;
-
-        if (nextLength > 0 && nextHeight > 0) {
-          length = nextLength;
-          height = nextHeight;
-          changed = true;
-        }
-      }
-    }
-
-    if (
-      isPositiveNumber(height) &&
-      length === null &&
-      width === null
-    ) {
-      if (isPositiveNumber(inputs.faceAreas.lh) && isPositiveNumber(inputs.faceAreas.wh)) {
-        length = inputs.faceAreas.lh / height;
-        width = inputs.faceAreas.wh / height;
-        changed = true;
-      } else if (
-        isPositiveNumber(inputs.faceAreas.lh) &&
-        isPositiveNumber(volume)
-      ) {
-        length = inputs.faceAreas.lh / height;
-        width = volume / inputs.faceAreas.lh;
-        changed = true;
-      } else if (
-        isPositiveNumber(inputs.faceAreas.wh) &&
-        isPositiveNumber(volume)
-      ) {
-        length = volume / inputs.faceAreas.wh;
-        width = inputs.faceAreas.wh / height;
-        changed = true;
-      } else if (
-        isPositiveNumber(inputs.faceDiagonals.lh) &&
-        isPositiveNumber(inputs.faceDiagonals.wh)
-      ) {
-        const nextLength = sqrtPositive(inputs.faceDiagonals.lh ** 2 - height ** 2);
-        const nextWidth = sqrtPositive(inputs.faceDiagonals.wh ** 2 - height ** 2);
-
-        if (isPositiveNumber(nextLength) && isPositiveNumber(nextWidth)) {
-          length = nextLength;
-          width = nextWidth;
-          changed = true;
-        }
-      } else if (
-        isPositiveNumber(inputs.facePerimeters.lh) &&
-        isPositiveNumber(inputs.facePerimeters.wh)
-      ) {
-        const nextLength = inputs.facePerimeters.lh / 2 - height;
-        const nextWidth = inputs.facePerimeters.wh / 2 - height;
-
-        if (nextLength > 0 && nextWidth > 0) {
-          length = nextLength;
-          width = nextWidth;
-          changed = true;
-        }
-      }
-    }
-
-    if (length === null && width === null && height === null) {
-      if (
-        isPositiveNumber(inputs.faceAreas.lw) &&
-        isPositiveNumber(inputs.faceAreas.lh) &&
-        isPositiveNumber(inputs.faceAreas.wh)
-      ) {
-        const nextLength = sqrtPositive(
-          (inputs.faceAreas.lw * inputs.faceAreas.lh) / inputs.faceAreas.wh,
-        );
-        const nextWidth = sqrtPositive(
-          (inputs.faceAreas.lw * inputs.faceAreas.wh) / inputs.faceAreas.lh,
-        );
-        const nextHeight = sqrtPositive(
-          (inputs.faceAreas.lh * inputs.faceAreas.wh) / inputs.faceAreas.lw,
-        );
-
-        if (
-          isPositiveNumber(nextLength) &&
-          isPositiveNumber(nextWidth) &&
-          isPositiveNumber(nextHeight)
-        ) {
-          length = nextLength;
-          width = nextWidth;
-          height = nextHeight;
-          changed = true;
-        }
-      } else if (
-        isPositiveNumber(volume) &&
-        isPositiveNumber(inputs.faceAreas.lw) &&
-        isPositiveNumber(inputs.faceAreas.lh)
-      ) {
-        length = (inputs.faceAreas.lw * inputs.faceAreas.lh) / volume;
-        width = volume / inputs.faceAreas.lh;
-        height = volume / inputs.faceAreas.lw;
-        changed = true;
-      } else if (
-        isPositiveNumber(volume) &&
-        isPositiveNumber(inputs.faceAreas.lw) &&
-        isPositiveNumber(inputs.faceAreas.wh)
-      ) {
-        length = volume / inputs.faceAreas.wh;
-        width = (inputs.faceAreas.lw * inputs.faceAreas.wh) / volume;
-        height = volume / inputs.faceAreas.lw;
-        changed = true;
-      } else if (
-        isPositiveNumber(volume) &&
-        isPositiveNumber(inputs.faceAreas.lh) &&
-        isPositiveNumber(inputs.faceAreas.wh)
-      ) {
-        length = volume / inputs.faceAreas.wh;
-        width = volume / inputs.faceAreas.lh;
-        height = (inputs.faceAreas.lh * inputs.faceAreas.wh) / volume;
-        changed = true;
-      }
-    }
-
-    if (!changed) {
-      break;
-    }
-  }
-
-  return {
-    length,
-    width,
-    height,
-  };
-}
-
-function buildPartialResult(
-  length: NullableNumber,
-  width: NullableNumber,
-  height: NullableNumber,
-  inputs: SolverInputs,
-): PartialResult {
-  const faceAreaLw =
-    isPositiveNumber(length) && isPositiveNumber(width)
-      ? length * width
-      : inputs.faceAreas.lw;
-  const faceAreaLh =
-    isPositiveNumber(length) && isPositiveNumber(height)
-      ? length * height
-      : inputs.faceAreas.lh;
-  const faceAreaWh =
-    isPositiveNumber(width) && isPositiveNumber(height)
-      ? width * height
-      : inputs.faceAreas.wh;
-
-  const volume =
-    isPositiveNumber(length) &&
-    isPositiveNumber(width) &&
-    isPositiveNumber(height)
-      ? length * width * height
-      : isPositiveNumber(faceAreaLw) && isPositiveNumber(height)
-        ? faceAreaLw * height
-        : isPositiveNumber(faceAreaLh) && isPositiveNumber(width)
-          ? faceAreaLh * width
-          : isPositiveNumber(faceAreaWh) && isPositiveNumber(length)
-            ? faceAreaWh * length
-            : inputs.volume;
-
-  const surfaceArea =
-    isPositiveNumber(faceAreaLw) &&
-    isPositiveNumber(faceAreaLh) &&
-    isPositiveNumber(faceAreaWh)
-      ? 2 * (faceAreaLw + faceAreaLh + faceAreaWh)
-      : inputs.surfaceArea;
-
-  const lateralSurface =
-    isPositiveNumber(length) &&
-    isPositiveNumber(width) &&
-    isPositiveNumber(height)
-      ? 2 * height * (length + width)
-      : null;
-
-  const edgeSum =
-    isPositiveNumber(length) &&
-    isPositiveNumber(width) &&
-    isPositiveNumber(height)
-      ? 4 * (length + width + height)
-      : null;
-
-  const spaceDiagonal =
-    isPositiveNumber(length) &&
-    isPositiveNumber(width) &&
-    isPositiveNumber(height)
-      ? Math.sqrt(length ** 2 + width ** 2 + height ** 2)
-      : inputs.spaceDiagonal ??
-        (isPositiveNumber(inputs.radiusOfCircumscribedSphere)
-          ? inputs.radiusOfCircumscribedSphere * 2
-          : null);
-
-  const radiusOfCircumscribedSphere = isPositiveNumber(spaceDiagonal)
-    ? spaceDiagonal / 2
-    : inputs.radiusOfCircumscribedSphere;
-
-  const faceDiagonalLw =
-    isPositiveNumber(length) && isPositiveNumber(width)
-      ? Math.sqrt(length ** 2 + width ** 2)
-      : inputs.faceDiagonals.lw;
-  const faceDiagonalLh =
-    isPositiveNumber(length) && isPositiveNumber(height)
-      ? Math.sqrt(length ** 2 + height ** 2)
-      : inputs.faceDiagonals.lh;
-  const faceDiagonalWh =
-    isPositiveNumber(width) && isPositiveNumber(height)
-      ? Math.sqrt(width ** 2 + height ** 2)
-      : inputs.faceDiagonals.wh;
-
-  const facePerimeterLw =
-    isPositiveNumber(length) && isPositiveNumber(width)
-      ? 2 * (length + width)
-      : inputs.facePerimeters.lw;
-  const facePerimeterLh =
-    isPositiveNumber(length) && isPositiveNumber(height)
-      ? 2 * (length + height)
-      : inputs.facePerimeters.lh;
-  const facePerimeterWh =
-    isPositiveNumber(width) && isPositiveNumber(height)
-      ? 2 * (width + height)
-      : inputs.facePerimeters.wh;
-
-  return {
-    length,
-    width,
-    height,
-    volume,
-    surfaceArea,
-    lateralSurface,
-    edgeSum,
-    spaceDiagonal,
-    radiusOfCircumscribedSphere,
-    faceAreas: {
-      lw: faceAreaLw,
-      lh: faceAreaLh,
-      wh: faceAreaWh,
-    },
-    faceDiagonals: {
-      lw: faceDiagonalLw,
-      lh: faceDiagonalLh,
-      wh: faceDiagonalWh,
-    },
-    facePerimeters: {
-      lw: facePerimeterLw,
-      lh: facePerimeterLh,
-      wh: facePerimeterWh,
-    },
-  };
-}
-
-function collectWarnings(
-  result: PartialResult,
-  inputs: SolverInputs,
-): string[] {
-  const warnings: string[] = [];
-
-  pushMismatchWarning(
-    warnings,
-    __("Volume"),
-    inputs.volume,
-    result.volume,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("Total surface"),
-    inputs.surfaceArea,
-    result.surfaceArea,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("Space diagonal"),
-    inputs.spaceDiagonal,
-    result.spaceDiagonal,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("Circumscribed sphere radius"),
-    inputs.radiusOfCircumscribedSphere,
-    result.radiusOfCircumscribedSphere,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("lw face area"),
-    inputs.faceAreas.lw,
-    result.faceAreas.lw,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("lh face area"),
-    inputs.faceAreas.lh,
-    result.faceAreas.lh,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("wh face area"),
-    inputs.faceAreas.wh,
-    result.faceAreas.wh,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("lw face diagonal"),
-    inputs.faceDiagonals.lw,
-    result.faceDiagonals.lw,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("lh face diagonal"),
-    inputs.faceDiagonals.lh,
-    result.faceDiagonals.lh,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("wh face diagonal"),
-    inputs.faceDiagonals.wh,
-    result.faceDiagonals.wh,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("lw face perimeter"),
-    inputs.facePerimeters.lw,
-    result.facePerimeters.lw,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("lh face perimeter"),
-    inputs.facePerimeters.lh,
-    result.facePerimeters.lh,
-  );
-  pushMismatchWarning(
-    warnings,
-    __("wh face perimeter"),
-    inputs.facePerimeters.wh,
-    result.facePerimeters.wh,
-  );
-
-  return warnings;
-}
-
-function pushMismatchWarning(
-  warnings: string[],
-  label: string,
-  givenValue: NullableNumber,
-  derivedValue: NullableNumber,
-) {
-  if (!isPositiveNumber(givenValue) || !isPositiveNumber(derivedValue)) {
-    return;
-  }
-
-  const tolerance = Math.max(0.01, Math.max(givenValue, derivedValue) * 0.0001);
-
-  if (Math.abs(givenValue - derivedValue) > tolerance) {
-    warnings.push(
-      __(
-        ":label does not match the solved cuboid dimensions exactly.",
-        { label },
-      ),
+    const baseValue = toBaseUnit(
+      parsed,
+      previousUnit,
+      definition.dimension,
+    );
+    drafts[definition.key] = formatUnitConversion(
+      fromBaseUnit(baseValue, nextUnit, definition.dimension),
     );
   }
+});
+
+function fieldRow(definition: CuboidFieldDefinition) {
+  return {
+    ...definition,
+    status: fieldStatus(definition.key),
+    displayValue: fieldDisplayValue(definition.key),
+    error: fieldError(definition.key),
+    unit: unitLabel(unit.value, definition.dimension),
+  };
 }
 
-function buildSteps(result: PartialResult): CuboidStep[] {
-  return [
+function updateField(key: CuboidFieldKey, value: unknown) {
+  const nextValue = String(value ?? "");
+  drafts[key] = nextValue;
+  entered[key] = nextValue.trim() !== "";
+}
+
+function clearField(key: CuboidFieldKey) {
+  if (!(key in drafts)) return;
+  drafts[key] = "";
+  entered[key] = false;
+}
+
+function fieldStatus(key: CuboidFieldKey): CalculatorFieldStatus {
+  return resolveCalculatorFieldStatus({
+    isEntered: entered[key],
+    isValid: !solution.value.invalidFields.includes(key),
+    isConflicting: conflictByField.value.has(key),
+    hasCalculatedValue:
+      !entered[key] && activeValues.value[key] !== undefined,
+  });
+}
+
+function fieldDisplayValue(key: CuboidFieldKey): string {
+  if (entered[key]) return drafts[key];
+  const value = activeValues.value[key];
+  if (value === undefined) return "";
+
+  const definition = cuboidFieldDefinition(key);
+  return formatEditableValue(
+    fromBaseUnit(value, unit.value, definition.dimension),
+  );
+}
+
+function fieldError(key: CuboidFieldKey): string {
+  if (!entered[key]) return "";
+
+  const parsed = Number(drafts[key]);
+  if (!Number.isFinite(parsed)) return __("Enter a valid number.");
+  if (parsed <= 0) return __("Enter a value greater than 0.");
+
+  const definition = cuboidFieldDefinition(key);
+  const maximum = fromBaseUnit(
+    definition.maximum,
+    unit.value,
+    definition.dimension,
+  );
+  if (parsed > maximum) {
+    return __("Use a value no greater than :maximum.", {
+      maximum: `${formatDisplayValue(maximum)} ${unitLabel(
+        unit.value,
+        definition.dimension,
+      )}`,
+    });
+  }
+
+  const conflict = conflictByField.value.get(key);
+  if (!conflict) return "";
+
+  const expected = fromBaseUnit(
+    conflict.expectedValue,
+    unit.value,
+    definition.dimension,
+  );
+  return __(
+    "The entered :field value conflicts with the solved cuboid. Expected :expected.",
     {
-      title: __("Volume"),
-      formula: "V = l * w * h",
-      detail:
-        isPositiveNumber(result.length) &&
-        isPositiveNumber(result.width) &&
-        isPositiveNumber(result.height)
-          ? `${displayNumber(result.length)} * ${displayNumber(result.width)} * ${displayNumber(result.height)}`
-          : "",
-      result: result.volume,
-      helper: "cubic units",
+      field: __(definition.label),
+      expected: `${formatDisplayValue(expected)} ${unitLabel(
+        unit.value,
+        definition.dimension,
+      )}`,
     },
-    {
-      title: __("Total surface"),
-      formula: "S = 2(lw + lh + wh)",
-      detail:
-        isPositiveNumber(result.length) &&
-        isPositiveNumber(result.width) &&
-        isPositiveNumber(result.height)
-          ? `2(${displayNumber(result.length)} * ${displayNumber(result.width)} + ${displayNumber(result.length)} * ${displayNumber(result.height)} + ${displayNumber(result.width)} * ${displayNumber(result.height)})`
-          : "",
-      result: result.surfaceArea,
-      helper: "square units",
-    },
-    {
-      title: __("Lateral surface (lw base)"),
-      formula: "Sl = 2h(l + w)",
-      detail:
-        isPositiveNumber(result.length) &&
-        isPositiveNumber(result.width) &&
-        isPositiveNumber(result.height)
-          ? `2 * ${displayNumber(result.height)} * (${displayNumber(result.length)} + ${displayNumber(result.width)})`
-          : "",
-      result: result.lateralSurface,
-      helper: "square units",
-    },
-    {
-      title: __("Space diagonal"),
-      formula: "d = sqrt(l^2 + w^2 + h^2)",
-      detail:
-        isPositiveNumber(result.length) &&
-        isPositiveNumber(result.width) &&
-        isPositiveNumber(result.height)
-          ? `sqrt(${displayNumber(result.length)}^2 + ${displayNumber(result.width)}^2 + ${displayNumber(result.height)}^2)`
-          : "",
-      result: result.spaceDiagonal,
-      helper: "units",
-    },
-    {
-      title: __("Circumscribed sphere radius"),
-      formula: "R = d / 2",
-      detail: isPositiveNumber(result.spaceDiagonal)
-        ? `${displayNumber(result.spaceDiagonal)} / 2`
-        : "",
-      result: result.radiusOfCircumscribedSphere,
-      helper: "units",
-    },
-  ].filter((step) => step.result !== null || step.detail !== "");
+  );
+}
+
+function loadExample() {
+  reset();
+  for (const [key, value] of Object.entries({
+    length: "5",
+    width: "6",
+    height: "4",
+  }) as Array<[CuboidFieldKey, string]>) {
+    entered[key] = true;
+    drafts[key] = value;
+  }
+}
+
+function reset() {
+  selectedCandidateIndex.value = -1;
+  for (const definition of CUBOID_EDITABLE_FIELD_DEFINITIONS) {
+    entered[definition.key] = false;
+    drafts[definition.key] = "";
+  }
+}
+
+function candidateLabel(
+  candidate: CuboidCandidate | CuboidPartialCandidate,
+  index: number,
+): string {
+  const dimensions =
+    "length" in candidate
+      ? candidate
+      : candidate.dimensions;
+  const value = (key: "length" | "width" | "height") => {
+    const dimension = dimensions[key];
+    return dimension === null
+      ? "?"
+      : formatDisplayValue(fromBaseUnit(dimension, unit.value, 1));
+  };
+
+  return `${__("Candidate :number", { number: String(index + 1) })}: ${value(
+    "length",
+  )} × ${value("width")} × ${value("height")} ${unit.value}`;
+}
+
+function statusLabel(status: CalculatorFieldStatus): string {
+  return {
+    empty: "Empty",
+    entered: "Entered",
+    calculated: "Calculated",
+    invalid: "Invalid",
+    conflicting: "Conflicting",
+  }[status];
+}
+
+function formatEditableValue(value: number): string {
+  if (!Number.isFinite(value)) return "";
+  const absolute = Math.abs(value);
+  if ((absolute > 0 && absolute < 1e-8) || absolute >= 1e15) {
+    return value.toExponential(precision.value);
+  }
+  return String(Number(value.toFixed(precision.value)));
+}
+
+function formatUnitConversion(value: number): string {
+  if (!Number.isFinite(value)) return "";
+  const absolute = Math.abs(value);
+  if ((absolute > 0 && absolute < 1e-10) || absolute >= 1e15) {
+    return value.toExponential(12);
+  }
+  return String(Number(value.toPrecision(15)));
+}
+
+function formatDisplayValue(value: number): string {
+  if (!Number.isFinite(value)) return "-";
+  const absolute = Math.abs(value);
+  if ((absolute > 0 && absolute < 1e-6) || absolute >= 1e12) {
+    return value.toExponential(precision.value);
+  }
+  return new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: precision.value,
+  }).format(value);
 }
 </script>
 
 <template>
   <div class="cuboid-calculator space-y-6">
     <div class="cuboid-toolbar">
-      <div class="cuboid-badge">
-        <Sparkles :size="14" />
-        {{ __("Results update live as you type.") }}
+      <div>
+        <div class="cuboid-badge">
+          <Sparkles :size="14" />
+          {{ __("Conflict-aware solver") }}
+        </div>
+        <h3 class="mt-3 text-2xl font-bold text-foreground">
+          {{ __("Cuboid Calculator") }}
+        </h3>
+        <p class="mt-1 text-sm text-muted-foreground">
+          {{
+            __(
+              "Enter any sufficient combination. Extra values are checked for consistency.",
+            )
+          }}
+        </p>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <Button variant="outline" @click="resetSample">
-          {{ __("Reset sample") }}
+      <div class="flex flex-wrap items-end gap-3">
+        <label class="cuboid-control">
+          <span>{{ __("Unit") }}</span>
+          <select v-model="unit" class="cuboid-select">
+            <option v-for="item in LENGTH_UNITS" :key="item" :value="item">
+              {{ item }}
+            </option>
+          </select>
+        </label>
+
+        <label class="cuboid-control">
+          <span>{{ __("Precision") }}</span>
+          <select v-model.number="precision" class="cuboid-select">
+            <option
+              v-for="digits in [2, 4, 6, 8]"
+              :key="digits"
+              :value="digits"
+            >
+              {{ digits }}
+            </option>
+          </select>
+        </label>
+
+        <Button variant="outline" @click="loadExample">
+          <Calculator :size="16" />
+          {{ __("Load example") }}
         </Button>
-        <Button variant="outline" @click="clearAll">
-          {{ __("Clear all") }}
+        <Button variant="outline" @click="reset">
+          <RotateCcw :size="16" />
+          {{ __("Reset") }}
         </Button>
       </div>
     </div>
 
-    <div class="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_22rem]">
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(21rem,0.65fr)]">
+      <div class="space-y-6">
+        <Card v-for="group in fieldGroups" :key="group.key">
+          <CardHeader>
+            <CardTitle class="cuboid-card-title">
+              {{ __(group.label) }}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="grid gap-4 md:grid-cols-2">
+              <div
+                v-for="field in group.fields"
+                :key="field.key"
+                class="cuboid-field"
+                :data-status="field.status"
+              >
+                <div class="mb-1.5 flex items-center justify-between gap-3">
+                  <span class="cuboid-symbol">{{ field.symbol }}</span>
+                  <span class="cuboid-state">
+                    {{ __(statusLabel(field.status)) }}
+                  </span>
+                </div>
+
+                <FormInput
+                  type="number"
+                  step="any"
+                  :model-value="field.displayValue"
+                  :label="__(field.label)"
+                  :error="field.error"
+                  :input-class="`cuboid-input is-${field.status}`"
+                  @update:model-value="updateField(field.key, $event)"
+                >
+                  <span class="cuboid-unit">{{ field.unit }}</span>
+                </FormInput>
+                <p v-if="field.error" class="cuboid-field-error">
+                  {{ field.error }}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div class="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle class="cuboid-card-title">
-              {{ __("Dimensions") }}
+            <CardTitle
+              class="cuboid-card-title flex items-center justify-between gap-3"
+            >
+              <span>{{ __("Solution status") }}</span>
+              <span class="cuboid-icon-chip"><Box :size="18" /></span>
             </CardTitle>
           </CardHeader>
-          <CardContent class="grid gap-4 md:grid-cols-3">
-            <div class="space-y-1.5">
-              <FormInput
-                v-model="draftDimensions.length"
-                type="number"
-                step="any"
-                :label="__('Length (l)')"
-                :error="analysis.fieldErrors['dimensions.length']"
-              />
-              <p
-                v-if="analysis.fieldErrors['dimensions.length']"
-                class="cuboid-field-error"
-              >
-                {{ analysis.fieldErrors["dimensions.length"] }}
-              </p>
+          <CardContent class="space-y-4">
+            <label
+              v-if="candidateOptions.length > 1"
+              class="cuboid-candidate-control"
+            >
+              <span>{{ __("Choose solution") }}</span>
+              <select v-model.number="selectedCandidateIndex">
+                <option :value="-1" disabled>
+                  {{ __("Select a candidate") }}
+                </option>
+                <option
+                  v-for="(candidate, index) in candidateOptions"
+                  :key="candidateLabel(candidate, index)"
+                  :value="index"
+                >
+                  {{ candidateLabel(candidate, index) }}
+                </option>
+              </select>
+            </label>
+
+            <div class="cuboid-summary">
+              <div>
+                <span>{{ __("Length") }}</span>
+                <strong>{{
+                  resolvedDimensions.length === null
+                    ? "-"
+                    : `${formatDisplayValue(
+                        fromBaseUnit(resolvedDimensions.length, unit, 1),
+                      )} ${unit}`
+                }}</strong>
+              </div>
+              <div>
+                <span>{{ __("Width") }}</span>
+                <strong>{{
+                  resolvedDimensions.width === null
+                    ? "-"
+                    : `${formatDisplayValue(
+                        fromBaseUnit(resolvedDimensions.width, unit, 1),
+                      )} ${unit}`
+                }}</strong>
+              </div>
+              <div>
+                <span>{{ __("Height") }}</span>
+                <strong>{{
+                  resolvedDimensions.height === null
+                    ? "-"
+                    : `${formatDisplayValue(
+                        fromBaseUnit(resolvedDimensions.height, unit, 1),
+                      )} ${unit}`
+                }}</strong>
+              </div>
             </div>
 
-            <div class="space-y-1.5">
-              <FormInput
-                v-model="draftDimensions.width"
-                type="number"
-                step="any"
-                :label="__('Width (w)')"
-                :error="analysis.fieldErrors['dimensions.width']"
-              />
-              <p
-                v-if="analysis.fieldErrors['dimensions.width']"
-                class="cuboid-field-error"
-              >
-                {{ analysis.fieldErrors["dimensions.width"] }}
-              </p>
-            </div>
+            <Alert
+              v-if="activeConflicts.length"
+              class="border-destructive/35 bg-destructive/8 text-destructive"
+            >
+              <AlertTriangle :size="16" />
+              <AlertDescription>
+                <ul class="space-y-2">
+                  <li
+                    v-for="conflict in activeConflicts"
+                    :key="`${conflict.field}-${conflict.enteredValue}`"
+                    class="cuboid-conflict"
+                  >
+                    <span>
+                      {{
+                        __(
+                          "The entered :field value conflicts with the solved cuboid. Expected :expected.",
+                          {
+                            field: __(
+                              cuboidFieldDefinition(conflict.field).label,
+                            ),
+                            expected: `${formatDisplayValue(
+                              fromBaseUnit(
+                                conflict.expectedValue,
+                                unit,
+                                cuboidFieldDefinition(conflict.field).dimension,
+                              ),
+                            )} ${unitLabel(
+                              unit,
+                              cuboidFieldDefinition(conflict.field).dimension,
+                            )}`,
+                          },
+                        )
+                      }}
+                    </span>
+                    <button
+                      type="button"
+                      :aria-label="__('Clear conflicting field')"
+                      @click="clearField(conflict.field)"
+                    >
+                      <X :size="14" />
+                    </button>
+                  </li>
+                </ul>
+              </AlertDescription>
+            </Alert>
 
-            <div class="space-y-1.5">
-              <FormInput
-                v-model="draftDimensions.height"
-                type="number"
-                step="any"
-                :label="__('Height (h)')"
-                :error="analysis.fieldErrors['dimensions.height']"
-              />
-              <p
-                v-if="analysis.fieldErrors['dimensions.height']"
-                class="cuboid-field-error"
-              >
-                {{ analysis.fieldErrors["dimensions.height"] }}
-              </p>
+            <Alert
+              v-if="solution.warnings.length"
+              class="border-chart-3/35 bg-chart-3/8 text-foreground"
+            >
+              <AlertTriangle :size="16" />
+              <AlertDescription>
+                <ul class="space-y-1">
+                  <li v-for="warning in solution.warnings" :key="warning">
+                    {{ __(warning) }}
+                  </li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+
+            <Alert
+              v-else-if="!hasEnteredValues"
+              class="border-border bg-muted/45 text-muted-foreground"
+            >
+              <AlertDescription>
+                {{ __("Enter any cuboid property or load the example.") }}
+              </AlertDescription>
+            </Alert>
+
+            <div class="cuboid-legend">
+              <span data-tone="entered">{{ __("Entered") }}</span>
+              <span data-tone="calculated">{{ __("Calculated") }}</span>
+              <span data-tone="conflicting">{{ __("Conflicting") }}</span>
             </div>
           </CardContent>
         </Card>
@@ -1323,629 +659,376 @@ function buildSteps(result: PartialResult): CuboidStep[] {
         <Card>
           <CardHeader>
             <CardTitle class="cuboid-card-title">
-              {{ __("Known global properties") }}
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="grid gap-4 md:grid-cols-2">
-            <div class="space-y-1.5">
-              <FormInput
-                v-model="knowns.volume"
-                type="number"
-                step="any"
-                :label="__('Volume (V)')"
-                :error="analysis.fieldErrors['knowns.volume']"
-              />
-              <p v-if="analysis.fieldErrors['knowns.volume']" class="cuboid-field-error">
-                {{ analysis.fieldErrors["knowns.volume"] }}
-              </p>
-            </div>
-
-            <div class="space-y-1.5">
-              <FormInput
-                v-model="knowns.surfaceArea"
-                type="number"
-                step="any"
-                :label="__('Total surface (S)')"
-                :error="analysis.fieldErrors['knowns.surfaceArea']"
-              />
-              <p
-                v-if="analysis.fieldErrors['knowns.surfaceArea']"
-                class="cuboid-field-error"
-              >
-                {{ analysis.fieldErrors["knowns.surfaceArea"] }}
-              </p>
-            </div>
-
-            <div class="space-y-1.5">
-              <FormInput
-                v-model="knowns.spaceDiagonal"
-                type="number"
-                step="any"
-                :label="__('Space diagonal (d)')"
-                :error="analysis.fieldErrors['knowns.spaceDiagonal']"
-              />
-              <p
-                v-if="analysis.fieldErrors['knowns.spaceDiagonal']"
-                class="cuboid-field-error"
-              >
-                {{ analysis.fieldErrors["knowns.spaceDiagonal"] }}
-              </p>
-            </div>
-
-            <div class="space-y-1.5">
-              <FormInput
-                v-model="knowns.radiusOfCircumscribedSphere"
-                type="number"
-                step="any"
-                :label="__('Circumscribed sphere radius (R)')"
-                :error="analysis.fieldErrors['knowns.radiusOfCircumscribedSphere']"
-              />
-              <p
-                v-if="analysis.fieldErrors['knowns.radiusOfCircumscribedSphere']"
-                class="cuboid-field-error"
-              >
-                {{ analysis.fieldErrors["knowns.radiusOfCircumscribedSphere"] }}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle class="cuboid-card-title">
-              {{ __("Face geometry") }}
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="space-y-5">
-            <div>
-              <p class="cuboid-section-label">{{ __("Face areas") }}</p>
-              <div class="mt-3 grid gap-4 md:grid-cols-3">
-                <div class="space-y-1.5">
-                  <FormInput
-                    v-model="knowns.faceAreas.lw"
-                    type="number"
-                    step="any"
-                    :label="__('lw face area')"
-                    :error="analysis.fieldErrors['knowns.faceAreas.lw']"
-                  />
-                  <p
-                    v-if="analysis.fieldErrors['knowns.faceAreas.lw']"
-                    class="cuboid-field-error"
-                  >
-                    {{ analysis.fieldErrors["knowns.faceAreas.lw"] }}
-                  </p>
-                </div>
-                <div class="space-y-1.5">
-                  <FormInput
-                    v-model="knowns.faceAreas.lh"
-                    type="number"
-                    step="any"
-                    :label="__('lh face area')"
-                    :error="analysis.fieldErrors['knowns.faceAreas.lh']"
-                  />
-                  <p
-                    v-if="analysis.fieldErrors['knowns.faceAreas.lh']"
-                    class="cuboid-field-error"
-                  >
-                    {{ analysis.fieldErrors["knowns.faceAreas.lh"] }}
-                  </p>
-                </div>
-                <div class="space-y-1.5">
-                  <FormInput
-                    v-model="knowns.faceAreas.wh"
-                    type="number"
-                    step="any"
-                    :label="__('wh face area')"
-                    :error="analysis.fieldErrors['knowns.faceAreas.wh']"
-                  />
-                  <p
-                    v-if="analysis.fieldErrors['knowns.faceAreas.wh']"
-                    class="cuboid-field-error"
-                  >
-                    {{ analysis.fieldErrors["knowns.faceAreas.wh"] }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p class="cuboid-section-label">{{ __("Face diagonals") }}</p>
-              <div class="mt-3 grid gap-4 md:grid-cols-3">
-                <div class="space-y-1.5">
-                  <FormInput
-                    v-model="knowns.faceDiagonals.lw"
-                    type="number"
-                    step="any"
-                    :label="__('lw face diagonal')"
-                    :error="analysis.fieldErrors['knowns.faceDiagonals.lw']"
-                  />
-                  <p
-                    v-if="analysis.fieldErrors['knowns.faceDiagonals.lw']"
-                    class="cuboid-field-error"
-                  >
-                    {{ analysis.fieldErrors["knowns.faceDiagonals.lw"] }}
-                  </p>
-                </div>
-                <div class="space-y-1.5">
-                  <FormInput
-                    v-model="knowns.faceDiagonals.lh"
-                    type="number"
-                    step="any"
-                    :label="__('lh face diagonal')"
-                    :error="analysis.fieldErrors['knowns.faceDiagonals.lh']"
-                  />
-                  <p
-                    v-if="analysis.fieldErrors['knowns.faceDiagonals.lh']"
-                    class="cuboid-field-error"
-                  >
-                    {{ analysis.fieldErrors["knowns.faceDiagonals.lh"] }}
-                  </p>
-                </div>
-                <div class="space-y-1.5">
-                  <FormInput
-                    v-model="knowns.faceDiagonals.wh"
-                    type="number"
-                    step="any"
-                    :label="__('wh face diagonal')"
-                    :error="analysis.fieldErrors['knowns.faceDiagonals.wh']"
-                  />
-                  <p
-                    v-if="analysis.fieldErrors['knowns.faceDiagonals.wh']"
-                    class="cuboid-field-error"
-                  >
-                    {{ analysis.fieldErrors["knowns.faceDiagonals.wh"] }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p class="cuboid-section-label">{{ __("Face perimeters") }}</p>
-              <div class="mt-3 grid gap-4 md:grid-cols-3">
-                <div class="space-y-1.5">
-                  <FormInput
-                    v-model="knowns.facePerimeters.lw"
-                    type="number"
-                    step="any"
-                    :label="__('lw face perimeter')"
-                    :error="analysis.fieldErrors['knowns.facePerimeters.lw']"
-                  />
-                  <p
-                    v-if="analysis.fieldErrors['knowns.facePerimeters.lw']"
-                    class="cuboid-field-error"
-                  >
-                    {{ analysis.fieldErrors["knowns.facePerimeters.lw"] }}
-                  </p>
-                </div>
-                <div class="space-y-1.5">
-                  <FormInput
-                    v-model="knowns.facePerimeters.lh"
-                    type="number"
-                    step="any"
-                    :label="__('lh face perimeter')"
-                    :error="analysis.fieldErrors['knowns.facePerimeters.lh']"
-                  />
-                  <p
-                    v-if="analysis.fieldErrors['knowns.facePerimeters.lh']"
-                    class="cuboid-field-error"
-                  >
-                    {{ analysis.fieldErrors["knowns.facePerimeters.lh"] }}
-                  </p>
-                </div>
-                <div class="space-y-1.5">
-                  <FormInput
-                    v-model="knowns.facePerimeters.wh"
-                    type="number"
-                    step="any"
-                    :label="__('wh face perimeter')"
-                    :error="analysis.fieldErrors['knowns.facePerimeters.wh']"
-                  />
-                  <p
-                    v-if="analysis.fieldErrors['knowns.facePerimeters.wh']"
-                    class="cuboid-field-error"
-                  >
-                    {{ analysis.fieldErrors["knowns.facePerimeters.wh"] }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle class="cuboid-card-title">
-              {{ __("How it's calculated") }}
+              {{ __("How it is calculated") }}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Accordion type="single" collapsible default-value="steps">
               <AccordionItem value="steps" class="border-none">
-                <AccordionTrigger class="py-0 text-left text-sm font-semibold hover:no-underline">
+                <AccordionTrigger
+                  class="py-0 text-left text-sm font-semibold hover:no-underline"
+                >
                   {{ __("Show calculation steps") }}
                 </AccordionTrigger>
                 <AccordionContent class="pt-4">
-                  <div class="space-y-3">
+                  <div v-if="calculationSteps.length" class="cuboid-steps">
                     <div
-                      v-for="step in analysis.steps"
-                      :key="`${step.title}-${step.formula}`"
-                      class="cuboid-step-card"
+                      v-for="step in calculationSteps"
+                      :key="`${step.field}-${step.formula}`"
+                      class="cuboid-step"
                     >
-                      <div class="flex items-center justify-between gap-3">
-                        <p class="text-sm font-semibold text-foreground">
-                          {{ step.title }}
-                        </p>
-                        <span class="font-mono text-xs text-muted-foreground">
-                          {{ step.formula }}
-                        </span>
+                      <div>
+                        <strong>{{ __(step.label) }}</strong>
+                        <code>{{ step.formula }}</code>
                       </div>
-                      <p
-                        v-if="step.detail"
-                        class="mt-2 font-mono text-sm text-muted-foreground"
-                      >
-                        {{ step.detail }}
-                      </p>
-                      <p class="mt-2 text-lg font-bold text-foreground">
-                        {{ displayNumber(step.result) }}
-                      </p>
-                      <p v-if="step.helper" class="mt-1 text-xs text-muted-foreground">
-                        {{ __(step.helper) }}
-                      </p>
+                      <p>{{ step.substitution }}</p>
+                      <b>
+                        {{
+                          formatDisplayValue(
+                            fromBaseUnit(
+                              step.result,
+                              unit,
+                              step.dimension,
+                            ),
+                          )
+                        }}
+                        {{ unitLabel(unit, step.dimension) }}
+                      </b>
                     </div>
-                    <p
-                      v-if="!analysis.steps.length"
-                      class="text-sm text-muted-foreground"
-                    >
-                      {{ __("Enter valid dimensions first.") }}
-                    </p>
                   </div>
+                  <p v-else class="text-sm text-muted-foreground">
+                    {{
+                      __(
+                        "Enter enough compatible information to see the calculation path.",
+                      )
+                    }}
+                  </p>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </CardContent>
         </Card>
       </div>
-
-      <aside class="space-y-6">
-        <Card class="cuboid-result-shell">
-          <CardHeader>
-            <CardTitle class="cuboid-card-title flex items-center justify-between gap-3">
-              <span>{{ __("Result") }}</span>
-              <div class="cuboid-icon-chip">
-                <Box :size="18" />
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="space-y-4">
-            <div class="cuboid-status-grid">
-              <div class="cuboid-status-card">
-                <p class="cuboid-status-label">{{ __("Solved dimensions") }}</p>
-                <p class="cuboid-status-value">{{ resolvedCount }}/3</p>
-              </div>
-              <div class="cuboid-status-card">
-                <p class="cuboid-status-label">{{ __("Live mode") }}</p>
-                <p class="cuboid-status-value">
-                  {{ analysis.hasAnyInput ? __("Active") : __("Ready") }}
-                </p>
-              </div>
-            </div>
-
-            <div
-              v-if="analysis.errors.length"
-              class="rounded-xl border border-destructive/30 bg-destructive/8 px-4 py-3"
-            >
-              <div class="mb-2 flex items-center gap-2 text-sm font-semibold text-destructive">
-                <AlertTriangle :size="16" />
-                <span>{{ __("Check your values") }}</span>
-              </div>
-              <ul class="space-y-1 text-sm text-destructive">
-                <li v-for="message in analysis.errors" :key="message">
-                  {{ message }}
-                </li>
-              </ul>
-            </div>
-
-            <Alert
-              v-if="analysis.warnings.length"
-              class="border-chart-3/30 bg-chart-3/10 text-chart-3 dark:border-chart-3 dark:bg-chart-3/20 dark:text-chart-3"
-            >
-              <AlertDescription>
-                <ul class="space-y-1">
-                  <li v-for="message in analysis.warnings" :key="message">
-                    {{ message }}
-                  </li>
-                </ul>
-              </AlertDescription>
-            </Alert>
-
-            <div
-              class="grid gap-3 sm:grid-cols-2"
-              :class="{ 'opacity-80': !resultHasData }"
-            >
-              <div class="cuboid-result-card" :class="{ 'is-muted': analysis.result.length === null }">
-                <p class="cuboid-result-label">{{ __("Length (l)") }}</p>
-                <p class="cuboid-result-value">{{ displayNumber(analysis.result.length) }}</p>
-                <p class="cuboid-result-helper">{{ __("units") }}</p>
-              </div>
-              <div class="cuboid-result-card" :class="{ 'is-muted': analysis.result.width === null }">
-                <p class="cuboid-result-label">{{ __("Width (w)") }}</p>
-                <p class="cuboid-result-value">{{ displayNumber(analysis.result.width) }}</p>
-                <p class="cuboid-result-helper">{{ __("units") }}</p>
-              </div>
-              <div class="cuboid-result-card" :class="{ 'is-muted': analysis.result.height === null }">
-                <p class="cuboid-result-label">{{ __("Height (h)") }}</p>
-                <p class="cuboid-result-value">{{ displayNumber(analysis.result.height) }}</p>
-                <p class="cuboid-result-helper">{{ __("units") }}</p>
-              </div>
-              <div class="cuboid-result-card">
-                <p class="cuboid-result-label">{{ __("Preview") }}</p>
-                <p class="cuboid-result-value text-base">
-                  {{ __("The 3D cuboid updates from the solved dimensions above.") }}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle class="cuboid-card-title">
-              {{ __("Core properties") }}
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="grid gap-3 sm:grid-cols-2">
-            <div
-              v-for="item in coreResultCards"
-              :key="item.label"
-              class="cuboid-result-card"
-              :class="{ 'is-muted': item.value === null }"
-            >
-              <p class="cuboid-result-label">{{ __(item.label) }}</p>
-              <p class="cuboid-result-value">{{ displayNumber(item.value) }}</p>
-              <p v-if="item.helper" class="cuboid-result-helper">{{ __(item.helper) }}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle class="cuboid-card-title">
-              {{ __("Face metrics") }}
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="space-y-4">
-            <div>
-              <p class="cuboid-section-label">{{ __("Face areas") }}</p>
-              <div class="mt-3 grid gap-3">
-                <div
-                  v-for="item in faceAreaCards"
-                  :key="item.label"
-                  class="cuboid-result-card"
-                  :class="{ 'is-muted': item.value === null }"
-                >
-                  <p class="cuboid-result-label">{{ __(item.label) }}</p>
-                  <p class="cuboid-result-value">{{ displayNumber(item.value) }}</p>
-                  <p class="cuboid-result-helper">{{ __(item.helper) }}</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p class="cuboid-section-label">{{ __("Face diagonals") }}</p>
-              <div class="mt-3 grid gap-3">
-                <div
-                  v-for="item in faceDiagonalCards"
-                  :key="item.label"
-                  class="cuboid-result-card"
-                  :class="{ 'is-muted': item.value === null }"
-                >
-                  <p class="cuboid-result-label">{{ __(item.label) }}</p>
-                  <p class="cuboid-result-value">{{ displayNumber(item.value) }}</p>
-                  <p class="cuboid-result-helper">{{ __(item.helper) }}</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p class="cuboid-section-label">{{ __("Face perimeters") }}</p>
-              <div class="mt-3 grid gap-3">
-                <div
-                  v-for="item in facePerimeterCards"
-                  :key="item.label"
-                  class="cuboid-result-card"
-                  :class="{ 'is-muted': item.value === null }"
-                >
-                  <p class="cuboid-result-label">{{ __(item.label) }}</p>
-                  <p class="cuboid-result-value">{{ displayNumber(item.value) }}</p>
-                  <p class="cuboid-result-helper">{{ __(item.helper) }}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </aside>
     </div>
+
+    <Card v-if="resultRows.length">
+      <CardHeader>
+        <CardTitle class="cuboid-card-title">
+          {{ __("Calculated properties") }}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div class="cuboid-result-grid">
+          <div v-for="row in resultRows" :key="row.key">
+            <span>{{ __(row.label) }}</span>
+            <code>{{ row.symbol }}</code>
+            <strong>{{ row.value }}</strong>
+            <small>{{ row.unit }}</small>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   </div>
 </template>
 
 <style scoped>
 .cuboid-calculator {
-  --cuboid-soft-shadow: 0 18px 56px color-mix(in srgb, var(--ring) 8%, transparent);
+  --cuboid-accent: var(--chart-4);
 }
 
 .cuboid-toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .cuboid-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--cuboid-accent) 35%, var(--border));
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--chart-4) 26%, transparent);
-  background: color-mix(in srgb, var(--chart-4) 10%, transparent);
-  color: var(--chart-4);
-  padding: 0.45rem 0.85rem;
+  background: color-mix(in srgb, var(--cuboid-accent) 10%, var(--card));
+  color: var(--cuboid-accent);
+  padding: 0.4rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 700;
+}
+
+.cuboid-control,
+.cuboid-candidate-control {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cuboid-select,
+.cuboid-candidate-control select {
+  min-width: 5rem;
+  height: 2.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  color: var(--foreground);
+  padding: 0 2rem 0 0.75rem;
+}
+
+.cuboid-candidate-control select {
+  width: 100%;
+  text-transform: none;
 }
 
 .cuboid-card-title {
   color: var(--foreground);
   font-size: 0.95rem;
   font-weight: 800;
-  letter-spacing: 0;
 }
 
-.cuboid-section-label,
-.cuboid-result-label,
-.cuboid-status-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.cuboid-field {
+  border-left: 3px solid transparent;
+  padding-left: 0.75rem;
+}
+
+.cuboid-field[data-status="entered"] {
+  border-left-color: var(--primary);
+}
+
+.cuboid-field[data-status="calculated"] {
+  border-left-color: var(--cuboid-accent);
+}
+
+.cuboid-field[data-status="invalid"],
+.cuboid-field[data-status="conflicting"] {
+  border-left-color: var(--destructive);
+}
+
+.cuboid-symbol,
+.cuboid-state,
+.cuboid-summary span {
   color: var(--muted-foreground);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cuboid-symbol {
+  font-family: var(--font-mono);
+}
+
+.cuboid-field[data-status="entered"] .cuboid-state {
+  color: var(--primary);
+}
+
+.cuboid-field[data-status="calculated"] .cuboid-state {
+  color: var(--cuboid-accent);
+}
+
+.cuboid-field[data-status="invalid"] .cuboid-state,
+.cuboid-field[data-status="conflicting"] .cuboid-state {
+  color: var(--destructive);
+}
+
+.cuboid-unit {
+  flex: none;
+  padding-right: 0.75rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
 }
 
 .cuboid-field-error {
-  color: var(--color-destructive);
+  margin-top: 0.35rem;
+  color: var(--destructive);
   font-size: 0.75rem;
   font-weight: 600;
 }
 
 .cuboid-icon-chip {
   display: inline-flex;
-  height: 2.5rem;
-  width: 2.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
   align-items: center;
   justify-content: center;
-  border-radius: 0.875rem;
-  border: 1px solid color-mix(in srgb, var(--chart-4) 28%, var(--border));
-  background: color-mix(in srgb, var(--chart-4) 10%, transparent);
-  color: var(--chart-4);
+  border: 1px solid color-mix(in srgb, var(--cuboid-accent) 30%, var(--border));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--cuboid-accent) 10%, var(--card));
+  color: var(--cuboid-accent);
 }
 
-.cuboid-status-grid {
+.cuboid-summary {
   display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.cuboid-status-card,
-.cuboid-result-card,
-.cuboid-step-card {
-  border-radius: 0.875rem;
-  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
-  background: color-mix(in srgb, var(--muted) 42%, transparent);
-  box-shadow: var(--cuboid-soft-shadow);
-}
-
-.cuboid-status-card {
-  padding: 1rem;
-}
-
-.cuboid-status-value,
-.cuboid-result-value {
-  margin-top: 0.45rem;
-  color: var(--foreground);
-  font-weight: 800;
-}
-
-.cuboid-status-value {
-  font-size: 1.15rem;
-}
-
-.cuboid-result-card,
-.cuboid-step-card {
-  padding: 1rem;
-}
-
-.cuboid-result-value {
-  font-size: 1.35rem;
-  line-height: 1.2;
-}
-
-.cuboid-result-helper {
-  margin-top: 0.35rem;
-  font-size: 0.75rem;
-  color: var(--muted-foreground);
-}
-
-.cuboid-result-card.is-muted {
-  opacity: 0.5;
-}
-
-.cuboid-result-shell {
-  background:
-    radial-gradient(
-      circle at top right,
-      color-mix(in srgb, var(--chart-4) 10%, transparent),
-      transparent 16rem
-    ),
-    color-mix(in srgb, var(--card) 90%, transparent);
-}
-
-.cuboid-calculator :deep([data-slot="card"]) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  border-color: color-mix(in srgb, var(--border) 82%, transparent);
-  background:
-    radial-gradient(
-      circle at top right,
-      color-mix(in srgb, var(--chart-4) 8%, transparent),
-      transparent 14rem
-    ),
-    color-mix(in srgb, var(--card) 88%, transparent);
-  box-shadow: var(--cuboid-soft-shadow);
 }
 
-.cuboid-calculator :deep([data-slot="card-header"]) {
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 74%, transparent);
-  background: color-mix(in srgb, var(--muted) 35%, transparent);
-  padding-bottom: 1rem;
+.cuboid-summary > div {
+  min-width: 0;
+  border-right: 1px solid var(--border);
+  padding: 0.8rem;
 }
 
-.cuboid-calculator :deep(label) {
+.cuboid-summary > div:last-child {
+  border-right: 0;
+}
+
+.cuboid-summary strong {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-top: 0.35rem;
+  color: var(--foreground);
+  font-size: 0.95rem;
+}
+
+.cuboid-conflict {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cuboid-conflict button {
+  display: inline-flex;
+  width: 1.8rem;
+  height: 1.8rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-xs);
+}
+
+.cuboid-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.cuboid-legend span {
+  border-left: 3px solid var(--border);
   color: var(--muted-foreground);
-  font-size: 0.75rem;
+  padding-left: 0.45rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
 }
 
-.cuboid-calculator :deep([data-slot="input-group"]) {
-  min-height: 3rem;
-  border-color: color-mix(in srgb, var(--border) 84%, transparent);
-  background: color-mix(in srgb, var(--background) 70%, transparent);
+.cuboid-legend span[data-tone="entered"] {
+  border-left-color: var(--primary);
 }
 
-.cuboid-calculator :deep([data-slot="input-group"]:focus-within) {
-  border-color: color-mix(in srgb, var(--chart-4) 65%, var(--border));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--chart-4) 14%, transparent);
+.cuboid-legend span[data-tone="calculated"] {
+  border-left-color: var(--cuboid-accent);
 }
 
-.cuboid-calculator :deep(input) {
-  font-family: var(--font-mono);
+.cuboid-legend span[data-tone="conflicting"] {
+  border-left-color: var(--destructive);
+}
+
+.cuboid-steps {
+  display: grid;
+  max-height: 28rem;
+  overflow-y: auto;
+}
+
+.cuboid-step {
+  display: grid;
+  gap: 0.45rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem 0;
+}
+
+.cuboid-step:last-child {
+  border-bottom: 0;
+}
+
+.cuboid-step > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cuboid-step strong,
+.cuboid-step b {
   color: var(--foreground);
+  font-size: 0.8rem;
 }
 
-.cuboid-calculator :deep([data-slot="button"]) {
-  min-height: 2.75rem;
-  border-radius: 0.75rem;
-  font-weight: 800;
+.cuboid-step code,
+.cuboid-step p {
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
 }
 
-.cuboid-calculator :deep([data-slot="button"][data-variant="outline"]) {
-  border-color: color-mix(in srgb, var(--border) 88%, transparent);
-  background: color-mix(in srgb, var(--muted) 45%, transparent);
+.cuboid-result-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.cuboid-result-grid > div {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.2rem 0.5rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem;
+}
+
+.cuboid-result-grid > div:nth-child(4n) {
+  border-right: 0;
+}
+
+.cuboid-result-grid span,
+.cuboid-result-grid small,
+.cuboid-result-grid code {
+  color: var(--muted-foreground);
+  font-size: 0.68rem;
+}
+
+.cuboid-result-grid code,
+.cuboid-result-grid small {
+  text-align: right;
+}
+
+.cuboid-result-grid strong {
+  overflow-wrap: anywhere;
   color: var(--foreground);
+  font-size: 0.95rem;
 }
 
-@media (max-width: 48rem) {
-  .cuboid-status-grid {
+@media (max-width: 64rem) {
+  .cuboid-result-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cuboid-result-grid > div:nth-child(4n) {
+    border-right: 1px solid var(--border);
+  }
+
+  .cuboid-result-grid > div:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 36rem) {
+  .cuboid-summary,
+  .cuboid-result-grid {
     grid-template-columns: 1fr;
+  }
+
+  .cuboid-summary > div,
+  .cuboid-result-grid > div {
+    border-right: 0;
   }
 }
 </style>

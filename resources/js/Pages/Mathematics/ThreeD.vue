@@ -60,9 +60,9 @@ const rememberedState = useRemember(
   "mathematics.three-d",
 );
 const shape = computed({
-  get: () => rememberedState.shape,
+  get: () => rememberedState.value.shape,
   set: (value: ShapeKey) => {
-    rememberedState.shape = value;
+    rememberedState.value.shape = value;
   },
 });
 const { theme } = useTheme();
@@ -116,7 +116,11 @@ const activeShape = computed(
     shapeOptions.find((item) => item.value === shape.value) ?? shapeOptions[0],
 );
 
-const formDimensions = ref<Dimensions>({ length: 4, width: 3, height: 2 });
+const formDimensions = ref<Dimensions>({
+  length: null,
+  width: null,
+  height: null,
+});
 const cubeSide = ref<NullableNumber>(null);
 const stairInput = ref<StairInput>({
   steps: 8,
@@ -138,11 +142,47 @@ const toPositive = (value: NullableNumber, fallback = 1) => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 };
 
-const renderBox = computed(() => ({
-  length: toPositive(formDimensions.value.length, 4),
-  width: toPositive(formDimensions.value.width, 3),
-  height: toPositive(formDimensions.value.height, 2),
-}));
+function normalizePreviewDimensions(
+  values: number[],
+  maximumExtent: number,
+  minimumExtent = 0.12,
+): number[] {
+  const largest = Math.max(...values);
+  if (!Number.isFinite(largest) || largest <= 0) {
+    return values.map(() => minimumExtent);
+  }
+
+  const scale = maximumExtent / largest;
+  return values.map((value) =>
+    Math.max(minimumExtent, value * scale),
+  );
+}
+
+function visualMagnitude(
+  value: NullableNumber,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+): number {
+  const positive = toPositive(value, fallback);
+  return Math.min(
+    maximum,
+    Math.max(minimum, 2.2 + Math.log10(positive)),
+  );
+}
+
+const renderBox = computed(() => {
+  const [length, width, height] = normalizePreviewDimensions(
+    [
+      toPositive(formDimensions.value.length, 4),
+      toPositive(formDimensions.value.width, 3),
+      toPositive(formDimensions.value.height, 2),
+    ],
+    4.4,
+  );
+
+  return { length, width, height };
+});
 
 const cuboidCameraPosition = computed<[number, number, number]>(() => {
   const maxDimension = Math.max(
@@ -166,10 +206,7 @@ const cuboidLookAt = computed<[number, number, number]>(() => [
 ]);
 
 const renderCubeSide = computed(() => {
-  const side = cubeSide.value;
-  if (side === null || !Number.isFinite(side) || side <= 0) return 1.8;
-
-  return Math.min(6, Math.max(0.8, 2.8 + Math.log10(side)));
+  return visualMagnitude(cubeSide.value, 1.8, 0.9, 5.2);
 });
 
 const cubeCameraPosition = computed<[number, number, number]>(() => {
@@ -303,23 +340,59 @@ const activeLookAt = computed<[number, number, number]>(() => {
   return [0, 0, 0];
 });
 
-const renderSphereRadius = computed(() => toPositive(sphereRadius.value, 1.4));
-const renderConeRadius = computed(() => toPositive(coneRadius.value, 1.2));
-const renderConeHeight = computed(() => toPositive(coneHeight.value, 2.4));
-const renderCylinderRadius = computed(() =>
-  toPositive(cylinderRadius.value, 1.2),
+const renderSphereRadius = computed(() =>
+  visualMagnitude(sphereRadius.value, 1.4, 0.85, 3.1),
 );
-const renderCylinderHeight = computed(() =>
-  toPositive(cylinderHeight.value, 2.4),
+const renderCone = computed(() => {
+  const [diameter, height] = normalizePreviewDimensions(
+    [
+      toPositive(coneRadius.value, 1.2) * 2,
+      toPositive(coneHeight.value, 2.4),
+    ],
+    4.4,
+  );
+
+  return { radius: diameter / 2, height };
+});
+const renderConeRadius = computed(() => renderCone.value.radius);
+const renderConeHeight = computed(() => renderCone.value.height);
+const renderCylinder = computed(() => {
+  const [diameter, height] = normalizePreviewDimensions(
+    [
+      toPositive(cylinderRadius.value, 1.2) * 2,
+      toPositive(cylinderHeight.value, 2.4),
+    ],
+    4.4,
+  );
+
+  return { radius: diameter / 2, height };
+});
+const renderCylinderRadius = computed(
+  () => renderCylinder.value.radius,
+);
+const renderCylinderHeight = computed(
+  () => renderCylinder.value.height,
 );
 
 const renderStair = computed(() => {
   const risers = Math.max(2, Math.round(toPositive(stairInput.value.steps, 8)));
   const treads = Math.max(1, risers - 1);
-  const stepWidth = toPositive(stairInput.value.stepWidth, 1.2);
-  const rise = toPositive(stairInput.value.rise, 0.18);
-  const run = toPositive(stairInput.value.run, 0.28);
-  const depth = toPositive(stairInput.value.depth, 0.05);
+  const rawStepWidth = toPositive(stairInput.value.stepWidth, 1.2);
+  const rawRise = toPositive(stairInput.value.rise, 0.18);
+  const rawRun = toPositive(stairInput.value.run, 0.28);
+  const rawDepth = toPositive(stairInput.value.depth, 0.05);
+  const rawTotalRise = risers * rawRise;
+  const rawTotalGoing = treads * rawRun;
+  const largest = Math.max(
+    rawStepWidth,
+    rawTotalRise,
+    rawTotalGoing,
+  );
+  const scale = 4.8 / largest;
+  const stepWidth = Math.max(0.12, rawStepWidth * scale);
+  const rise = Math.max(0.04, rawRise * scale);
+  const run = Math.max(0.04, rawRun * scale);
+  const depth = Math.max(0.025, rawDepth * scale);
 
   return {
     risers,
@@ -438,7 +511,7 @@ const sceneColors = computed(() => {
                 :position="activeCameraPosition"
                 :look-at="activeLookAt"
               />
-              <OrbitControls />
+              <OrbitControls :target="activeLookAt" />
               <TresAmbientLight :intensity="1.5" />
               <TresDirectionalLight :position="[3, 5, 3]" :intensity="1.5" />
               <TresGridHelper :args="[20, 20]" />
@@ -689,48 +762,50 @@ const sceneColors = computed(() => {
       </section>
 
       <section class="geometry-calculator-panel">
-        <CuboidCalculator
-          v-if="shape === 'cuboid'"
-          :dimensions="formDimensions"
-          @update:dimensions="formDimensions = $event"
-          @submit="handleCuboidSubmit"
-        />
+        <KeepAlive>
+          <CuboidCalculator
+            v-if="shape === 'cuboid'"
+            :dimensions="formDimensions"
+            @update:dimensions="formDimensions = $event"
+            @submit="handleCuboidSubmit"
+          />
 
-        <CubeCalculator
-          v-else-if="shape === 'cube'"
-          :side="cubeSide"
-          @update:side="cubeSide = $event"
-        />
+          <CubeCalculator
+            v-else-if="shape === 'cube'"
+            :side="cubeSide"
+            @update:side="cubeSide = $event"
+          />
 
-        <SphereCalculator
-          v-else-if="shape === 'sphere'"
-          @update:radius="sphereRadius = $event"
-        />
+          <SphereCalculator
+            v-else-if="shape === 'sphere'"
+            @update:radius="sphereRadius = $event"
+          />
 
-        <ConeCalculator
-          v-else-if="shape === 'cone'"
-          @update:cone="
-            (v) => {
-              coneRadius = v.radius;
-              coneHeight = v.height;
-            }
-          "
-        />
+          <ConeCalculator
+            v-else-if="shape === 'cone'"
+            @update:cone="
+              (v) => {
+                coneRadius = v.radius;
+                coneHeight = v.height;
+              }
+            "
+          />
 
-        <CylinderCalculator
-          v-else-if="shape === 'cylinder'"
-          @update:cylinder="
-            (v) => {
-              cylinderRadius = v.radius;
-              cylinderHeight = v.height;
-            }
-          "
-        />
+          <CylinderCalculator
+            v-else-if="shape === 'cylinder'"
+            @update:cylinder="
+              (v) => {
+                cylinderRadius = v.radius;
+                cylinderHeight = v.height;
+              }
+            "
+          />
 
-        <StairCalculator
-          v-else-if="shape === 'stairs'"
-          @update:stair="handleStairUpdate"
-        />
+          <StairCalculator
+            v-else-if="shape === 'stairs'"
+            @update:stair="handleStairUpdate"
+          />
+        </KeepAlive>
       </section>
     </div>
   </AdminFormLayout>

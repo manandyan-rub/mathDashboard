@@ -5,7 +5,11 @@
     "noEmit": true
   },
   "include": [
+    "resources/js/composables/useMathWorkspace.ts",
     "resources/js/lib/geometry/**/*.ts",
+    "resources/js/lib/mathWorkspace/**/*.ts",
+    "resources/js/types/geometryCalculator.ts",
+    "resources/js/types/mathWorkspace.ts",
     "resources/js/types/twoDGeometry.ts"
   ]
 }

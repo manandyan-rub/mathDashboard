@@ -68,5 +68,6 @@
     "Enter any cube property or load the example.": "Մուտքագրեք խորանարդի որևէ հատկություն կամ բեռնեք օրինակը։",
     "Solve the side": "Հաշվել կողը",
     "Enter a valid property to see the calculation path.": "Մուտքագրեք վավեր հատկություն՝ հաշվարկի քայլերը տեսնելու համար։",
-    "auth.password": "Գաղտնաբառը սխալ է։"
+    "auth.password": "Գաղտնաբառը սխալ է։",
+    "Calculation saved.": "Հաշվարկը պահպանված է։"
 }

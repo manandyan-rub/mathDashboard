@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": false,
+    "declaration": false,
+    "noEmit": false,
+    "outDir": "./storage/framework/testing/geometry",
+    "rootDir": "."
+  },
+  "include": [
+    "resources/js/lib/geometry/cuboid.ts",
+    "resources/js/lib/geometry/units.ts",
+    "resources/js/types/geometryCalculator.ts"
+  ]
+}

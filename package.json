@@ -5,7 +5,8 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "typecheck:geometry": "tsc -p tsconfig.geometry.json"
+        "typecheck:geometry": "tsc -p tsconfig.geometry.json",
+        "test:geometry": "tsc -p tsconfig.geometry-tests.json && node --test tests/frontend/geometry/cuboid.test.mjs"
     },
     "devDependencies": {
         "@inertiajs/vue3": "^2.3.18",

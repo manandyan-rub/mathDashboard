@@ -5,6 +5,7 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\MathematicsControlller;
 use App\Http\Controllers\FormulaController;
 use App\Http\Controllers\MathLevelController;
+use App\Http\Controllers\MathWorkspaceController;
 use App\Http\Controllers\TeacherExerciseStudioController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,10 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('mathematics', [MathematicsControlller::class, 'index'])->name('mathematics.index');
+    Route::get('mathematics/workspace', [MathWorkspaceController::class, 'index'])
+        ->name('mathematics.workspace');
+    Route::post('mathematics/workspace/saves', [MathWorkspaceController::class, 'store'])
+        ->name('mathematics.workspace.saves.store');
     Route::get('mathematics/twoD', [MathematicsControlller::class, 'twoD'])->name('mathematics.twoD');
     Route::get('mathematics/threeD', [MathematicsControlller::class, 'threeD'])->name('mathematics.threeD');
     Route::get('mathematics/integral', [MathematicsControlller::class, 'integral'])->name('mathematics.integral');

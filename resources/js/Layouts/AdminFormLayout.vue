@@ -20,7 +20,7 @@ defineProps<{
     </template>
 
     <template #header>
-      <h1 class="text-lg font-semibold">
+      <h1 class="truncate text-base font-semibold sm:text-lg">
         {{ title }}
       </h1>
     </template>

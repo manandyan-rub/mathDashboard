@@ -68,5 +68,6 @@
     "Enter any cube property or load the example.": "Enter any cube property or load the example.",
     "Solve the side": "Solve the side",
     "Enter a valid property to see the calculation path.": "Enter a valid property to see the calculation path.",
-    "auth.password": "The password is incorrect."
+    "auth.password": "The password is incorrect.",
+    "Calculation saved.": "Calculation saved."
 }

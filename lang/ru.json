@@ -68,5 +68,6 @@
     "Enter any cube property or load the example.": "Введите любое свойство куба или загрузите пример.",
     "Solve the side": "Вычислить ребро",
     "Enter a valid property to see the calculation path.": "Введите допустимое свойство, чтобы увидеть ход вычисления.",
-    "auth.password": "Пароль указан неверно."
+    "auth.password": "Пароль указан неверно.",
+    "Calculation saved.": "Вычисление сохранено."
 }
