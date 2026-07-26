@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, type Component } from "vue";
+import { useRemember } from "@inertiajs/vue3";
 import { TresCanvas } from "@tresjs/core";
 import { OrbitControls } from "@tresjs/cientos";
 import AdminFormLayout from "@/Layouts/AdminFormLayout.vue";
@@ -8,6 +9,7 @@ import { cmsTranslate as __ } from "@/lib/i18n";
 import { themeColor } from "@/lib/themeColors";
 import {
   Box,
+  Boxes,
   Calculator,
   Circle,
   Layers,
@@ -16,13 +18,20 @@ import {
 } from "lucide-vue-next";
 
 import CubeCalculator from "./Partials/CubeCalculator.vue";
+import CuboidCalculator from "./Partials/CuboidCalculator.vue";
 import SphereCalculator from "./Partials/SphereCalculator.vue";
 import ConeCalculator from "./Partials/ConeCalculator.vue";
 import CylinderCalculator from "./Partials/CylinderCalculator.vue";
 import StairCalculator from "./Partials/StairCalculator.vue";
 
 type NullableNumber = number | null;
-type ShapeKey = "cuboid" | "sphere" | "cone" | "cylinder" | "stairs";
+type ShapeKey =
+  | "cuboid"
+  | "cube"
+  | "sphere"
+  | "cone"
+  | "cylinder"
+  | "stairs";
 
 type Dimensions = {
   length: NullableNumber;
@@ -46,15 +55,31 @@ type ShapeOption = {
   color: string;
 };
 
-const shape = ref<ShapeKey>("cuboid");
+const rememberedState = useRemember(
+  { shape: "cuboid" as ShapeKey },
+  "mathematics.three-d",
+);
+const shape = computed({
+  get: () => rememberedState.shape,
+  set: (value: ShapeKey) => {
+    rememberedState.shape = value;
+  },
+});
 const { theme } = useTheme();
 const shapeOptions: ShapeOption[] = [
   {
     value: "cuboid",
     label: "Cuboid",
     metric: "l × w × h",
-    icon: Box,
+    icon: Boxes,
     color: "var(--chart-4)",
+  },
+  {
+    value: "cube",
+    label: "Cube",
+    metric: "any 1 known",
+    icon: Box,
+    color: "var(--chart-1)",
   },
   {
     value: "sphere",
@@ -92,6 +117,7 @@ const activeShape = computed(
 );
 
 const formDimensions = ref<Dimensions>({ length: 4, width: 3, height: 2 });
+const cubeSide = ref<NullableNumber>(null);
 const stairInput = ref<StairInput>({
   steps: 8,
   stepWidth: 1.2,
@@ -118,7 +144,7 @@ const renderBox = computed(() => ({
   height: toPositive(formDimensions.value.height, 2),
 }));
 
-const cubeCameraPosition = computed<[number, number, number]>(() => {
+const cuboidCameraPosition = computed<[number, number, number]>(() => {
   const maxDimension = Math.max(
     renderBox.value.length,
     renderBox.value.width,
@@ -133,9 +159,27 @@ const cubeCameraPosition = computed<[number, number, number]>(() => {
   ];
 });
 
-const cubeLookAt = computed<[number, number, number]>(() => [
+const cuboidLookAt = computed<[number, number, number]>(() => [
   0,
   renderBox.value.height / 2,
+  0,
+]);
+
+const renderCubeSide = computed(() => {
+  const side = cubeSide.value;
+  if (side === null || !Number.isFinite(side) || side <= 0) return 1.8;
+
+  return Math.min(6, Math.max(0.8, 2.8 + Math.log10(side)));
+});
+
+const cubeCameraPosition = computed<[number, number, number]>(() => {
+  const distance = Math.max(7, renderCubeSide.value * 2.5);
+  return [distance, distance * 0.78, distance * 1.08];
+});
+
+const cubeLookAt = computed<[number, number, number]>(() => [
+  0,
+  renderCubeSide.value / 2,
   0,
 ]);
 
@@ -205,6 +249,10 @@ const stairLookAt = computed<[number, number, number]>(() => [
 
 const activeCameraPosition = computed<[number, number, number]>(() => {
   if (shape.value === "cuboid") {
+    return cuboidCameraPosition.value;
+  }
+
+  if (shape.value === "cube") {
     return cubeCameraPosition.value;
   }
 
@@ -229,6 +277,10 @@ const activeCameraPosition = computed<[number, number, number]>(() => {
 
 const activeLookAt = computed<[number, number, number]>(() => {
   if (shape.value === "cuboid") {
+    return cuboidLookAt.value;
+  }
+
+  if (shape.value === "cube") {
     return cubeLookAt.value;
   }
 
@@ -311,6 +363,7 @@ const sceneColors = computed(() => {
   return {
     background: themeColor("--background"),
     cuboid: themeColor("--chart-4"),
+    cube: themeColor("--chart-1"),
     sphere: themeColor("--chart-2"),
     stairs: themeColor("--primary"),
     cone: themeColor("--chart-3"),
@@ -337,11 +390,11 @@ const sceneColors = computed(() => {
                 <Sparkles :size="14" />
                 {{ __(activeShape.label) }}
               </span>
-              <span class="font-mono">{{ activeShape.metric }}</span>
+              <span class="font-mono">{{ __(activeShape.metric) }}</span>
             </div>
           </div>
 
-          <div class="grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-5 xl:w-auto xl:min-w-[42rem]">
+          <div class="grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-6 xl:w-auto xl:min-w-[48rem]">
             <button
               v-for="item in shapeOptions"
               :key="item.value"
@@ -408,6 +461,34 @@ const sceneColors = computed(() => {
                 >
                   <TresBoxGeometry
                     :args="[renderBox.length, renderBox.height, renderBox.width]"
+                  />
+                  <TresMeshBasicMaterial
+                    color="#ffffff"
+                    :wireframe="true"
+                    :transparent="true"
+                    :opacity="0.24"
+                  />
+                </TresMesh>
+              </template>
+
+              <template v-else-if="shape === 'cube'">
+                <TresMesh :position="[0, renderCubeSide / 2, 0]">
+                  <TresBoxGeometry
+                    :args="[renderCubeSide, renderCubeSide, renderCubeSide]"
+                  />
+                  <TresMeshStandardMaterial
+                    :color="sceneColors.cube"
+                    :metalness="0.08"
+                    :roughness="0.3"
+                  />
+                </TresMesh>
+
+                <TresMesh
+                  :position="[0, renderCubeSide / 2, 0]"
+                  :scale="[1.003, 1.003, 1.003]"
+                >
+                  <TresBoxGeometry
+                    :args="[renderCubeSide, renderCubeSide, renderCubeSide]"
                   />
                   <TresMeshBasicMaterial
                     color="#ffffff"
@@ -601,18 +682,24 @@ const sceneColors = computed(() => {
               :style="{ '--shape-accent': item.color }"
             >
               <span>{{ __(item.label) }}</span>
-              <span class="font-mono text-xs">{{ item.metric }}</span>
+              <span class="font-mono text-xs">{{ __(item.metric) }}</span>
             </div>
           </div>
         </aside>
       </section>
 
       <section class="geometry-calculator-panel">
-        <CubeCalculator
+        <CuboidCalculator
           v-if="shape === 'cuboid'"
           :dimensions="formDimensions"
           @update:dimensions="formDimensions = $event"
           @submit="handleCuboidSubmit"
+        />
+
+        <CubeCalculator
+          v-else-if="shape === 'cube'"
+          :side="cubeSide"
+          @update:side="cubeSide = $event"
         />
 
         <SphereCalculator
