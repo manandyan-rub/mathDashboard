@@ -4,6 +4,7 @@ import { usePage } from "@inertiajs/vue3";
 import AnimatedBackground from "@/components/AnimatedBackground.vue";
 import Dropdown from "@/components/Dropdown.vue";
 import DropdownLink from "@/components/DropdownLink.vue";
+import OrganizationContext from "@/components/OrganizationContext.vue";
 import { useTheme } from "@/composables/useTheme";
 import { getLanguage, setLanguage } from "@/lib/i18n";
 import type { LocaleCode } from "@/lib/i18n";
@@ -92,6 +93,10 @@ function changeLanguage(event: Event) {
             <slot name="sidebar" />
           </nav>
         </div>
+
+        <OrganizationContext
+          class="mx-4 mb-4 border-t border-sidebar-border/70 px-2 pt-4"
+        />
       </aside>
 
       <div class="flex h-screen flex-1 flex-col overflow-hidden">
@@ -155,6 +160,10 @@ function changeLanguage(event: Event) {
                       {{ user?.email ?? "" }}
                     </p>
                   </div>
+
+                  <OrganizationContext
+                    class="border-y border-border px-4 py-3"
+                  />
 
                   <DropdownLink :href="route('profile.edit')">{{
                     __("Profile")
@@ -220,7 +229,13 @@ function changeLanguage(event: Event) {
             class="admin-content-shell relative z-10 mx-auto min-h-full w-full border-x border-border bg-background p-6"
             :class="contentShellClass"
           >
-            <slot />
+            <div
+              :key="page.component"
+              class="page-enter"
+              :class="{ 'h-full': props.contentHeight === 'full' }"
+            >
+              <slot />
+            </div>
           </div>
         </main>
       </div>

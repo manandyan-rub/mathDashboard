@@ -1,6 +1,7 @@
 @import "leaflet/dist/leaflet.css";
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./motion.css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));

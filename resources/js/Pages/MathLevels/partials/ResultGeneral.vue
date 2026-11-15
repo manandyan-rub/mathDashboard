@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { Head, Link } from "@inertiajs/vue3";
 import axios from "axios";
-import { nextTick, onMounted, onUpdated, ref } from "vue";
+import { computed, nextTick, onMounted, onUpdated, ref } from "vue";
+import AnimatedNumber from "@/components/motion/AnimatedNumber.vue";
+import ConfettiBurst from "@/components/motion/ConfettiBurst.vue";
 import { route } from "ziggy-js";
-import { Award, Star } from "lucide-vue-next";
+import { ArrowLeft, Award, Check, Star, X, Zap } from "lucide-vue-next";
 import "mathlive";
 import { MathfieldElement } from "mathlive";
 
@@ -67,6 +69,15 @@ async function loadResult() {
   }
 }
 
+const RING_RADIUS = 52;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+const ringOffset = computed(() => {
+  if (loading.value) return RING_CIRCUMFERENCE;
+  const score = Math.min(100, Math.max(0, Number(summary.value.score) || 0));
+  return RING_CIRCUMFERENCE * (1 - score / 100);
+});
+const celebrate = computed(() => !loading.value && summary.value.passed);
+
 onMounted(loadResult);
 onUpdated(() => nextTick(renderMath));
 
@@ -129,56 +140,110 @@ function renderMath() {
 
   <div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
     <div
-      class="rounded-2xl border border-border/70 bg-card p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
+      v-reveal="'scale'"
+      class="aurora relative overflow-hidden rounded-2xl border border-border/70 bg-card/70 p-6 shadow-sm backdrop-blur-sm md:p-8"
     >
+      <ConfettiBurst v-if="celebrate" />
+
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div
-            class="flex h-12 w-12 items-center justify-center rounded-xl bg-chart-2 text-primary-foreground"
+            class="flex h-12 w-12 items-center justify-center rounded-xl text-primary-foreground shadow-lg"
+            :class="summary.passed ? 'bg-chart-2 shadow-chart-2/40' : 'bg-primary shadow-primary/40'"
           >
-            <Award :size="20" />
+            <Award :size="22" :class="{ 'spin-slow': celebrate }" />
           </div>
           <div>
-            <h1 class="text-2xl font-semibold text-foreground dark:text-primary-foreground">
+            <h1 class="text-shine text-2xl font-extrabold tracking-tight">
               {{ summary.level_title || "Մակարդակի արդյունք" }}
             </h1>
-            <p class="text-sm text-muted-foreground dark:text-muted-foreground">
-              XP {{ summary.xp_earned }}
+            <p class="mt-0.5 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+              <Zap :size="14" />
+              +<AnimatedNumber :value="Number(summary.xp_earned) || 0" /> XP
             </p>
           </div>
         </div>
         <Link
+          v-magnetic="0.15"
           :href="route('math-levels.index')"
-          class="rounded-xl border border-border px-4 py-2 text-sm text-muted-foreground transition hover:border-primary hover:text-primary dark:border-border dark:text-muted-foreground"
+          class="group inline-flex items-center gap-1.5 rounded-xl border border-border bg-card/80 px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-primary"
         >
+          <ArrowLeft :size="15" class="transition-transform group-hover:-translate-x-1" />
           Վերադառնալ մակարդակներին
         </Link>
       </div>
 
-      <div class="mt-5 grid gap-3 sm:grid-cols-4">
-        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Գնահատական</p>
-          <p class="mt-2 text-3xl font-semibold text-foreground dark:text-primary-foreground">
-            {{ summary.score }}%
-          </p>
-        </div>
-        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Աստղեր</p>
-          <div class="mt-2 flex items-center justify-center gap-1 text-chart-3">
-            <Star v-for="star in summary.stars" :key="star" :size="20" />
+      <div class="mt-6 grid items-center gap-6 md:grid-cols-[auto_1fr]">
+        <div class="relative mx-auto h-36 w-36">
+          <svg viewBox="0 0 120 120" class="h-full w-full -rotate-90">
+            <circle cx="60" cy="60" :r="RING_RADIUS" fill="none" stroke="var(--muted)" stroke-width="10" />
+            <circle
+              cx="60"
+              cy="60"
+              :r="RING_RADIUS"
+              fill="none"
+              :stroke="summary.passed ? 'var(--chart-2)' : 'var(--primary)'"
+              stroke-width="10"
+              stroke-linecap="round"
+              :stroke-dasharray="RING_CIRCUMFERENCE"
+              :stroke-dashoffset="ringOffset"
+              class="transition-[stroke-dashoffset] duration-[1600ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+              style="filter: drop-shadow(0 0 6px color-mix(in srgb, var(--primary) 50%, transparent))"
+            />
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <p class="text-3xl font-extrabold text-foreground">
+              <AnimatedNumber :value="loading ? 0 : Number(summary.score) || 0" />%
+            </p>
+            <p class="text-[11px] uppercase tracking-wider text-muted-foreground">Գնահատական</p>
           </div>
         </div>
-        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Ճիշտ</p>
-          <p class="mt-2 text-3xl font-semibold text-chart-2">
-            {{ summary.correct_answers }}
-          </p>
-        </div>
-        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Սխալ</p>
-          <p class="mt-2 text-3xl font-semibold text-destructive">
-            {{ summary.wrong_answers }}
-          </p>
+
+        <div class="space-y-4">
+          <div v-if="!loading" class="flex items-center justify-center gap-3 md:justify-start">
+            <span
+              v-for="star in 3"
+              :key="star"
+              class="star-pop"
+              :style="{ '--star-delay': `${600 + star * 260}ms` }"
+            >
+              <Star
+                :size="40"
+                :class="
+                  star <= summary.stars
+                    ? 'star-glow fill-chart-3 text-chart-3'
+                    : 'text-muted-foreground/30'
+                "
+              />
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div
+              v-reveal="{ variant: 'up', delay: 300 }"
+              v-tilt
+              class="rounded-xl border border-chart-2/30 bg-chart-2/10 p-4"
+            >
+              <p class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-chart-2">
+                <Check :size="13" :stroke-width="3" /> Ճիշտ
+              </p>
+              <p class="mt-1 text-3xl font-bold text-chart-2">
+                <AnimatedNumber :value="Number(summary.correct_answers) || 0" />
+              </p>
+            </div>
+            <div
+              v-reveal="{ variant: 'up', delay: 400 }"
+              v-tilt
+              class="rounded-xl border border-destructive/30 bg-destructive/10 p-4"
+            >
+              <p class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-destructive">
+                <X :size="13" :stroke-width="3" /> Սխալ
+              </p>
+              <p class="mt-1 text-3xl font-bold text-destructive">
+                <AnimatedNumber :value="Number(summary.wrong_answers) || 0" />
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -201,20 +266,24 @@ function renderMath() {
       <div
         v-for="(answer, index) in answers"
         :key="answer.question_id"
-        class="rounded-2xl border border-border/70 bg-card p-5 shadow-sm dark:border-border/60 dark:bg-card/60"
+        v-reveal="{ variant: 'up', delay: Math.min(index, 3) * 80 }"
+        class="rounded-2xl border bg-card/80 p-5 shadow-sm"
+        :class="answer.is_correct ? 'border-chart-2/30' : 'border-destructive/30'"
       >
         <div class="flex items-center justify-between gap-2">
           <div class="text-sm font-semibold text-muted-foreground">
             Հարց {{ index + 1 }}
           </div>
           <span
-            class="rounded-full px-3 py-1 text-xs font-semibold"
+            class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
             :class="
               answer.is_correct
                 ? 'bg-chart-2/10 text-chart-2 dark:bg-chart-2/20 dark:text-chart-2'
                 : 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'
             "
           >
+            <Check v-if="answer.is_correct" :size="12" :stroke-width="3" />
+            <X v-else :size="12" :stroke-width="3" />
             {{ answer.is_correct ? "Ճիշտ" : "Սխալ" }}
           </span>
         </div>

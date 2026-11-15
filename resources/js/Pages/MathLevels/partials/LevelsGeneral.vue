@@ -2,8 +2,20 @@
 import { Head, router } from "@inertiajs/vue3";
 import { cmsTranslate as __, useLanguageVersion } from "@/lib/i18n";
 import axios from "axios";
-import { computed, onMounted, ref, watch } from "vue";
-import { Lock, Sparkles, Star } from "lucide-vue-next";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {
+  Award,
+  Check,
+  Coins,
+  LoaderCircle,
+  Lock,
+  Play,
+  Sparkles,
+  Star,
+  Trophy,
+  Zap,
+} from "lucide-vue-next";
+import AnimatedNumber from "@/components/motion/AnimatedNumber.vue";
 
 type LevelItem = {
   id: number;
@@ -105,6 +117,68 @@ function startLevel(levelId: number) {
   );
 }
 
+const heroStats = computed(() => [
+  { key: "xp", label: "XP", value: Number(profile.value.total_xp) || 0, icon: Coins, tone: "bg-primary/15 text-primary" },
+  { key: "rank", label: __("Rank"), value: __(profile.value.current_rank), icon: Trophy, tone: "bg-chart-4/15 text-chart-4" },
+  { key: "stars", label: __("Stars"), value: Number(profile.value.total_stars) || 0, icon: Star, tone: "bg-chart-3/15 text-chart-3" },
+  { key: "completed", label: __("Completed"), value: Number(profile.value.completed_levels) || 0, icon: Award, tone: "bg-chart-2/15 text-chart-2" },
+]);
+
+const difficultyOptions = computed(() => [
+  { value: "all" as const, label: __("All") },
+  { value: "beginner" as const, label: __("Beginner") },
+  { value: "medium" as const, label: __("Medium") },
+  { value: "hard" as const, label: __("Hard") },
+]);
+
+const difficultyTone = (value: string | null | undefined) =>
+  ({
+    beginner: "bg-chart-2/15 text-chart-2",
+    medium: "bg-chart-3/15 text-chart-3",
+    hard: "bg-destructive/15 text-destructive",
+  })[difficultyBucket(value)];
+
+const completedCount = (path: PathItem) =>
+  path.levels.filter((level) => level.completed).length;
+
+const pathPercent = (path: PathItem) =>
+  path.levels.length === 0
+    ? 0
+    : Math.round((completedCount(path) / path.levels.length) * 100);
+
+/* sliding pill behind the active difficulty filter */
+const filterTrack = ref<HTMLElement | null>(null);
+const filterButtons = new Map<string, HTMLElement>();
+const indicatorStyle = ref<Record<string, string>>({ opacity: "0" });
+
+function setFilterButton(value: string, el: unknown) {
+  if (el instanceof HTMLElement) filterButtons.set(value, el);
+  else filterButtons.delete(value);
+}
+
+function moveIndicator() {
+  const button = filterButtons.get(difficultyFilter.value);
+  if (!button) return;
+  indicatorStyle.value = {
+    left: `${button.offsetLeft}px`,
+    width: `${button.offsetWidth}px`,
+    opacity: "1",
+  };
+}
+
+watch(difficultyFilter, () => nextTick(moveIndicator));
+watch(loading, (isLoading) => {
+  if (!isLoading) nextTick(moveIndicator);
+});
+watch(languageVersion, () => nextTick(moveIndicator));
+
+onMounted(() => {
+  window.addEventListener("resize", moveIndicator);
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", moveIndicator);
+});
+
 onMounted(loadLevels);
 
 watch(languageVersion, () => {
@@ -117,49 +191,50 @@ watch(languageVersion, () => {
 
   <div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
     <div
-      class="rounded-2xl border border-border/70 bg-card p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
+      class="aurora rounded-2xl border border-border/70 bg-card/70 p-6 shadow-sm backdrop-blur-sm md:p-8"
     >
-      <div class="flex items-center gap-3">
+      <span class="float-glyph" style="top: 10%; right: 6%; font-size: 4.5rem; --dur: 10s; --dx: -16px" aria-hidden="true">★</span>
+      <span class="float-glyph" style="bottom: 12%; right: 30%; font-size: 2.5rem; --dur: 8s; --delay: -3s" aria-hidden="true">π</span>
+      <span class="float-glyph" style="top: 18%; right: 42%; font-size: 2rem; --dur: 11s; --delay: -6s; --dx: 18px" aria-hidden="true">Δ</span>
+
+      <div v-reveal="'blur'" class="flex items-center gap-4">
         <div
-          class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground"
+          class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-chart-4 text-primary-foreground shadow-lg shadow-primary/30"
         >
-          <Sparkles :size="20" />
+          <Sparkles :size="24" class="spin-slow" />
         </div>
         <div>
-          <h1 class="text-2xl font-semibold text-foreground dark:text-primary-foreground">
+          <h1 class="text-shine text-3xl font-extrabold tracking-tight">
             {{ __("Math Levels") }}
           </h1>
-          <p class="text-sm text-muted-foreground dark:text-muted-foreground">
+          <p class="text-sm text-muted-foreground">
             {{ __("Choose your level, earn stars, and collect XP.") }}
           </p>
         </div>
       </div>
 
-      <div class="mt-4 grid gap-3 sm:grid-cols-4">
-        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">XP</p>
-          <p class="mt-2 text-2xl font-semibold text-foreground dark:text-primary-foreground">
-            {{ profile.total_xp }}
-          </p>
-        </div>
-        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ __("Rank") }}</p>
-          <p class="mt-2 text-2xl font-semibold text-foreground dark:text-primary-foreground">
-            {{ __(profile.current_rank) }}
-          </p>
-        </div>
-        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ __("Stars") }}</p>
-          <p class="mt-2 text-2xl font-semibold text-foreground dark:text-primary-foreground">
-            {{ profile.total_stars }}
-          </p>
-        </div>
-        <div class="rounded-xl bg-muted p-4 text-center dark:bg-card/60">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">
-            {{ __("Completed") }}
-          </p>
-          <p class="mt-2 text-2xl font-semibold text-foreground dark:text-primary-foreground">
-            {{ profile.completed_levels }}
+      <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div
+          v-for="(stat, index) in heroStats"
+          :key="stat.key"
+          v-reveal="{ variant: 'up', delay: 120 + index * 90 }"
+          v-tilt
+          class="rounded-xl border border-border bg-card/80 p-4"
+        >
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {{ stat.label }}
+            </p>
+            <span
+              class="motion-pop flex h-8 w-8 items-center justify-center rounded-lg"
+              :class="stat.tone"
+            >
+              <component :is="stat.icon" :size="16" />
+            </span>
+          </div>
+          <p class="mt-2 text-2xl font-bold text-foreground">
+            <AnimatedNumber v-if="typeof stat.value === 'number'" :value="stat.value" />
+            <span v-else>{{ stat.value }}</span>
           </p>
         </div>
       </div>
@@ -167,137 +242,203 @@ watch(languageVersion, () => {
 
     <div
       v-if="loading"
-      class="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground dark:border-border dark:text-muted-foreground"
+      class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+      aria-busy="true"
     >
-      {{ __("Loading...") }}
+      <div
+        v-for="n in 6"
+        :key="n"
+        class="h-48 animate-pulse rounded-xl border border-border bg-muted/60"
+        :style="{ animationDelay: `${n * 90}ms` }"
+      />
     </div>
 
     <div
       v-else-if="error"
-      class="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+      class="shake rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
     >
       {{ error }}
     </div>
 
     <div v-else class="space-y-6">
       <div
-        class="rounded-2xl border border-border/70 bg-card p-4 shadow-sm dark:border-border/60 dark:bg-card/60"
+        v-reveal="'up'"
+        class="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/70 p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
       >
-        <label class="text-xs font-semibold uppercase text-muted-foreground">
+        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {{ __("Difficulty") }}
-        </label>
-        <div class="mt-2 flex flex-wrap gap-2">
+        </span>
+        <div
+          ref="filterTrack"
+          class="relative inline-flex max-w-full overflow-x-auto rounded-full border border-border bg-muted/60 p-1"
+          role="tablist"
+        >
+          <span
+            class="absolute top-1 bottom-1 rounded-full bg-gradient-to-r from-primary to-chart-4 shadow-md shadow-primary/30 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+            :style="indicatorStyle"
+            aria-hidden="true"
+          />
           <button
+            v-for="option in difficultyOptions"
+            :key="option.value"
+            :ref="(el) => setFilterButton(option.value, el)"
             type="button"
-            class="rounded-full border px-3 py-1 text-xs font-semibold transition"
+            role="tab"
+            :aria-selected="difficultyFilter === option.value"
+            class="relative z-10 whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-semibold transition-colors duration-300"
             :class="
-              difficultyFilter === 'all'
-                ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                : 'border-border text-muted-foreground hover:border-primary dark:border-border dark:text-muted-foreground'
+              difficultyFilter === option.value
+                ? 'text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
             "
-            @click="difficultyFilter = 'all'"
+            @click="difficultyFilter = option.value"
           >
-            {{ __("All") }}
-          </button>
-          <button
-            type="button"
-            class="rounded-full border px-3 py-1 text-xs font-semibold transition"
-            :class="
-              difficultyFilter === 'beginner'
-                ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                : 'border-border text-muted-foreground hover:border-primary dark:border-border dark:text-muted-foreground'
-            "
-            @click="difficultyFilter = 'beginner'"
-          >
-            {{ __("Beginner") }}
-          </button>
-          <button
-            type="button"
-            class="rounded-full border px-3 py-1 text-xs font-semibold transition"
-            :class="
-              difficultyFilter === 'medium'
-                ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                : 'border-border text-muted-foreground hover:border-primary dark:border-border dark:text-muted-foreground'
-            "
-            @click="difficultyFilter = 'medium'"
-          >
-            {{ __("Medium") }}
-          </button>
-          <button
-            type="button"
-            class="rounded-full border px-3 py-1 text-xs font-semibold transition"
-            :class="
-              difficultyFilter === 'hard'
-                ? 'border-primary/30 bg-accent text-accent-foreground dark:border-primary/40 dark:bg-primary/20 dark:text-primary'
-                : 'border-border text-muted-foreground hover:border-primary dark:border-border dark:text-muted-foreground'
-            "
-            @click="difficultyFilter = 'hard'"
-          >
-            {{ __("Hard") }}
+            {{ option.label }}
           </button>
         </div>
       </div>
 
-      <div
-        v-for="path in filteredPaths"
-        :key="path.id"
-        class="rounded-2xl border border-border/70 bg-card p-6 shadow-sm dark:border-border/60 dark:bg-card/60"
-      >
-        <div class="mb-4">
-          <h2 class="text-xl font-semibold text-foreground dark:text-primary-foreground">
-            {{ path.title }}
-          </h2>
-          <p v-if="path.description" class="text-sm text-muted-foreground dark:text-muted-foreground">
-            {{ path.description }}
-          </p>
-        </div>
-
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div
-            v-for="level in path.levels"
-            :key="level.id"
-            class="rounded-xl border border-border bg-muted p-4 transition dark:border-border dark:bg-card/60"
-            :class="level.unlocked ? 'hover:border-primary' : 'opacity-60'"
-          >
-            <div class="flex items-center justify-between">
-              <div class="text-sm font-semibold text-muted-foreground dark:text-foreground">
-                {{ level.title }}
-              </div>
-              <div class="flex items-center gap-1 text-chart-3">
-                <Star v-for="star in level.best_stars" :key="star" :size="14" />
-              </div>
+      <TransitionGroup name="list" tag="div" class="space-y-6">
+        <section
+          v-for="path in filteredPaths"
+          :key="path.id"
+          v-reveal="'up'"
+          class="rounded-2xl border border-border/70 bg-card/70 p-6 shadow-sm"
+        >
+          <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 class="text-xl font-bold text-foreground">
+                {{ path.title }}
+              </h2>
+              <p v-if="path.description" class="text-sm text-muted-foreground">
+                {{ path.description }}
+              </p>
             </div>
-            <p class="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-              {{ level.topic || __("General") }} | {{ __(level.difficulty || "Medium") }}
-            </p>
-            <div class="mt-3 flex items-center justify-end text-xs text-muted-foreground dark:text-muted-foreground">
-              <span>XP {{ level.xp_reward }}</span>
-            </div>
-            <div class="mt-2">
-              <div class="mb-1 flex items-center justify-between text-[11px] text-muted-foreground dark:text-muted-foreground">
-                <span>{{ __("Progress") }}</span>
-                <span>{{ progressPercent(level) }}%</span>
-              </div>
-              <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted dark:bg-card">
+            <div class="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{{ completedCount(path) }} / {{ path.levels.length }}</span>
+              <div class="h-1.5 w-28 overflow-hidden rounded-full bg-muted">
                 <div
-                  class="h-full rounded-full bg-primary transition-all"
-                  :style="{ width: progressPercent(level) + '%' }"
+                  :key="`${path.id}-${difficultyFilter}`"
+                  class="bar-grow h-full rounded-full bg-gradient-to-r from-primary to-chart-2"
+                  :style="{ width: `${pathPercent(path)}%` }"
                 />
               </div>
             </div>
-            <button
-              class="mt-4 w-full rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-              :disabled="!level.unlocked || starting === level.id"
-              @click="startLevel(level.id)"
-            >
-              <span v-if="!level.unlocked" class="inline-flex items-center gap-1">
-                <Lock :size="12" /> {{ __("Locked") }}
-              </span>
-              <span v-else>{{ starting === level.id ? __("Starting...") : __("Start") }}</span>
-            </button>
           </div>
-        </div>
-      </div>
+
+          <TransitionGroup
+            name="list"
+            tag="div"
+            class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+          >
+            <article
+              v-for="(level, index) in path.levels"
+              :key="level.id"
+              v-reveal="{ variant: 'up', delay: (index % 3) * 90 }"
+              v-tilt="level.unlocked ? 6 : 0"
+              class="flex flex-col rounded-xl border border-border bg-card p-4"
+              :class="[
+                level.unlocked ? '' : 'lock-wiggle opacity-60 grayscale-[40%]',
+                level.completed ? 'border-chart-2/40' : '',
+              ]"
+              :style="{ '--i-delay': `${(index % 6) * 50}ms` }"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="motion-pop flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
+                    :class="
+                      level.completed
+                        ? 'bg-chart-2/15 text-chart-2'
+                        : level.unlocked
+                          ? 'bg-primary/15 text-primary'
+                          : 'bg-muted text-muted-foreground'
+                    "
+                  >
+                    <Check v-if="level.completed" :size="16" :stroke-width="3" />
+                    <Lock v-else-if="!level.unlocked" :size="14" class="lock-icon" />
+                    <span v-else>{{ level.order }}</span>
+                  </span>
+                  <h3 class="text-sm font-semibold text-foreground">
+                    {{ level.title }}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-0.5">
+                  <span
+                    v-for="star in 3"
+                    :key="star"
+                    class="star-pop"
+                    :style="{ '--star-delay': `${300 + star * 120}ms` }"
+                  >
+                    <Star
+                      :size="15"
+                      :class="
+                        star <= level.best_stars
+                          ? 'star-glow fill-chart-3 text-chart-3'
+                          : 'text-muted-foreground/40'
+                      "
+                    />
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
+                <span class="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+                  {{ level.topic || __("General") }}
+                </span>
+                <span
+                  class="rounded-full px-2 py-0.5 font-medium"
+                  :class="difficultyTone(level.difficulty)"
+                >
+                  {{ __(level.difficulty || "Medium") }}
+                </span>
+                <span class="ml-auto inline-flex items-center gap-1 font-semibold text-primary">
+                  <Zap :size="12" /> {{ level.xp_reward }} XP
+                </span>
+              </div>
+
+              <div class="mt-4">
+                <div class="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>{{ __("Progress") }}</span>
+                  <span class="font-semibold text-foreground">{{ progressPercent(level) }}%</span>
+                </div>
+                <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    v-if="progressPercent(level) > 0"
+                    class="bar-grow h-full rounded-full bg-gradient-to-r from-primary to-chart-4"
+                    :style="{
+                      width: progressPercent(level) + '%',
+                      '--bar-delay': `${200 + (index % 3) * 90}ms`,
+                    }"
+                  />
+                </div>
+              </div>
+
+              <button
+                class="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition disabled:cursor-not-allowed"
+                :class="
+                  level.unlocked
+                    ? 'btn-sheen text-primary-foreground'
+                    : 'border border-border bg-muted text-muted-foreground'
+                "
+                :disabled="!level.unlocked || starting === level.id"
+                @click="startLevel(level.id)"
+              >
+                <template v-if="!level.unlocked">
+                  <Lock :size="12" class="lock-icon" /> {{ __("Locked") }}
+                </template>
+                <template v-else-if="starting === level.id">
+                  <LoaderCircle :size="14" class="animate-spin" /> {{ __("Starting...") }}
+                </template>
+                <template v-else>
+                  <Play :size="12" class="fill-current" />
+                  {{ level.completed ? __("Play again") : __("Start") }}
+                </template>
+              </button>
+            </article>
+          </TransitionGroup>
+        </section>
+      </TransitionGroup>
     </div>
   </div>
 </template>

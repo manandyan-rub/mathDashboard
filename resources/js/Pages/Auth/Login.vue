@@ -2,13 +2,14 @@
 import Checkbox from "@/components/Checkbox.vue";
 import AnimatedBackground from "@/components/AnimatedBackground.vue";
 import InputError from "@/components/InputError.vue";
+import SplitText from "@/components/motion/SplitText.vue";
 import PrimaryButton from "@/components/PrimaryButton.vue";
 import TextInput from "@/components/TextInput.vue";
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 import { cmsTranslate as __, getLanguage, setLanguage } from "@/lib/i18n";
 import type { LocaleCode } from "@/lib/i18n";
-import { ArrowRight, Bell, Lock, Sparkles } from "lucide-vue-next";
+import { ArrowRight, Lock, Sparkles } from "lucide-vue-next";
 import { route } from "ziggy-js";
 import { ref } from "vue";
 
@@ -32,8 +33,15 @@ const languages = [
   { value: "ru", label: "Russian" },
 ];
 
+const shaking = ref(false);
+
 const submit = () => {
   form.post(route("login"), {
+    onError: () => {
+      shaking.value = false;
+      requestAnimationFrame(() => (shaking.value = true));
+      window.setTimeout(() => (shaking.value = false), 550);
+    },
     onFinish: () => form.reset("password"),
   });
 };
@@ -51,11 +59,15 @@ function changeLanguage(event: Event) {
   <Head :title="__('Sign In')" />
 
   <section
+    v-spotlight
     class="relative min-h-screen overflow-hidden bg-background text-muted-foreground selection:bg-primary/20 dark:text-muted-foreground dark:selection:bg-primary/30"
   >
     <AnimatedBackground />
 
-    <div class="absolute right-6 top-6 z-20 flex items-center gap-3">
+    <div
+      v-reveal="'down'"
+      class="absolute right-6 top-6 z-20 flex items-center gap-3"
+    >
       <select
         :value="language"
         @change="changeLanguage"
@@ -79,10 +91,10 @@ function changeLanguage(event: Event) {
     />
 
     <div
-      class="pointer-events-none absolute left-[-10%] top-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-primary/20 blur-[120px]"
+      class="pointer-events-none absolute left-[-10%] top-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-primary/20 blur-[120px] [animation:aurora-a_14s_ease-in-out_infinite_alternate]"
     />
     <div
-      class="pointer-events-none absolute bottom-[-10%] right-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-chart-2/10 blur-[120px]"
+      class="pointer-events-none absolute bottom-[-10%] right-[-10%] z-0 h-[40%] w-[40%] rounded-full bg-chart-2/15 blur-[120px] [animation:aurora-b_18s_ease-in-out_infinite_alternate]"
     />
 
     <div
@@ -91,34 +103,41 @@ function changeLanguage(event: Event) {
       <div class="grid w-full gap-10 lg:grid-cols-2">
         <div class="flex flex-col justify-center">
           <div
-            class="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary dark:text-primary"
+            v-reveal="'blur'"
+            class="glow-border mb-6 inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary"
+            style="--glow-fill: color-mix(in srgb, var(--primary) 10%, var(--background))"
           >
-            <Sparkles :size="14" />
+            <Sparkles :size="14" class="spin-slow" />
             MathDash
           </div>
 
           <h1
             class="mb-6 text-4xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground md:text-6xl"
           >
-            {{ __("Sign in to") }}
+            <SplitText :text="__('Sign in to')" :delay="100" />
             <span
-              class="bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent"
+              class="split-word text-shine"
+              :style="{ '--word-delay': '300ms' }"
+              >MathDash</span
             >
-              MathDash
-            </span>
-            {{ __("platform") }}
+            <SplitText :text="__('platform')" :delay="420" />
           </h1>
 
           <p
+            v-reveal="{ variant: 'up', delay: 550 }"
             class="max-w-xl text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground"
           >
             {{ __("Learn, practice, and improve your math every day.") }}
           </p>
         </div>
 
-        <div class="flex items-center justify-center">
+        <div
+          v-reveal="{ variant: 'scale', delay: 250 }"
+          class="flex items-center justify-center"
+        >
           <div
-            class="w-full max-w-md rounded-2xl border border-border/80 bg-card p-6 shadow-2xl dark:border-border/50 dark:bg-card"
+            class="glow-border w-full max-w-md rounded-2xl p-6 shadow-2xl shadow-primary/15"
+            :class="{ shake: shaking }"
           >
             <div class="mb-6 flex items-center justify-between">
               <div>
@@ -132,30 +151,24 @@ function changeLanguage(event: Event) {
                 </p>
               </div>
 
-              <div class="flex items-center gap-3">
-                <button
-                  type="button"
-                  class="text-muted-foreground transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-primary-foreground"
-                >
-                  <Bell :size="18" />
-                </button>
-                <div
-                  class="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-muted text-muted-foreground dark:border-border dark:bg-card"
-                >
-                  <Lock :size="14" />
-                </div>
+              <div
+                class="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-muted text-primary transition-transform duration-500"
+                :class="{ 'scale-110 rotate-12': form.processing }"
+              >
+                <Lock :size="16" />
               </div>
             </div>
 
             <div
               v-if="status"
+              v-reveal="'scale'"
               class="mb-4 rounded-lg border border-chart-2/20 bg-chart-2/10 px-4 py-3 text-sm font-medium text-chart-2 dark:text-chart-2"
             >
               {{ status }}
             </div>
 
             <form class="space-y-5" @submit.prevent="submit">
-              <div>
+              <div v-reveal="{ variant: 'up', delay: 400 }">
                 <label
                   for="email"
                   class="mb-2 block text-sm font-medium text-muted-foreground dark:text-foreground"
@@ -170,13 +183,13 @@ function changeLanguage(event: Event) {
                   required
                   autofocus
                   autocomplete="username"
-                  class="block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
+                  class="input-glow block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
               </div>
 
-              <div>
+              <div v-reveal="{ variant: 'up', delay: 480 }">
                 <label
                   for="password"
                   class="mb-2 block text-sm font-medium text-muted-foreground dark:text-foreground"
@@ -190,13 +203,16 @@ function changeLanguage(event: Event) {
                   type="password"
                   required
                   autocomplete="current-password"
-                  class="block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
+                  class="input-glow block w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-1 focus:ring-ring/60 dark:border-border/50 dark:bg-card dark:text-primary-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary/50 dark:focus:ring-ring/50"
                 />
 
                 <InputError class="mt-2" :message="form.errors.password" />
               </div>
 
-              <div class="flex items-center justify-between gap-4">
+              <div
+                v-reveal="{ variant: 'up', delay: 560 }"
+                class="flex items-center justify-between gap-4"
+              >
                 <label class="flex items-center">
                   <Checkbox
                     name="remember"
@@ -217,14 +233,20 @@ function changeLanguage(event: Event) {
                 </Link>
               </div>
 
-              <PrimaryButton
-                class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-                :class="{ 'opacity-25': form.processing }"
-                :disabled="form.processing"
-              >
-                {{ __("Sign In") }}
-                <ArrowRight :size="16" />
-              </PrimaryButton>
+              <div v-reveal="{ variant: 'up', delay: 640 }">
+                <PrimaryButton
+                  class="btn-sheen flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-primary-foreground"
+                  :class="{ 'opacity-60': form.processing }"
+                  :disabled="form.processing"
+                >
+                  {{ __("Sign In") }}
+                  <ArrowRight
+                    :size="16"
+                    class="btn-arrow"
+                    :class="{ 'animate-pulse': form.processing }"
+                  />
+                </PrimaryButton>
+              </div>
 
               <div
                 v-if="canRegister"

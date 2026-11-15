@@ -8,6 +8,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createApp, h, type DefineComponent } from "vue";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy";
 import { TranslateVue } from "./lib/i18n";
+import { MotionPlugin } from "./lib/motion";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 const pages = import.meta.glob<{ default: DefineComponent }>(
@@ -28,6 +29,7 @@ createInertiaApp({
       .use(plugin)
       .use(ZiggyVue)
       .use(TranslateVue)
+      .use(MotionPlugin)
       .mount(el);
   },
   progress: {
