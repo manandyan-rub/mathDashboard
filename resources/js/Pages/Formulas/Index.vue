@@ -24,6 +24,7 @@ import {
 import { route } from "ziggy-js";
 import Dropdown from "@/components/Dropdown.vue";
 import DropdownLink from "@/components/DropdownLink.vue";
+import OrganizationContext from "@/components/OrganizationContext.vue";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -698,6 +699,7 @@ function selectCategory(id: string) {
                 {{ user?.email ?? "" }}
               </p>
             </div>
+            <OrganizationContext class="border-y border-border px-4 py-3" />
             <DropdownLink :href="route('profile.edit')">{{ __("Profile") }}</DropdownLink>
 
             <div class="px-4 py-2">

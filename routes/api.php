@@ -28,7 +28,8 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('formulas/{formula}', [FormulaController::class, 'show']);
     Route::get('formulas/{formula}/steps', [FormulaController::class, 'steps']);
 
-    Route::middleware('role:admin,lecturer')->group(function () {
+    Route::middleware('role:admin,org_admin,lecturer')->group(function () {
+        Route::get('teacher/exercises/classes', [TeacherExerciseStudioController::class, 'classes']);
         Route::post('teacher/exercises/generate', [TeacherExerciseStudioController::class, 'generate']);
         Route::get('teacher/exercises/generations/{generationLog}', [TeacherExerciseStudioController::class, 'generationStatus']);
         Route::post('teacher/exercises/regenerate-item', [TeacherExerciseStudioController::class, 'regenerateItem']);

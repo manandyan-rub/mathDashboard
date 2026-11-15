@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from "@inertiajs/vue3";
+import { Head, usePage } from "@inertiajs/vue3";
 import axios from "axios";
 import {
   Award,
@@ -34,6 +34,28 @@ const leaderboardData = ref<LeaderboardUser[]>([]);
 const currentUser = ref<LeaderboardUser | null>(null);
 const nowTick = ref(Date.now());
 let timerId: number | null = null;
+
+const page = usePage();
+const authUser = computed(() => (page.props as any).auth?.user ?? null);
+const tenant = computed(() => (page.props as any).auth?.tenant ?? null);
+const leagueLabel = computed(() => {
+  if (authUser.value?.role === "admin") return __("Platform League");
+  if (authUser.value?.role === "lecturer") return __("Class League");
+  if (tenant.value) return __("Organization League");
+  return __("Community League");
+});
+const leagueDescription = computed(() => {
+  if (authUser.value?.role === "admin") {
+    return __("Solve problems, earn XP, and climb the platform rankings.");
+  }
+  if (authUser.value?.role === "lecturer") {
+    return __("Rankings include students from your assigned classes.");
+  }
+  if (tenant.value) {
+    return __("Solve problems, earn XP, and climb your organization rankings.");
+  }
+  return __("Solve problems, earn XP, and climb your community rankings.");
+});
 
 const topThree = computed(() => leaderboardData.value.slice(0, 3));
 const listData = computed(() => leaderboardData.value.slice(3));
@@ -116,7 +138,7 @@ onUnmounted(() => {
         <div
           class="mb-4 inline-flex items-center gap-2 rounded-full border border-rank-first/20 bg-rank-first/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-rank-first"
         >
-          <Trophy :size="14" /> {{ __("Global League") }}
+          <Trophy :size="14" /> {{ leagueLabel }}
         </div>
         <h1
           class="mb-2 text-3xl font-bold text-foreground dark:text-primary-foreground md:text-4xl"
@@ -124,11 +146,7 @@ onUnmounted(() => {
           {{ __("Hall of Fame") }}
         </h1>
         <p class="max-w-lg text-muted-foreground dark:text-muted-foreground">
-          {{
-            __(
-              "Solve problems, earn XP, and climb the ranks. Top scholars this season get platform rewards.",
-            )
-          }}
+          {{ leagueDescription }}
         </p>
       </div>
 

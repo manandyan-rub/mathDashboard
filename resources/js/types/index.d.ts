@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from "vue";
-import type { AuthPermissions, UserRole } from "./auth";
+import type { AuthPermissions, TenantContext, UserRole } from "./auth";
 import type { UserModel, WorkspaceModel } from "./resources";
 
 export interface CmsflyConfig {}
@@ -22,6 +22,7 @@ export type DefaultPageProps = {
   auth: {
     user: AuthUser | null;
     permissions: AuthPermissions;
+    tenant: TenantContext | null;
   };
   config: {
     locale: {

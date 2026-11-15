@@ -12,26 +12,62 @@ use App\Jobs\GenerateTeacherExercisesJob;
 use App\Models\ExerciseDocument;
 use App\Models\ExerciseGenerationLog;
 use App\Models\ExerciseItem;
+use App\Models\User;
 use App\Services\TeacherExerciseAiService;
-use Throwable;
+use App\Support\TenantVisibility;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class TeacherExerciseStudioController extends Controller
 {
+    public function __construct(private readonly TenantVisibility $tenantVisibility) {}
+
+    public function classes(Request $request): JsonResponse
+    {
+        $classes = $this->tenantVisibility
+            ->schoolClassesFor($request->user())
+            ->with(['school.organization'])
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($schoolClass) => [
+                'id' => $schoolClass->id,
+                'name' => $schoolClass->name,
+                'academic_year' => $schoolClass->academic_year,
+                'school' => [
+                    'id' => $schoolClass->school->id,
+                    'name' => $schoolClass->school->name,
+                ],
+                'organization' => [
+                    'id' => $schoolClass->school->organization->id,
+                    'name' => $schoolClass->school->organization->name,
+                ],
+            ])
+            ->values();
+
+        return response()->json(['classes' => $classes]);
+    }
+
     public function generate(GenerateTeacherExercisesRequest $request): JsonResponse
     {
         $user = $request->user();
         $data = $request->validated();
 
         $document = null;
-        if (!empty($data['document_id'])) {
-            $document = ExerciseDocument::query()->findOrFail((int) $data['document_id']);
-            $this->authorizeDocument($document, (int) $user->id);
+        if (! empty($data['document_id'])) {
+            $document = $this->findVisibleDocument($user, (int) $data['document_id']);
+
+            if (array_key_exists('school_class_id', $data)) {
+                $document->update([
+                    'school_class_id' => $this->resolveSchoolClassId($user, $data, $document),
+                ]);
+            }
         } else {
             $document = ExerciseDocument::query()->create([
                 'user_id' => $user->id,
+                'school_class_id' => $this->resolveSchoolClassId($user, $data),
                 'title' => (string) ($data['topic'] ?? 'Untitled Document'),
                 'status' => 'draft',
                 'language' => (string) ($data['language'] ?? 'en'),
@@ -62,9 +98,9 @@ class TeacherExerciseStudioController extends Controller
         ], 202);
     }
 
-    public function generationStatus(ExerciseGenerationLog $generationLog, Request $request): JsonResponse
+    public function generationStatus(int $generationLog, Request $request): JsonResponse
     {
-        $this->authorizeLog($generationLog, (int) optional($request->user())->id);
+        $generationLog = $this->findVisibleLog($request->user(), $generationLog);
         $generationLog->load(['document.items']);
 
         return response()->json([
@@ -82,9 +118,9 @@ class TeacherExerciseStudioController extends Controller
         ]);
     }
 
-    public function show(ExerciseDocument $document, Request $request): JsonResponse
+    public function show(int $document, Request $request): JsonResponse
     {
-        $this->authorizeDocument($document, (int) optional($request->user())->id);
+        $document = $this->findVisibleDocument($request->user(), $document);
         $document->load(['items', 'generationLogs' => function ($query) {
             $query->limit(10);
         }]);
@@ -103,22 +139,25 @@ class TeacherExerciseStudioController extends Controller
 
     public function saveDraft(SaveTeacherExerciseDraftRequest $request): JsonResponse
     {
-        $userId = (int) optional($request->user())->id;
+        $user = $request->user();
+        $userId = (int) $user->id;
         $data = $request->validated();
 
         $document = null;
-        if (!empty($data['document_id'])) {
-            $document = ExerciseDocument::query()->findOrFail((int) $data['document_id']);
-            $this->authorizeDocument($document, $userId);
+        if (! empty($data['document_id'])) {
+            $document = $this->findVisibleDocument($user, (int) $data['document_id']);
         }
+
+        $schoolClassId = $this->resolveSchoolClassId($user, $data, $document);
 
         $contentJson = isset($data['content_json'])
             ? json_encode($data['content_json'], JSON_UNESCAPED_UNICODE)
             : null;
 
-        if (!$document) {
+        if (! $document) {
             $document = ExerciseDocument::query()->create([
                 'user_id' => $userId,
+                'school_class_id' => $schoolClassId,
                 'title' => (string) $data['title'],
                 'status' => 'draft',
                 'content_json' => $contentJson,
@@ -128,6 +167,7 @@ class TeacherExerciseStudioController extends Controller
             ]);
         } else {
             $document->update([
+                'school_class_id' => $schoolClassId,
                 'title' => (string) $data['title'],
                 'status' => 'draft',
                 'content_json' => $contentJson ?? $document->content_json,
@@ -149,16 +189,16 @@ class TeacherExerciseStudioController extends Controller
     public function publish(PublishTeacherExerciseRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $userId = (int) optional($request->user())->id;
+        $user = $request->user();
 
-        $document = ExerciseDocument::query()->findOrFail((int) $data['document_id']);
-        $this->authorizeDocument($document, $userId);
+        $document = $this->findVisibleDocument($user, (int) $data['document_id']);
 
         $contentJson = isset($data['content_json'])
             ? json_encode($data['content_json'], JSON_UNESCAPED_UNICODE)
             : $document->content_json;
 
         $document->update([
+            'school_class_id' => $this->resolveSchoolClassId($user, $data, $document),
             'title' => (string) ($data['title'] ?? $document->title),
             'language' => (string) ($data['language'] ?? $document->language),
             'content_json' => $contentJson,
@@ -176,14 +216,14 @@ class TeacherExerciseStudioController extends Controller
 
     public function uploadImage(UploadTeacherExerciseImageRequest $request): JsonResponse
     {
-        $userId = (int) optional($request->user())->id;
+        $userId = (int) $request->user()->id;
         $file = $request->file('image');
 
-        $directory = 'teacher-exercises/' . max(1, $userId) . '/images';
+        $directory = 'teacher-exercises/'.max(1, $userId).'/images';
         $path = $file->store($directory, 'public');
 
         return response()->json([
-            'url' => '/storage/' . ltrim($path, '/'),
+            'url' => '/storage/'.ltrim($path, '/'),
             'path' => $path,
             'name' => $file->getClientOriginalName(),
         ], 201);
@@ -191,7 +231,7 @@ class TeacherExerciseStudioController extends Controller
 
     public function pdf(Request $request)
     {
-        $userId = (int) optional($request->user())->id;
+        $user = $request->user();
         $data = $request->validate([
             'document_id' => 'nullable|integer|exists:exercise_documents,id',
             'title' => 'nullable|string|max:180',
@@ -202,9 +242,8 @@ class TeacherExerciseStudioController extends Controller
         $showAnswers = (bool) ($data['show_answers'] ?? true);
 
         $document = null;
-        if (!empty($data['document_id'])) {
-            $document = ExerciseDocument::query()->findOrFail((int) $data['document_id']);
-            $this->authorizeDocument($document, $userId);
+        if (! empty($data['document_id'])) {
+            $document = $this->findVisibleDocument($user, (int) $data['document_id']);
         }
 
         $title = trim((string) ($data['title'] ?? ($document?->title ?? 'Exercise Document')));
@@ -221,14 +260,14 @@ class TeacherExerciseStudioController extends Controller
             $contentHtml = trim((string) ($document?->content_html ?? ''));
         }
 
-        if ($document && !$this->hasMeaningfulPdfContent($contentHtml)) {
+        if ($document && ! $this->hasMeaningfulPdfContent($contentHtml)) {
             $contentHtml = $this->buildHtmlFromItems($document, $showAnswers);
         }
 
-        if (!$showAnswers && $contentHtml !== '') {
+        if (! $showAnswers && $contentHtml !== '') {
             // Keep edited document content, remove answer/explanation blocks only.
             $contentHtml = $this->stripAnswersFromHtml($contentHtml);
-        } elseif (!$showAnswers && $document) {
+        } elseif (! $showAnswers && $document) {
             // Fallback when only DB content exists.
             $contentHtml = $this->buildHtmlFromItems($document, false);
         } elseif ($contentHtml === '' && $document) {
@@ -244,7 +283,7 @@ class TeacherExerciseStudioController extends Controller
         $contentHtml = $this->normalizeEditorHtmlForPdf($contentHtml);
         $contentHtml = $this->renderLatexForPdf($contentHtml);
 
-        if (!class_exists('\\Barryvdh\\DomPDF\\Facade\\Pdf')) {
+        if (! class_exists('\\Barryvdh\\DomPDF\\Facade\\Pdf')) {
             return response()->json([
                 'message' => __('PDF renderer is not installed.'),
                 'details' => __('Run: composer require barryvdh/laravel-dompdf'),
@@ -252,7 +291,7 @@ class TeacherExerciseStudioController extends Controller
         }
 
         try {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.teacher-exercises', [
+            $pdf = Pdf::loadView('pdf.teacher-exercises', [
                 'title' => $title,
                 'contentHtml' => $contentHtml,
                 'language' => (string) ($data['language'] ?? ($document?->language ?? 'en')),
@@ -279,10 +318,9 @@ class TeacherExerciseStudioController extends Controller
         TeacherExerciseAiService $aiService
     ): JsonResponse {
         $data = $request->validated();
-        $userId = (int) optional($request->user())->id;
+        $user = $request->user();
 
-        $document = ExerciseDocument::query()->findOrFail((int) $data['document_id']);
-        $this->authorizeDocument($document, $userId);
+        $document = $this->findVisibleDocument($user, (int) $data['document_id']);
 
         $item = ExerciseItem::query()
             ->where('document_id', $document->id)
@@ -297,7 +335,7 @@ class TeacherExerciseStudioController extends Controller
                 'language' => (string) ($data['language'] ?? $document->language ?? 'en'),
                 'instructions' => trim((string) ($data['instructions'] ?? '')) !== ''
                     ? (string) $data['instructions']
-                    : 'Regenerate one question similar to: ' . $item->question,
+                    : 'Regenerate one question similar to: '.$item->question,
             ]);
         } catch (Throwable $e) {
             return response()->json([
@@ -307,7 +345,7 @@ class TeacherExerciseStudioController extends Controller
         }
 
         $newItem = $result['items'][0] ?? null;
-        if (!$newItem) {
+        if (! $newItem) {
             return response()->json([
                 'message' => __('Failed to regenerate item.'),
             ], 422);
@@ -333,7 +371,7 @@ class TeacherExerciseStudioController extends Controller
     }
 
     /**
-     * @param array<int, array<string, mixed>> $items
+     * @param  array<int, array<string, mixed>>  $items
      */
     private function syncItems(ExerciseDocument $document, array $items): void
     {
@@ -342,7 +380,7 @@ class TeacherExerciseStudioController extends Controller
 
             $order = 1;
             foreach ($items as $item) {
-                if (!is_array($item)) {
+                if (! is_array($item)) {
                     continue;
                 }
 
@@ -381,6 +419,7 @@ class TeacherExerciseStudioController extends Controller
     {
         return [
             'id' => $document->id,
+            'school_class_id' => $document->school_class_id,
             'title' => $document->title,
             'status' => $document->status,
             'language' => $document->language,
@@ -418,36 +457,76 @@ class TeacherExerciseStudioController extends Controller
         }
 
         $decoded = json_decode($value, true);
+
         return is_array($decoded) ? $decoded : [];
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     private function composePrompt(array $data): string
     {
         return implode("\n", [
-            'Topic: ' . (string) ($data['topic'] ?? ''),
-            'Grade: ' . (string) ($data['grade'] ?? ''),
-            'Difficulty: ' . (string) ($data['difficulty'] ?? ''),
-            'Count: ' . (string) ($data['count'] ?? ''),
-            'Language: ' . (string) ($data['language'] ?? ''),
-            'Instructions: ' . (string) ($data['instructions'] ?? ''),
+            'Topic: '.(string) ($data['topic'] ?? ''),
+            'Grade: '.(string) ($data['grade'] ?? ''),
+            'Difficulty: '.(string) ($data['difficulty'] ?? ''),
+            'Count: '.(string) ($data['count'] ?? ''),
+            'Language: '.(string) ($data['language'] ?? ''),
+            'Instructions: '.(string) ($data['instructions'] ?? ''),
         ]);
     }
 
-    private function authorizeDocument(ExerciseDocument $document, int $userId): void
+    private function findVisibleDocument(User $user, int $documentId): ExerciseDocument
     {
-        if ($userId <= 0 || (int) $document->user_id !== $userId) {
+        $document = $this->tenantVisibility
+            ->exerciseDocumentsFor($user)
+            ->find($documentId);
+
+        if (! $document) {
             abort(403);
         }
+
+        return $document;
     }
 
-    private function authorizeLog(ExerciseGenerationLog $log, int $userId): void
+    private function findVisibleLog(User $user, int $logId): ExerciseGenerationLog
     {
-        if ($userId <= 0 || (int) $log->user_id !== $userId) {
+        $log = $this->tenantVisibility
+            ->generationLogsFor($user)
+            ->find($logId);
+
+        if (! $log) {
             abort(403);
         }
+
+        return $log;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function resolveSchoolClassId(
+        User $user,
+        array $data,
+        ?ExerciseDocument $document = null
+    ): ?int {
+        if (! array_key_exists('school_class_id', $data)) {
+            return $document?->school_class_id;
+        }
+
+        if ($data['school_class_id'] === null) {
+            return null;
+        }
+
+        $schoolClass = $this->tenantVisibility
+            ->schoolClassesFor($user)
+            ->find((int) $data['school_class_id']);
+
+        if (! $schoolClass) {
+            abort(403);
+        }
+
+        return (int) $schoolClass->id;
     }
 
     private function safePdfFilename(string $title): string
@@ -458,7 +537,7 @@ class TeacherExerciseStudioController extends Controller
             $base = 'teacher_exercises';
         }
 
-        return $base . '.pdf';
+        return $base.'.pdf';
     }
 
     private function buildHtmlFromItems(ExerciseDocument $document, bool $showAnswers = true): string
@@ -468,25 +547,25 @@ class TeacherExerciseStudioController extends Controller
             return '';
         }
 
-        $html = '<h2>' . e($document->title) . '</h2>';
+        $html = '<h2>'.e($document->title).'</h2>';
         foreach ($items as $item) {
-            $html .= '<h3>' . e(__('Exercise')) . ' ' . (int) $item->item_order . '</h3>';
+            $html .= '<h3>'.e(__('Exercise')).' '.(int) $item->item_order.'</h3>';
             $html .= $this->renderBlockHtml((string) $item->question);
 
             $options = is_array($item->options) ? $item->options : [];
-            if (!empty($options)) {
+            if (! empty($options)) {
                 $html .= '<ol>';
                 foreach ($options as $option) {
-                    $html .= '<li>' . $this->renderInlineHtml((string) $option) . '</li>';
+                    $html .= '<li>'.$this->renderInlineHtml((string) $option).'</li>';
                 }
                 $html .= '</ol>';
             }
 
             if ($showAnswers) {
-                $html .= '<p><strong>' . e(__('Answer')) . ':</strong> ' . $this->renderInlineHtml((string) $item->answer) . '</p>';
+                $html .= '<p><strong>'.e(__('Answer')).':</strong> '.$this->renderInlineHtml((string) $item->answer).'</p>';
             }
-            if ($showAnswers && !empty($item->explanation)) {
-                $html .= '<p><strong>' . e(__('Explanation')) . ':</strong> ' . $this->renderInlineHtml((string) $item->explanation) . '</p>';
+            if ($showAnswers && ! empty($item->explanation)) {
+                $html .= '<p><strong>'.e(__('Explanation')).':</strong> '.$this->renderInlineHtml((string) $item->explanation).'</p>';
             }
         }
 
@@ -504,7 +583,7 @@ class TeacherExerciseStudioController extends Controller
             return $content;
         }
 
-        return '<p>' . e($content) . '</p>';
+        return '<p>'.e($content).'</p>';
     }
 
     private function renderInlineHtml(string $value): string
@@ -557,11 +636,13 @@ class TeacherExerciseStudioController extends Controller
 
         $replaceInline = function (array $match): string {
             $latex = (string) ($match[1] ?? '');
+
             return $this->latexToPdfMath($latex);
         };
 
         $replaceDisplay = function (array $match): string {
             $latex = (string) ($match[1] ?? '');
+
             return $this->latexToPdfMath($latex, true);
         };
 
@@ -613,15 +694,15 @@ class TeacherExerciseStudioController extends Controller
                 $style = trim((string) $this->extractHtmlAttribute($tag, 'style'));
 
                 if ($width !== '' && preg_match('/^\d+(?:\.\d+)?%$/', $width) === 1) {
-                    $style .= ($style !== '' ? ';' : '') . 'width:' . $width . ';max-width:100%';
+                    $style .= ($style !== '' ? ';' : '').'width:'.$width.';max-width:100%';
                 }
 
                 if ($align === 'left') {
-                    $style .= ($style !== '' ? ';' : '') . 'margin:14px auto 14px 0';
+                    $style .= ($style !== '' ? ';' : '').'margin:14px auto 14px 0';
                 } elseif ($align === 'right') {
-                    $style .= ($style !== '' ? ';' : '') . 'margin:14px 0 14px auto';
+                    $style .= ($style !== '' ? ';' : '').'margin:14px 0 14px auto';
                 } else {
-                    $style .= ($style !== '' ? ';' : '') . 'margin:14px auto';
+                    $style .= ($style !== '' ? ';' : '').'margin:14px auto';
                 }
 
                 return $this->replaceHtmlAttribute($tag, 'style', trim($style, ';'));
@@ -635,14 +716,14 @@ class TeacherExerciseStudioController extends Controller
                 $tag = (string) ($match[0] ?? '');
                 $style = trim((string) $this->extractHtmlAttribute($tag, 'style'));
 
-                if (!str_contains($style, 'display:')) {
-                    $style .= ($style !== '' ? ';' : '') . 'display:block';
+                if (! str_contains($style, 'display:')) {
+                    $style .= ($style !== '' ? ';' : '').'display:block';
                 }
-                if (!str_contains($style, 'max-width:')) {
-                    $style .= ($style !== '' ? ';' : '') . 'max-width:100%';
+                if (! str_contains($style, 'max-width:')) {
+                    $style .= ($style !== '' ? ';' : '').'max-width:100%';
                 }
-                if (!str_contains($style, 'height:')) {
-                    $style .= ($style !== '' ? ';' : '') . 'height:auto';
+                if (! str_contains($style, 'height:')) {
+                    $style .= ($style !== '' ? ';' : '').'height:auto';
                 }
 
                 return $this->replaceHtmlAttribute($tag, 'style', trim($style, ';'));
@@ -664,8 +745,8 @@ class TeacherExerciseStudioController extends Controller
                 }
 
                 return '<div style="border:1px solid #cbd5e1;padding:8px;margin:8px 0;font-size:11px;color:#64748b;">'
-                    . e(__('Geometry drawing'))
-                    . '</div>';
+                    .e(__('Geometry drawing'))
+                    .'</div>';
             },
             $html
         ) ?? $html;
@@ -684,8 +765,8 @@ class TeacherExerciseStudioController extends Controller
 
                 if ($lines === []) {
                     return '<div class="pdf-freehand-drawing pdf-freehand-drawing--empty">'
-                        . e(__('Drawing'))
-                        . '</div>';
+                        .e(__('Drawing'))
+                        .'</div>';
                 }
 
                 $paths = '';
@@ -695,16 +776,16 @@ class TeacherExerciseStudioController extends Controller
                         continue;
                     }
 
-                    $paths .= '<path d="' . e($path) . '" stroke="' . e($this->safeSvgColor($line['color'] ?? '#4f46e5')) . '" stroke-width="' . e((string) $this->safeStrokeSize($line['size'] ?? 3)) . '" fill="none" stroke-linecap="round" stroke-linejoin="round" />';
+                    $paths .= '<path d="'.e($path).'" stroke="'.e($this->safeSvgColor($line['color'] ?? '#4f46e5')).'" stroke-width="'.e((string) $this->safeStrokeSize($line['size'] ?? 3)).'" fill="none" stroke-linecap="round" stroke-linejoin="round" />';
                 }
 
                 if ($paths === '') {
                     return '<div class="pdf-freehand-drawing pdf-freehand-drawing--empty">'
-                        . e(__('Drawing'))
-                        . '</div>';
+                        .e(__('Drawing'))
+                        .'</div>';
                 }
 
-                return '<div class="pdf-freehand-drawing"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 250" width="500" height="250" aria-label="' . e(__('Drawing')) . '"><rect width="500" height="250" fill="#ffffff" />' . $this->freehandPaperPatternSvg($paperStyle) . $paths . '</svg></div>';
+                return '<div class="pdf-freehand-drawing"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 250" width="500" height="250" aria-label="'.e(__('Drawing')).'"><rect width="500" height="250" fill="#ffffff" />'.$this->freehandPaperPatternSvg($paperStyle).$paths.'</svg></div>';
             },
             $html
         ) ?? $html;
@@ -744,7 +825,7 @@ class TeacherExerciseStudioController extends Controller
         $class = $display ? 'math-display' : 'math-inline';
         $tag = $display ? 'div' : 'span';
 
-        return '<' . $tag . ' class="' . $class . '">' . $math . '</' . $tag . '>';
+        return '<'.$tag.' class="'.$class.'">'.$math.'</'.$tag.'>';
     }
 
     private function latexToPdfHtml(string $latex): string
@@ -764,16 +845,16 @@ class TeacherExerciseStudioController extends Controller
 
         $value = $this->replaceLatexCommandGroups($value, 'frac', 2, function (array $args): string {
             return '<span class="math-frac"><span class="math-num">'
-                . $this->latexToPdfHtml((string) ($args[0] ?? ''))
-                . '</span><span class="math-den">'
-                . $this->latexToPdfHtml((string) ($args[1] ?? ''))
-                . '</span></span>';
+                .$this->latexToPdfHtml((string) ($args[0] ?? ''))
+                .'</span><span class="math-den">'
+                .$this->latexToPdfHtml((string) ($args[1] ?? ''))
+                .'</span></span>';
         }, $tokens);
 
         $value = $this->replaceLatexCommandGroups($value, 'sqrt', 1, function (array $args): string {
             return '<span class="math-root"><span class="math-root-symbol">√</span><span class="math-root-body">'
-                . $this->latexToPdfHtml((string) ($args[0] ?? ''))
-                . '</span></span>';
+                .$this->latexToPdfHtml((string) ($args[0] ?? ''))
+                .'</span></span>';
         }, $tokens);
 
         $value = $this->replaceLatexScripts($value, $tokens);
@@ -836,8 +917,8 @@ class TeacherExerciseStudioController extends Controller
     }
 
     /**
-     * @param callable(array<int, string>): string $renderer
-     * @param array<string, string> $tokens
+     * @param  callable(array<int, string>): string  $renderer
+     * @param  array<string, string>  $tokens
      */
     private function replaceLatexCommandGroups(
         string $value,
@@ -846,7 +927,7 @@ class TeacherExerciseStudioController extends Controller
         callable $renderer,
         array &$tokens
     ): string {
-        $needle = '\\' . $command;
+        $needle = '\\'.$command;
         $length = strlen($value);
         $result = '';
 
@@ -854,6 +935,7 @@ class TeacherExerciseStudioController extends Controller
             if (substr($value, $i, strlen($needle)) !== $needle) {
                 $result .= $value[$i];
                 $i++;
+
                 continue;
             }
 
@@ -872,9 +954,10 @@ class TeacherExerciseStudioController extends Controller
                 $cursor = $parsed[1];
             }
 
-            if (!$matched) {
+            if (! $matched) {
                 $result .= $value[$i];
                 $i++;
+
                 continue;
             }
 
@@ -916,7 +999,7 @@ class TeacherExerciseStudioController extends Controller
     }
 
     /**
-     * @param array<string, string> $tokens
+     * @param  array<string, string>  $tokens
      */
     private function replaceLatexScripts(string $value, array &$tokens): string
     {
@@ -928,6 +1011,7 @@ class TeacherExerciseStudioController extends Controller
             if ($char !== '^' && $char !== '_') {
                 $result .= $char;
                 $i++;
+
                 continue;
             }
 
@@ -935,6 +1019,7 @@ class TeacherExerciseStudioController extends Controller
             if ($parsed === null) {
                 $result .= $char;
                 $i++;
+
                 continue;
             }
 
@@ -942,7 +1027,7 @@ class TeacherExerciseStudioController extends Controller
             $tag = $char === '^' ? 'sup' : 'sub';
             $result .= $this->storeMathToken(
                 $tokens,
-                '<' . $tag . '>' . $this->latexToPdfHtml($argument) . '</' . $tag . '>'
+                '<'.$tag.'>'.$this->latexToPdfHtml($argument).'</'.$tag.'>'
             );
             $i = $nextOffset;
         }
@@ -981,11 +1066,11 @@ class TeacherExerciseStudioController extends Controller
     }
 
     /**
-     * @param array<string, string> $tokens
+     * @param  array<string, string>  $tokens
      */
     private function storeMathToken(array &$tokens, string $html): string
     {
-        $token = '@@MATHHTML' . count($tokens) . '@@';
+        $token = '@@MATHHTML'.count($tokens).'@@';
         $tokens[$token] = $html;
 
         return $token;
@@ -1002,7 +1087,7 @@ class TeacherExerciseStudioController extends Controller
         }
 
         $decoded = json_decode($raw, true);
-        if (!is_array($decoded)) {
+        if (! is_array($decoded)) {
             return [];
         }
 
@@ -1026,6 +1111,7 @@ class TeacherExerciseStudioController extends Controller
     private function safeStrokeSize(mixed $value): int
     {
         $size = (int) round((float) $value);
+
         return max(1, min(18, $size));
     }
 
@@ -1045,7 +1131,7 @@ class TeacherExerciseStudioController extends Controller
 
     private function extractHtmlAttribute(string $tag, string $attribute): ?string
     {
-        $pattern = '/\s' . preg_quote($attribute, '/') . '\s*=\s*(["\'])(.*?)\1/isu';
+        $pattern = '/\s'.preg_quote($attribute, '/').'\s*=\s*(["\'])(.*?)\1/isu';
         if (preg_match($pattern, $tag, $match) !== 1) {
             return null;
         }
@@ -1055,19 +1141,19 @@ class TeacherExerciseStudioController extends Controller
 
     private function replaceHtmlAttribute(string $tag, string $attribute, string $value): string
     {
-        $replacement = ' ' . $attribute . '="' . e($value) . '"';
-        $pattern = '/\s' . preg_quote($attribute, '/') . '\s*=\s*(["\']).*?\1/isu';
+        $replacement = ' '.$attribute.'="'.e($value).'"';
+        $pattern = '/\s'.preg_quote($attribute, '/').'\s*=\s*(["\']).*?\1/isu';
 
         if (preg_match($pattern, $tag) === 1) {
             return preg_replace($pattern, $replacement, $tag, 1) ?? $tag;
         }
 
-        return preg_replace('/>$/', $replacement . '>', $tag, 1) ?? $tag;
+        return preg_replace('/>$/', $replacement.'>', $tag, 1) ?? $tag;
     }
 
     private function fileUri(string $path): string
     {
-        return 'file:///' . ltrim(str_replace('\\', '/', $path), '/');
+        return 'file:///'.ltrim(str_replace('\\', '/', $path), '/');
     }
 
     private function extractSvgFromGeometryImageTag(string $tag): ?string
@@ -1105,7 +1191,7 @@ class TeacherExerciseStudioController extends Controller
         $safe = preg_replace('/<script\b[^>]*>.*?<\/script>/isu', '', $safe) ?? $safe;
         $safe = preg_replace('/\s+on[a-z]+\s*=\s*(["\']).*?\1/isu', '', $safe) ?? $safe;
 
-        if (!preg_match('/<svg\b[^>]*xmlns=/iu', $safe)) {
+        if (! preg_match('/<svg\b[^>]*xmlns=/iu', $safe)) {
             $safe = preg_replace('/<svg\b/iu', '<svg xmlns="http://www.w3.org/2000/svg"', $safe, 1) ?? $safe;
         }
 
@@ -1191,6 +1277,7 @@ class TeacherExerciseStudioController extends Controller
     private function decodeStoredRichHtml(string $value): string
     {
         $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
         return $decoded === '' ? $value : $decoded;
     }
 
@@ -1210,6 +1297,7 @@ class TeacherExerciseStudioController extends Controller
         }
 
         $text = trim(strip_tags($decoded));
+
         return $text !== '';
     }
 }

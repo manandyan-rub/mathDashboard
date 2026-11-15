@@ -15,7 +15,10 @@ const level = computed(() => props.level ?? 0);
 
 const page = usePage();
 const isUserRole = (role: unknown): role is UserRole =>
-  role === "student" || role === "lecturer" || role === "admin";
+  role === "student" ||
+  role === "lecturer" ||
+  role === "org_admin" ||
+  role === "admin";
 const currentRole = computed<UserRole>(() => {
   const role = (page.props as any).auth?.user?.role;
   return isUserRole(role) ? role : "student";

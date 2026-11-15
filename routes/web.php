@@ -1,15 +1,14 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FormulaController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\MathematicsControlller;
-use App\Http\Controllers\FormulaController;
 use App\Http\Controllers\MathLevelController;
 use App\Http\Controllers\MathWorkspaceController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeacherExerciseStudioController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -36,7 +35,6 @@ Route::middleware('auth')->group(function () {
         ->name('profile.two-factor.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
     Route::get('mathematics', [MathematicsControlller::class, 'index'])->name('mathematics.index');
     Route::get('mathematics/workspace', [MathWorkspaceController::class, 'index'])
         ->name('mathematics.workspace');
@@ -49,7 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::get('game/equilibrium', [GameController::class, 'equilibrium'])->name('game.equilibrium');
     Route::get('fomula', [FormulaController::class, 'index'])->name('formula.index');
     Route::get('teacher/exercises/studio', [TeacherExerciseStudioController::class, 'index'])
-        ->middleware('role:admin,lecturer')
+        ->middleware('role:admin,org_admin,lecturer')
         ->name('teacher.exercises.studio');
     Route::get('math-levels', [MathLevelController::class, 'index'])->name('math-levels.index');
     Route::get('math-levels/rewards', [MathLevelController::class, 'rewards'])->name('math-levels.rewards');

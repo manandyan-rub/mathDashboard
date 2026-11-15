@@ -16,6 +16,7 @@ class SaveTeacherExerciseDraftRequest extends FormRequest
     {
         return [
             'document_id' => ['nullable', 'integer', Rule::exists('exercise_documents', 'id')],
+            'school_class_id' => ['nullable', 'integer', Rule::exists('school_classes', 'id')],
             'title' => ['required', 'string', 'max:255'],
             'language' => ['required', Rule::in(['en', 'hy', 'fr', 'ru'])],
             'content_json' => ['nullable', 'array'],

@@ -11,27 +11,32 @@ use App\Models\MathLevelAttempt;
 use App\Models\MathLevelAttemptAnswer;
 use App\Models\MathLevelAttemptQuestion;
 use App\Models\MathLevelAttemptQuestionOption;
+use App\Models\MathLevelPrompt;
 use App\Models\MathPath;
 use App\Models\MathUserLevelProgress;
 use App\Models\MathUserProfile;
 use App\Models\MathUserXpEvent;
 use App\Models\User;
 use App\Services\MathLevelGeneratorService;
+use App\Support\TenantVisibility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MathLevelController extends Controller
 {
+    public function __construct(private readonly TenantVisibility $tenantVisibility) {}
+
     public function index(Request $request)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => __('Unauthorized')], 401);
         }
 
         $locales = $this->preferredLocales();
 
-        $paths = MathPath::where('active', true)
+        $paths = $this->tenantVisibility->mathPathsFor($user)
+            ->where('active', true)
             ->with([
                 'translations' => function ($query) use ($locales) {
                     $query->whereIn('locale', $locales);
@@ -56,7 +61,7 @@ class MathLevelController extends Controller
 
         $toInsert = [];
         foreach ($levelIds as $levelId) {
-            if (!$progress->has($levelId)) {
+            if (! $progress->has($levelId)) {
                 $toInsert[] = [
                     'user_id' => $user->id,
                     'level_id' => $levelId,
@@ -70,7 +75,7 @@ class MathLevelController extends Controller
                 ];
             }
         }
-        if (!empty($toInsert)) {
+        if (! empty($toInsert)) {
             MathUserLevelProgress::insert($toInsert);
             $progress = MathUserLevelProgress::where('user_id', $user->id)
                 ->whereIn('level_id', $levelIds)
@@ -82,7 +87,7 @@ class MathLevelController extends Controller
             $firstLevel = $path->levels->sortBy('order')->first();
             if ($firstLevel) {
                 $entry = $progress->get($firstLevel->id);
-                if ($entry && !$entry->unlocked) {
+                if ($entry && ! $entry->unlocked) {
                     $entry->update(['unlocked' => true]);
                 }
             }
@@ -113,13 +118,16 @@ class MathLevelController extends Controller
     public function leaderboard(Request $request)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => __('Unauthorized')], 401);
         }
 
         $limit = max(10, min(200, (int) $request->integer('limit', 50)));
 
+        $visibleUserIds = $this->tenantVisibility->visibleUserIds($user);
+
         $profiles = MathUserProfile::with('user:id,name,email,role')
+            ->whereIn('user_id', clone $visibleUserIds)
             ->whereHas('user', function ($query) {
                 $query->where('role', User::ROLE_STUDENT);
             })
@@ -132,14 +140,14 @@ class MathLevelController extends Controller
             $name = trim((string) optional($profile->user)->name);
             $email = trim((string) optional($profile->user)->email);
             $handleBase = $name !== '' ? $name : ($email !== '' ? strstr($email, '@', true) ?: $email : 'User');
-            $handle = '@' . strtolower(preg_replace('/[^a-z0-9_]+/i', '', $handleBase) ?: ('user' . $profile->user_id));
+            $handle = '@'.strtolower(preg_replace('/[^a-z0-9_]+/i', '', $handleBase) ?: ('user'.$profile->user_id));
             $avatar = mb_strtoupper(mb_substr($handleBase, 0, 1) ?: 'U');
             $rank = $index + 1;
 
             return [
                 'user_id' => $profile->user_id,
                 'rank' => $rank,
-                'name' => $handleBase !== '' ? $handleBase : ('User #' . $profile->user_id),
+                'name' => $handleBase !== '' ? $handleBase : ('User #'.$profile->user_id),
                 'handle' => $handle,
                 'avatar' => $avatar,
                 'level' => max(1, (int) floor(((int) $profile->total_xp) / 150) + 1),
@@ -156,28 +164,29 @@ class MathLevelController extends Controller
             );
 
             $currentRank = (int) MathUserProfile::query()
-                    ->whereHas('user', function ($query) {
-                        $query->where('role', User::ROLE_STUDENT);
-                    })
-                    ->where(function ($q) use ($currentProfile) {
-                        $q->where('total_xp', '>', (int) $currentProfile->total_xp)
-                            ->orWhere(function ($q2) use ($currentProfile) {
-                                $q2->where('total_xp', '=', (int) $currentProfile->total_xp)
-                                    ->where('total_stars', '>', (int) $currentProfile->total_stars);
-                            });
-                    })
-                    ->count() + 1;
+                ->whereIn('user_id', clone $visibleUserIds)
+                ->whereHas('user', function ($query) {
+                    $query->where('role', User::ROLE_STUDENT);
+                })
+                ->where(function ($q) use ($currentProfile) {
+                    $q->where('total_xp', '>', (int) $currentProfile->total_xp)
+                        ->orWhere(function ($q2) use ($currentProfile) {
+                            $q2->where('total_xp', '=', (int) $currentProfile->total_xp)
+                                ->where('total_stars', '>', (int) $currentProfile->total_stars);
+                        });
+                })
+                ->count() + 1;
 
             $currentEntry = $leaderboard->firstWhere('user_id', $user->id);
-            if (!$currentEntry) {
+            if (! $currentEntry) {
                 $name = trim((string) $user->name);
                 $email = trim((string) $user->email);
                 $handleBase = $name !== '' ? $name : ($email !== '' ? strstr($email, '@', true) ?: $email : 'User');
                 $currentEntry = [
                     'user_id' => $user->id,
                     'rank' => $currentRank,
-                    'name' => $handleBase !== '' ? $handleBase : ('User #' . $user->id),
-                    'handle' => '@' . strtolower(preg_replace('/[^a-z0-9_]+/i', '', $handleBase) ?: ('user' . $user->id)),
+                    'name' => $handleBase !== '' ? $handleBase : ('User #'.$user->id),
+                    'handle' => '@'.strtolower(preg_replace('/[^a-z0-9_]+/i', '', $handleBase) ?: ('user'.$user->id)),
                     'avatar' => mb_strtoupper(mb_substr($handleBase, 0, 1) ?: 'U'),
                     'level' => max(1, (int) floor(((int) $currentProfile->total_xp) / 150) + 1),
                     'xp' => (int) $currentProfile->total_xp,
@@ -200,7 +209,8 @@ class MathLevelController extends Controller
     {
         $user = $request->user();
         $locales = $this->preferredLocales();
-        $level = MathLevel::where('active', true)
+        $level = $this->tenantVisibility->mathLevelsFor($user)
+            ->where('active', true)
             ->with([
                 'translations' => function ($query) use ($locales) {
                     $query->whereIn('locale', $locales);
@@ -216,13 +226,13 @@ class MathLevelController extends Controller
             ['unlocked' => false]
         );
 
-        if (!$progress->unlocked) {
+        if (! $progress->unlocked) {
             return $this->inertiaBackOrJson($request, __('This level is locked.'), 403);
         }
 
         $prompt = $this->resolvePrompt($level, $locales);
 
-        if (!$prompt) {
+        if (! $prompt) {
             return $this->inertiaBackOrJson($request, __('Prompt for this level was not found.'), 422);
         }
 
@@ -245,6 +255,7 @@ class MathLevelController extends Controller
                     ['busy' => true]
                 );
             }
+
             return $this->inertiaBackOrJson(
                 $request,
                 __('Failed to generate questions. Please try again.'),
@@ -313,6 +324,7 @@ class MathLevelController extends Controller
             ],
             'questions' => $attempt->questions->map(function ($question) use ($answers) {
                 $answer = $answers->get($question->id);
+
                 return [
                     'id' => $question->id,
                     'question' => $question->question,
@@ -337,7 +349,7 @@ class MathLevelController extends Controller
         $optionId = $request->input('option_id');
 
         $question = $attempt->questions->firstWhere('id', $questionId);
-        if (!$question) {
+        if (! $question) {
             return response()->json(['message' => __('Question not found.')], 404);
         }
 
@@ -395,7 +407,7 @@ class MathLevelController extends Controller
             $wasCompleted = (bool) $progress->completed;
 
             if ($passed) {
-                if (!$wasCompleted) {
+                if (! $wasCompleted) {
                     // First successful pass gives full reward.
                     $xpEarned = (int) $attempt->level->xp_reward;
                 } else {
@@ -500,6 +512,7 @@ class MathLevelController extends Controller
             ],
             'answers' => $attempt->answers->map(function ($answer) {
                 $question = $answer->question;
+
                 return [
                     'question_id' => $question->id,
                     'question' => $question->question,
@@ -533,7 +546,7 @@ class MathLevelController extends Controller
     }
 
     /**
-     * @param array<int, string> $locales
+     * @param  array<int, string>  $locales
      * @return array<string, mixed>
      */
     private function transformPath(MathPath $path, $progress, array $locales): array
@@ -551,7 +564,7 @@ class MathLevelController extends Controller
     }
 
     /**
-     * @param array<int, string> $locales
+     * @param  array<int, string>  $locales
      * @return array<string, mixed>
      */
     private function transformLevel(MathLevel $level, ?MathUserLevelProgress $entry, array $locales): array
@@ -576,7 +589,7 @@ class MathLevelController extends Controller
     }
 
     /**
-     * @param array<int, string> $locales
+     * @param  array<int, string>  $locales
      */
     private function translatedLevelTitle(MathLevel $level, array $locales): string
     {
@@ -584,9 +597,9 @@ class MathLevelController extends Controller
     }
 
     /**
-     * @param array<int, string> $locales
+     * @param  array<int, string>  $locales
      */
-    private function resolvePrompt(MathLevel $level, array $locales): ?\App\Models\MathLevelPrompt
+    private function resolvePrompt(MathLevel $level, array $locales): ?MathLevelPrompt
     {
         foreach ($locales as $locale) {
             $prompt = $level->prompts->firstWhere('locale', $locale);
@@ -609,6 +622,7 @@ class MathLevelController extends Controller
         if ($score >= $passingScore) {
             return 1;
         }
+
         return 0;
     }
 
@@ -619,7 +633,7 @@ class MathLevelController extends Controller
             ->orderBy('order')
             ->first();
 
-        if (!$nextLevel) {
+        if (! $nextLevel) {
             return;
         }
 
@@ -643,12 +657,25 @@ class MathLevelController extends Controller
 
     private function rankForXp(int $xp): string
     {
-        if ($xp >= 5000) return 'Grandmaster';
-        if ($xp >= 2500) return 'Master';
-        if ($xp >= 1500) return 'Expert';
-        if ($xp >= 800) return 'Advanced';
-        if ($xp >= 300) return 'Solver';
-        if ($xp >= 150) return 'Learner';
+        if ($xp >= 5000) {
+            return 'Grandmaster';
+        }
+        if ($xp >= 2500) {
+            return 'Master';
+        }
+        if ($xp >= 1500) {
+            return 'Expert';
+        }
+        if ($xp >= 800) {
+            return 'Advanced';
+        }
+        if ($xp >= 300) {
+            return 'Solver';
+        }
+        if ($xp >= 150) {
+            return 'Learner';
+        }
+
         return 'Beginner';
     }
 
@@ -698,8 +725,14 @@ class MathLevelController extends Controller
 
     private function authorizeAttempt(MathLevelAttempt $attempt): void
     {
-        $userId = optional(request()->user())->id;
-        if (!$userId || $attempt->user_id !== $userId) {
+        $user = request()->user();
+        if (! $user) {
+            abort(403);
+        }
+
+        $this->tenantVisibility->assertConfigured($user);
+
+        if (! $user->isPlatformAdmin() && $attempt->user_id !== $user->id) {
             abort(403);
         }
     }
@@ -716,4 +749,3 @@ class MathLevelController extends Controller
         ], $status);
     }
 }
-

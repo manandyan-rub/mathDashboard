@@ -26,6 +26,11 @@ class MathPath extends Model
         return $this->hasMany(MathLevel::class, 'path_id')->orderBy('order');
     }
 
+    public function schoolClasses(): HasMany
+    {
+        return $this->hasMany(SchoolClass::class);
+    }
+
     public function resolveTranslation(array $locales): ?MathPathTranslation
     {
         foreach ($locales as $locale) {

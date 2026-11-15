@@ -32,6 +32,7 @@ export type MathfieldLike = HTMLElement & {
 
 export type ExerciseDocument = {
   id: number;
+  school_class_id?: number | null;
   title: string;
   status: string;
   language: Locale;
@@ -41,6 +42,20 @@ export type ExerciseDocument = {
   generated_at?: string | null;
   published_at?: string | null;
   items: ExerciseItem[];
+};
+
+export type TeacherClass = {
+  id: number;
+  name: string;
+  academic_year: string;
+  school: {
+    id: number;
+    name: string;
+  };
+  organization: {
+    id: number;
+    name: string;
+  };
 };
 
 export type GeometryTemplate = {

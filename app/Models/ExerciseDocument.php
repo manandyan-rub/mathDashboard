@@ -13,6 +13,7 @@ class ExerciseDocument extends Model
 
     protected $fillable = [
         'user_id',
+        'school_class_id',
         'title',
         'status',
         'content_json',
@@ -34,6 +35,11 @@ class ExerciseDocument extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function schoolClass(): BelongsTo
+    {
+        return $this->belongsTo(SchoolClass::class);
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(ExerciseItem::class, 'document_id')->orderBy('item_order');
@@ -44,4 +50,3 @@ class ExerciseDocument extends Model
         return $this->hasMany(ExerciseGenerationLog::class, 'document_id')->latest('id');
     }
 }
-

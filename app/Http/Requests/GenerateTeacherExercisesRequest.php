@@ -22,8 +22,8 @@ class GenerateTeacherExercisesRequest extends FormRequest
             'language' => ['required', Rule::in(['en', 'hy', 'fr', 'ru'])],
             'instructions' => ['nullable', 'string', 'max:2000'],
             'document_id' => ['nullable', 'integer', Rule::exists('exercise_documents', 'id')],
+            'school_class_id' => ['nullable', 'integer', Rule::exists('school_classes', 'id')],
             'replace_items' => ['nullable', 'boolean'],
         ];
     }
 }
-

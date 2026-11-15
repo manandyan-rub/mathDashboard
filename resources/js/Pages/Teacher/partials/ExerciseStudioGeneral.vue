@@ -43,6 +43,7 @@ import {
 } from "lucide-vue-next";
 import FreehandDrawingNode from "@/Pages/Teacher/partials/editor/FreehandDrawingNode";
 import EditorImageNodeView from "@/Pages/Teacher/partials/editor/EditorImageNodeView.vue";
+import ClassPicker from "@/Pages/Teacher/partials/ClassPicker.vue";
 import {
   Difficulty,
   StudioStatus,
@@ -921,6 +922,7 @@ const boardHeight = computed(() => {
 });
 
 const documentId = ref<number | null>(null);
+const schoolClassId = ref<number | null>(null);
 const generationId = ref<number | null>(null);
 const generationStatus = ref<StudioStatus>("idle");
 const generationError = ref<string | null>(null);
@@ -1125,6 +1127,7 @@ async function generateExercises() {
       instructions: instructions.value.trim() || null,
       replace_items: replaceItems.value,
       document_id: documentId.value,
+      school_class_id: schoolClassId.value,
     });
 
     const gId = Number(response.data?.generation_id || 0);
@@ -1162,6 +1165,7 @@ async function saveDraft(showSuccessTimestamp = true) {
       document?: ExerciseDocument;
     }>("/api/teacher/exercises/save-draft", {
       document_id: documentId.value,
+      school_class_id: schoolClassId.value,
       title: topic.value.trim() || "Untitled exercise document",
       language: language.value,
       content_json: editor.value.getJSON(),
@@ -1216,6 +1220,7 @@ async function publishDocument() {
       document?: ExerciseDocument;
     }>("/api/teacher/exercises/publish", {
       document_id: documentId.value,
+      school_class_id: schoolClassId.value,
       title: topic.value.trim() || "Untitled exercise document",
       language: language.value,
       content_json: editor.value.getJSON(),
@@ -1481,6 +1486,7 @@ function hasMeaningfulEditorHtml(html: string): boolean {
 
 function applyDocument(documentPayload: ExerciseDocument) {
   documentId.value = documentPayload.id;
+  schoolClassId.value = documentPayload.school_class_id ?? null;
   topic.value = documentPayload.title || topic.value;
   language.value = (documentPayload.language || language.value) as Locale;
   items.value = Array.isArray(documentPayload.items)
@@ -2784,7 +2790,16 @@ onBeforeUnmount(() => {
 });
 
 watch(
-  [topic, grade, difficulty, language, instructions, count, replaceItems],
+  [
+    topic,
+    grade,
+    difficulty,
+    language,
+    instructions,
+    count,
+    replaceItems,
+    schoolClassId,
+  ],
   () => {
     dirty.value = true;
   },
@@ -2882,6 +2897,11 @@ onUpdated(() => {
         >
           {{ __("Generate with AI") }}
         </h2>
+
+        <ClassPicker
+          v-model="schoolClassId"
+          :disabled="generating || saving || publishing"
+        />
 
         <div class="space-y-1">
           <label

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -45,7 +46,52 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => [
                     'use_editors' => $user?->canUseEditors() ?? false,
                 ],
+                'tenant' => $this->tenantContext($user),
             ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function tenantContext(?User $user): ?array
+    {
+        if (! $user || $user->organization_id === null) {
+            return null;
+        }
+
+        $user->loadMissing([
+            'organization:id,name,plan',
+            'schoolClasses:id,school_id,name,academic_year',
+            'schoolClasses.school:id,name',
+        ]);
+
+        if (! $user->organization) {
+            return null;
+        }
+
+        $memberships = $user->schoolClasses
+            ->map(fn ($schoolClass) => [
+                'class_id' => $schoolClass->id,
+                'class_name' => $schoolClass->name,
+                'academic_year' => $schoolClass->academic_year,
+                'school_id' => $schoolClass->school->id,
+                'school_name' => $schoolClass->school->name,
+                'role_in_class' => $schoolClass->pivot->role_in_class,
+            ])
+            ->sortBy([
+                ['school_name', 'asc'],
+                ['class_name', 'asc'],
+            ])
+            ->values();
+
+        return [
+            'organization' => [
+                'id' => $user->organization->id,
+                'name' => $user->organization->name,
+                'plan' => $user->organization->plan,
+            ],
+            'memberships' => $memberships,
         ];
     }
 }

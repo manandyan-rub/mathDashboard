@@ -34,7 +34,7 @@ export const adminMenu: MenuItem[] = [
         icon: UserRound,
       },
       {
-        title: "Global",
+        title: "Cohort",
         route: "dashboard.global",
         icon: Globe2,
       },
@@ -59,7 +59,7 @@ export const adminMenu: MenuItem[] = [
     title: "Teacher Exercise Studio",
     route: "teacher.exercises.studio",
     icon: NotebookPen,
-    roles: ["lecturer", "admin"],
+    roles: ["lecturer", "org_admin", "admin"],
   },
   {
     title: "Calculators",

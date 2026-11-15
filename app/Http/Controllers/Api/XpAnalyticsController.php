@@ -6,18 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\MathUserLevelProgress;
 use App\Models\MathUserProfile;
 use App\Models\MathUserXpEvent;
+use App\Support\TenantVisibility;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class XpAnalyticsController extends Controller
 {
+    public function __construct(private readonly TenantVisibility $tenantVisibility) {}
+
     public function index(Request $request)
     {
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => __('Unauthorized')], 401);
         }
+
+        $this->tenantVisibility->assertConfigured($user);
 
         $profile = MathUserProfile::firstOrCreate(
             ['user_id' => $user->id],
@@ -85,6 +90,7 @@ class XpAnalyticsController extends Controller
             ]);
 
         $popularModes = MathUserXpEvent::query()
+            ->whereIn('math_user_xp_events.user_id', $this->tenantVisibility->visibleUserIds($user))
             ->where('source', 'game')
             ->whereBetween('earned_at', [$from, $to])
             ->get()
@@ -101,6 +107,7 @@ class XpAnalyticsController extends Controller
         $countryDistribution = MathUserXpEvent::query()
             ->join('users', 'math_user_xp_events.user_id', '=', 'users.id')
             ->join('countries', 'users.country_id', '=', 'countries.id')
+            ->whereIn('math_user_xp_events.user_id', $this->tenantVisibility->visibleUserIds($user))
             ->whereBetween('math_user_xp_events.earned_at', [$from, $to])
             ->selectRaw('
                 countries.id as country_id,
@@ -134,11 +141,12 @@ class XpAnalyticsController extends Controller
             ->values();
 
         $userLevelDistribution = MathUserProfile::query()
+            ->whereIn('math_user_profiles.user_id', $this->tenantVisibility->visibleUserIds($user))
             ->get()
             ->groupBy(fn (MathUserProfile $profile) => max(1, (int) floor(((int) $profile->total_xp) / 150) + 1))
             ->map(fn ($profiles, int $level) => [
                 'level' => $level,
-                'label' => 'Level ' . $level,
+                'label' => 'Level '.$level,
                 'users' => $profiles->count(),
                 'total_xp' => (int) $profiles->sum('total_xp'),
             ])
@@ -146,6 +154,7 @@ class XpAnalyticsController extends Controller
             ->values();
 
         $completedLevelDistribution = MathUserLevelProgress::query()
+            ->whereIn('math_user_level_progress.user_id', $this->tenantVisibility->visibleUserIds($user))
             ->where('completed', true)
             ->whereBetween('last_attempted_at', [$from, $to])
             ->with(['level.translations'])
@@ -205,7 +214,7 @@ class XpAnalyticsController extends Controller
         $start = $validated['start'] ?? null;
         $end = $validated['end'] ?? null;
 
-        if (!$start && !$end) {
+        if (! $start && ! $end) {
             return [
                 now()->subDays(13)->startOfDay(),
                 now()->endOfDay(),
@@ -248,7 +257,7 @@ class XpAnalyticsController extends Controller
 
         foreach ($events as $event) {
             $earnedAt = $event->earned_at;
-            if (!$earnedAt) {
+            if (! $earnedAt) {
                 continue;
             }
 
